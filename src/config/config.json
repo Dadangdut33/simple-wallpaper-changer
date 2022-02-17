@@ -1,0 +1,12 @@
+{
+  "baseFolder": "",
+  "profile": [
+    {
+      "album": "Default",
+      "active_wp": [],
+      "inactive_wp": [],
+      "interval": 0
+    }
+  ],
+  "start_on_startup": false
+}
