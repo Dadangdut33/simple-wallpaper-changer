@@ -1,16 +1,104 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="UTF-8" />
-		<title>Simple Wallpaper Changer</title>
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css" />
-		<link rel="stylesheet" href="index.css" />
-		<script defer src="renderer.js"></script>
-	</head>
-	<body>
+
+<head>
+	<meta charset="UTF-8" />
+	<title>Simple Wallpaper Changer</title>
+	<link rel="stylesheet" href="style/bulma.min.css" />
+	<link rel="stylesheet" href="style/bulma-tooltip.css" />
+	<link rel="stylesheet" href="style/fa-all.min.css" />
+	<link rel="stylesheet" href="style/index.css" />
+
+	<script defer src="js/modal.js"></script>
+	<script defer src="js/renderer.js"></script>
+</head>
+
+<body>
+	<div class="box menu-container">
 		<h1>💖 Hello World!</h1>
 		<p>Welcome to your Electron application.</p>
 
 		<button id="changeWp" class="button is-primary">Test Change Wallpaper</button>
-	</body>
+		<button id="loadWp" class="button is-primary">Load Image</button>
+		<button class="js-modal-trigger" data-target="modal-js-example">
+			Open JS example modal
+		</button>
+		<progress class="progress is-small is-info mt-5 is-hidden" max="100">15%</progress>
+	</div>
+
+	<div class="m-3">
+		<div class="is-flex-direction-row" id="img-container">
+			<div class="img-wrapper" onmouseenter="showDesc(1)" onmouseleave="hideDesc(1)">
+				<img id="image" src="https://picsum.photos/1920/1080" />
+				<div class="img-desc fadeIn" style="display: none;" id="desc-1">
+					Test 1
+					<div>
+						<span class="has-tooltip-bottom" data-tooltip="Set as current wallpaper">
+							<i class="fas fa-check-circle"></i>
+						</span>
+						<span class="has-tooltip-bottom" data-tooltip="Skip from list">
+							<i class="fas fa-minus-circle"></i>
+						</span>
+						<span class="has-tooltip-bottom" data-tooltip="Delete Image">
+							<i class="fas fa-trash"></i>
+						</span>
+					</div>
+				</div>
+			</div>
+			<div class="img-wrapper" onmouseenter="showDesc(2)" onmouseleave="hideDesc(2)">
+				<span class="skipped"></span>
+				<img id="image" src="https://picsum.photos/1920/1080" />
+				<div class="img-desc fadeIn" style="display: none;" id="desc-2">
+					Test 2
+					<div>
+						<span class="has-tooltip-bottom" data-tooltip="Set as current wallpaper">
+							<i class="fas fa-check-circle"></i>
+						</span>
+						<span class="has-tooltip-bottom" data-tooltip="Unskip from list">
+							<i class="fas fa-plus-circle"></i>
+						</span>
+						<span class="has-tooltip-bottom" data-tooltip="Delete Image">
+							<i class="fas fa-trash"></i>
+						</span>
+					</div>
+				</div>
+			</div>
+			<div class="img-wrapper" onmouseenter="showDesc(3)" onmouseleave="hideDesc(3)">
+				<img id="image" src="https://picsum.photos/1920/1080" />
+				<div class="img-desc fadeIn" style="display: none;" id="desc-3">
+					Test 3 123 13 13 12
+					<div class="clickable">
+						<i class="fas fa-check-circle"></i>
+						<i class="fas fa-plus-circle"></i>
+						<i class="fas fa-trash"></i>
+					</div>
+				</div>
+			</div>
+			<div class="img-wrapper" onmouseenter="showDesc(4)" onmouseleave="hideDesc(4)">
+				<img id="image" src="https://picsum.photos/1920/1080" />
+				<div class="img-desc fadeIn" style="display: none;" id="desc-4">
+					Test 4
+					<div class="clickable">
+						<i class="fas fa-check-circle"></i>
+						<i class="fas fa-minus-circle"></i>
+						<i class="fas fa-trash"></i>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="modal-js-example" class="modal">
+		<div class="modal-background"></div>
+
+		<div class="modal-content">
+			<div class="box">
+				<img src="https://picsum.photos/1920/1080" />
+				Image Path
+			</div>
+
+			<button class="modal-close is-large" aria-label="close"></button>
+		</div>
+</body>
+
 </html>
