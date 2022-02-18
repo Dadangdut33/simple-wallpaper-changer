@@ -98,7 +98,7 @@ const createTray = () => {
 			},
 		},
 	]);
-	trayApp.setToolTip("Application");
+	trayApp.setToolTip(`Simple Wallpaper Changer - v${app.getVersion()}`);
 	trayApp.setContextMenu(contextMenu);
 
 	trayApp.on("click", () => {
@@ -128,4 +128,8 @@ ipcMain.on("dialogbox", (event, arg) => {
 	if (arg[0] === "error") {
 		dialog.showErrorBox("Unexpected Error!", arg[1]);
 	}
+});
+
+ipcMain.on("get-version", (event, arg) => {
+	event.returnValue = app.getVersion();
 });

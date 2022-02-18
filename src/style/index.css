@@ -9,11 +9,13 @@ body {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  /* center horizontal */
+  justify-content: center;
 }
 
 .about-half {
-  width: 878px;
-  margin: .25rem;
+  width: 876px;
+  margin: .3rem;
 }
 
 /* ============== */

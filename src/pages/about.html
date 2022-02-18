@@ -7,7 +7,7 @@
 		<link rel="stylesheet" href="../style/bulma-tooltip.css" />
 		<link rel="stylesheet" href="../style/fa-all.min.css" />
 		<link rel="stylesheet" href="../style/index.css" />
-		<script defer src="js/handler/link.js"></script>
+		<script defer src="../js/handler/link.js"></script>
 	</head>
 
 	<body>
@@ -68,7 +68,7 @@
 				<div class="about-half">
 					<h2><i class="fas fa-code-branch"></i>&nbsp; Version</h2>
 					<p>
-						Current Version: 1.0 | Latest version:
+						Current Version: <span id="curVer"></span> | Latest version:
 						<span id="checkVer" style="text-decoration: underline; cursor: pointer; color: blueviolet">Click to check</span>
 					</p>
 				</div>
@@ -76,6 +76,11 @@
 		</div>
 
 		<script type="text/javascript">
+			const { ipcRenderer } = require("electron");
+			let curVerEl = document.getElementById("curVer");
+			let curVerVar = ipcRenderer.sendSync("get-version");
+			curVerEl.innerText = curVerVar;
+
 			let checkVer = document.getElementById("checkVer");
 			checkVer.addEventListener("click", function () {
 				// check latest version from github
@@ -83,8 +88,7 @@
 					.then((response) => response.json())
 					.then((data) => {
 						let latestVer = data.tag_name;
-						let currentVer = "1.0";
-						if (latestVer > currentVer) {
+						if (latestVer > curVerVar) {
 							checkVer.innerHTML = "New version available! Click to download";
 							checkVer.addEventListener("click", function () {
 								require("electron").shell.openExternal("https://github.com/Dadangdut33/Simple-Wallpaper-Changer/releases/latest");
