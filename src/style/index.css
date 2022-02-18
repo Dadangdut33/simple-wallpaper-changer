@@ -5,20 +5,6 @@ body {
 }
 
 /* ============== */
-.flex-row {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  /* center horizontal */
-  justify-content: center;
-}
-
-.about-half {
-  width: 876px;
-  margin: .3rem;
-}
-
-/* ============== */
 /* Top Menu */
 .menu-container {
   padding: 2rem;
