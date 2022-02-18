@@ -1,12 +1,22 @@
 {
-  "baseFolder": "",
   "profile": [
     {
       "album": "Default",
+      "baseFolder": [],
       "active_wp": [],
       "inactive_wp": [],
-      "interval": 0
+      "shuffle_interval": 0
     }
   ],
-  "start_on_startup": false
+  "runtimeSettings": {
+    "currentQueue": [],
+    "currentAlbum": "Default",
+    "random": true
+  },
+  "appSettings": {
+    "start_on_startup": false,
+    "rescan_every_start": false,
+    "auto_rescan": false,
+    "rescan_interval": 12
+  }
 }

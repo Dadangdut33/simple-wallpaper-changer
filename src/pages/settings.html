@@ -7,9 +7,6 @@
 		<link rel="stylesheet" href="../style/bulma-tooltip.css" />
 		<link rel="stylesheet" href="../style/fa-all.min.css" />
 		<link rel="stylesheet" href="../style/index.css" />
-		<script defer src="../js/handler/link.js"></script>
-		<!-- <script defer src="../js/renderer.js"></script> -->
-		<script defer src="../js/handler/modal.js"></script>
 	</head>
 
 	<body>
@@ -43,13 +40,62 @@
 				</ul>
 			</div>
 
-			<div class="flex-row">
-				<div class="about-half">test</div>
-				<div class="about-half"></div>
+			<div class="tile is-ancestor">
+				<div class="tile is-vertical is-12">
+					<div class="tile">
+						<div class="tile is-parent is-vertical">
+							<article class="tile is-child">
+								<label class="checkbox">
+									<input type="checkbox" name="startupVal" id="startupVal" />
+									Start application on startup
+								</label>
+							</article>
+							<article class="tile is-child">
+								<label class="checkbox">
+									<input type="checkbox" name="rescanEveryStart" id="rescanEveryStart" />
+									Rescan album every time application starts
+								</label>
+							</article>
+						</div>
+						<div class="tile is-parent">
+							<article class="tile is-child">
+								<label class="checkbox">
+									<input type="checkbox" name="rescanEveryStart" id="rescanEveryStart" />
+									Auto Rescan
+								</label>
+								<label class="label">Auto rescan interval (Hours)</label>
+								<input class="input" type="number" placeholder="Input in hours" min="1" max="24" value="1" />
+							</article>
+						</div>
+					</div>
+				</div>
 			</div>
 
-			<div class="m-3">
-				<div class="is-flex-direction-row" id="img-container"></div>
+			<div class="field is-grouped">
+				<p class="control">
+					<a class="button is-primary is-small" id="save">
+						<span class="icon is-small">
+							<i class="fas fa-save" aria-hidden="true"></i>
+						</span>
+						<span>Save</span>
+					</a>
+				</p>
+				<p class="control">
+					<a class="button is-danger is-small" id="cancel">
+						<span class="icon is-small">
+							<i class="fas fa-times" aria-hidden="true"></i>
+						</span>
+						<span>Cancel</span>
+					</a>
+				</p>
+				<p class="control">
+					<a class="button is-link is-small" id="default">
+						<span class="icon is-small">
+							<i class="fas fa-undo" aria-hidden="true"></i>
+						</span>
+						<span>Default</span>
+					</a>
+				</p>
 			</div>
 		</div>
 	</body>

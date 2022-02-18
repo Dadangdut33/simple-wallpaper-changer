@@ -3,16 +3,26 @@ const path = require("path");
 const configDir = path.join(__dirname, "..\\..\\config\\");
 const configPath = path.join(configDir, "config.json");
 const defaultConfig = {
-	baseFolder: "",
 	profile: [
 		{
 			album: "Default",
+			baseFolder: [],
 			active_wp: [],
 			inactive_wp: [],
-			interval: 0,
+			shuffle_interval: 0,
 		},
 	],
-	start_on_startup: false,
+	runtimeSettings: {
+		currentQueue: [], // max 20 shown
+		currentAlbum: "Default",
+		random: true,
+	},
+	appSettings: {
+		start_on_startup: false,
+		rescan_every_start: false,
+		auto_rescan: false,
+		rescan_interval: 12,
+	},
 };
 const { ipcRenderer } = require("electron");
 
@@ -118,7 +128,7 @@ var fnName = function () {
 	// console.log("🚀 ~ file: files.js ~ fnName ~ y ", y);
 
 	// reset config
-	// let z = resetDefault();
+	let z = resetDefault();
 };
 
 if (typeof require !== "undefined" && require.main === module) {
