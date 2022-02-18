@@ -3567,10 +3567,10 @@
     "core-util-is" "1.0.2"
     "extsprintf" "^1.2.0"
 
-"wallpaper@^4.4.1":
-  "integrity" "sha512-u6Od6NU5UJ5zMalcV4RNKaG9DarZDdKEOMap556NhOal1vE7T7DrAJVXyLqqXDlINTTUqWbdRL/zs2VgCdRjjg=="
-  "resolved" "https://registry.npmjs.org/wallpaper/-/wallpaper-4.4.2.tgz"
-  "version" "4.4.2"
+"wallpaper@^5.0.1":
+  "integrity" "sha512-yB9sBVfosR+NVabo/Ej21hga5u55NQUUdDVoo4LwrLJDRA+ezzX4wmNGwl5yxx/fkBgTADMqLL8ldnfN8TI9hQ=="
+  "resolved" "https://registry.npmjs.org/wallpaper/-/wallpaper-5.0.1.tgz"
+  "version" "5.0.1"
 
 "wcwidth@^1.0.1":
   "integrity" "sha1-8LDc+RW8X/FSivrbLA4XtTLaL+g="

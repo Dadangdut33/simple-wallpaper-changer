@@ -46,7 +46,7 @@
   },
   "dependencies": {
     "electron-squirrel-startup": "^1.0.0",
-    "wallpaper": "^4.4.1"
+    "wallpaper": "^5.0.1"
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.63",

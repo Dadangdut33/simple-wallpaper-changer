@@ -9,13 +9,16 @@ const defaultConfig = {
 			baseFolder: [],
 			active_wp: [],
 			inactive_wp: [],
-			shuffle_interval: 0,
+			preferred_Random: true,
+			preferred_shuffle_interval: 30, // minutes
 		},
 	],
 	runtimeSettings: {
+		// runtime settings -> setting each time the app is started
 		currentQueue: [], // max 20 shown
 		currentAlbum: "Default",
-		random: true,
+		currentRandom: true,
+		currentShuffle: 30, // minutes
 	},
 	appSettings: {
 		start_on_startup: false,
@@ -80,25 +83,25 @@ const saveConfig = (config) => {
 };
 
 const loadConfig = () => {
-	let config = {},
+	let data = {},
 		success = false,
 		errMsg = "";
 	try {
-		config = JSON.parse(fs.readFileSync(configPath));
+		data = JSON.parse(fs.readFileSync(configPath));
 		success = true;
 	} catch (error) {
 		// check if error file not found
 		if (error.code === "ENOENT") {
 			// create default config file
 			saveConfig(defaultConfig);
-			config = defaultConfig;
+			data = defaultConfig;
 			success = true;
 		} else {
 			success = false;
 			errMsg = error;
 		}
 	}
-	return { config, success, errMsg };
+	return { data, success, errMsg };
 };
 
 const resetDefault = () => {
@@ -128,9 +131,18 @@ var fnName = function () {
 	// console.log("🚀 ~ file: files.js ~ fnName ~ y ", y);
 
 	// reset config
-	let z = resetDefault();
+	// let z = resetDefault();
 };
 
 if (typeof require !== "undefined" && require.main === module) {
 	fnName();
 }
+
+module.exports = {
+	createPathIfNotExist,
+	getFilesInFolder,
+	filterImages,
+	saveConfig,
+	loadConfig,
+	resetDefault,
+};

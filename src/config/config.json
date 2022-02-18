@@ -5,13 +5,15 @@
       "baseFolder": [],
       "active_wp": [],
       "inactive_wp": [],
-      "shuffle_interval": 0
+      "preferred_Random": true,
+      "preferred_shuffle_interval": 30
     }
   ],
   "runtimeSettings": {
     "currentQueue": [],
     "currentAlbum": "Default",
-    "random": true
+    "currentRandom": true,
+    "currentShuffleInterval": 30
   },
   "appSettings": {
     "start_on_startup": false,

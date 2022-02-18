@@ -7,6 +7,8 @@
 		<link rel="stylesheet" href="../style/bulma-tooltip.css" />
 		<link rel="stylesheet" href="../style/fa-all.min.css" />
 		<link rel="stylesheet" href="../style/index.css" />
+
+		<script defer src="../js/handler/files.js"></script>
 	</head>
 
 	<body>
@@ -41,9 +43,9 @@
 			</div>
 
 			<div class="tile is-ancestor">
-				<div class="tile is-vertical is-12">
+				<div class="tile is-vertical is-10">
 					<div class="tile">
-						<div class="tile is-parent is-vertical">
+						<div class="tile is-parent is-vertical is-4">
 							<article class="tile is-child">
 								<label class="checkbox">
 									<input type="checkbox" name="startupVal" id="startupVal" />
@@ -57,7 +59,7 @@
 								</label>
 							</article>
 						</div>
-						<div class="tile is-parent">
+						<div class="tile is-parent is-6">
 							<article class="tile is-child">
 								<label class="checkbox">
 									<input type="checkbox" name="rescanEveryStart" id="rescanEveryStart" />
@@ -71,31 +73,33 @@
 				</div>
 			</div>
 
-			<div class="field is-grouped">
-				<p class="control">
-					<a class="button is-primary is-small" id="save">
-						<span class="icon is-small">
-							<i class="fas fa-save" aria-hidden="true"></i>
-						</span>
-						<span>Save</span>
-					</a>
-				</p>
-				<p class="control">
-					<a class="button is-danger is-small" id="cancel">
-						<span class="icon is-small">
-							<i class="fas fa-times" aria-hidden="true"></i>
-						</span>
-						<span>Cancel</span>
-					</a>
-				</p>
-				<p class="control">
-					<a class="button is-link is-small" id="default">
-						<span class="icon is-small">
-							<i class="fas fa-undo" aria-hidden="true"></i>
-						</span>
-						<span>Default</span>
-					</a>
-				</p>
+			<div class="is-flex">
+				<div class="field is-grouped mx-auto">
+					<p class="control">
+						<a class="button is-primary is-small" id="save">
+							<span class="icon is-small">
+								<i class="fas fa-save" aria-hidden="true"></i>
+							</span>
+							<span>Save</span>
+						</a>
+					</p>
+					<p class="control">
+						<a class="button is-danger is-small" id="cancel">
+							<span class="icon is-small">
+								<i class="fas fa-times" aria-hidden="true"></i>
+							</span>
+							<span>Cancel</span>
+						</a>
+					</p>
+					<p class="control">
+						<a class="button is-link is-small" id="default">
+							<span class="icon is-small">
+								<i class="fas fa-undo" aria-hidden="true"></i>
+							</span>
+							<span>Default</span>
+						</a>
+					</p>
+				</div>
 			</div>
 		</div>
 	</body>
