@@ -9,12 +9,36 @@
 	<link rel="stylesheet" href="style/fa-all.min.css" />
 	<link rel="stylesheet" href="style/index.css" />
 
-	<script defer src="js/modal.js"></script>
+	<script defer src="js/handler/modal.js"></script>
+	<script defer src="js/handler/link.js"></script>
 	<script defer src="js/renderer.js"></script>
 </head>
 
 <body>
-	<div class="box menu-container">
+	<div class="box menu-container content">
+		<div class="tabs is-centered">
+			<ul class="m-0">
+				<li class="is-active">
+					<a id="normal" href="../index.html">
+						<span class="icon is-small"><i class="fas fa-home" aria-hidden="true"></i></span>
+						<span>Main Menu</span>
+					</a>
+				</li>
+				<li>
+					<a id="normal" href="pages/settings.html">
+						<span class="icon is-small"><i class="fas fa-cog" aria-hidden="true"></i></span>
+						<span>Setting</span>
+					</a>
+				</li>
+				<li>
+					<a id="normal" href="pages/about.html">
+						<span class="icon is-small"><i class="fas fa-info" aria-hidden="true"></i></span>
+						<span>About</span>
+					</a>
+				</li>
+			</ul>
+		</div>
+			
 		<h1>💖 Hello World!</h1>
 		<p>Welcome to your Electron application.</p>
 
@@ -23,6 +47,9 @@
 		<button class="js-modal-trigger" data-target="modal-js-example">
 			Open JS example modal
 		</button>
+
+		<p id="test-var"></p>
+
 		<progress class="progress is-small is-info mt-5 is-hidden" max="100">15%</progress>
 	</div>
 

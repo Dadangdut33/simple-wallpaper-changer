@@ -1,3 +1,4 @@
+const { ipcRenderer } = require("electron");
 const wallpaper = require("wallpaper");
 const fs = require("fs");
 const changeWp = document.getElementById("changeWp");
@@ -14,6 +15,13 @@ const baseFolder = "C:\\\\Users\\ffant\\Pictures\\Wallpaper\\test\\";
 
 // saving the data ?
 // might be using json
+
+const testVar = document.getElementById("test-var");
+// timer
+ipcRenderer.send("start-timer", null);
+ipcRenderer.on("timer", (event, arg) => {
+	testVar.innerHTML = arg;
+});
 
 const showDesc = (id) => {
 	const desc = document.getElementById("desc-" + id);
@@ -73,8 +81,6 @@ const loadWallpaper = async () => {
 	// loop through all files in folder
 	let counter = 5;
 	for (let wp of testWp) {
-		console.log(counter);
-		console.log(wp);
 		const div = document.createElement("div");
 		div.className = "img-wrapper";
 		// TODO

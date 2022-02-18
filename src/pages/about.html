@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Simple Wallpaper Changer</title>
+		<link rel="stylesheet" href="../style/bulma.min.css" />
+		<link rel="stylesheet" href="../style/bulma-tooltip.css" />
+		<link rel="stylesheet" href="../style/fa-all.min.css" />
+		<link rel="stylesheet" href="../style/index.css" />
+		<script defer src="js/handler/link.js"></script>
+	</head>
+
+	<body>
+		<div class="box menu-container content">
+			<div class="tabs is-centered">
+				<ul class="m-0">
+					<li>
+						<a id="normal" href="../index.html">
+							<span class="icon is-small"><i class="fas fa-home" aria-hidden="true"></i></span>
+							<span>Main Menu</span>
+						</a>
+					</li>
+					<li>
+						<a id="normal" href="./settings.html">
+							<span class="icon is-small"><i class="fas fa-cog" aria-hidden="true"></i></span>
+							<span>Setting</span>
+						</a>
+					</li>
+					<li class="is-active">
+						<a>
+							<span class="icon is-small"><i class="fas fa-info" aria-hidden="true"></i></span>
+							<span>About</span>
+						</a>
+					</li>
+				</ul>
+			</div>
+			<div class="has-text-centered">
+				<img src="../assets/logo.png" alt="logo" class="logo" style="max-width: 200px" />
+				<h1>About</h1>
+				<p>A simple wallpaper changer application. Created by Dadangdut33.</p>
+			</div>
+
+			<hr />
+
+			<div class="flex-row">
+				<div class="about-half">
+					<h2><i class="fas fa-code"></i>&nbsp; License & Source Code</h2>
+					<p>
+						This application is licensed under the MIT license. It is also open source. You can find the source code of this application on
+						<a href="https://github.com/Dadangdut33/simple-wallpaper-changer">here</a>. Feel free to contribute if you want to. I will try my best to help.
+					</p>
+				</div>
+				<div class="about-half">
+					<h2><i class="fas fa-bug"></i>&nbsp; Suggestion/Bug reports</h2>
+					<p>You can open an issue on the repository if you have any suggestion/bug reports</p>
+				</div>
+			</div>
+
+			<div class="flex-row">
+				<div class="about-half">
+					<h2><i class="fas fa-donate"></i>&nbsp; Support me</h2>
+					<script type="text/javascript" src="../js/kofi.js"></script>
+					<script type="text/javascript">
+						kofiwidget2.init("Buy Me a Ko-Fi", "#29abe0", "O4O47B5Q3");
+						kofiwidget2.draw();
+					</script>
+				</div>
+				<div class="about-half">
+					<h2><i class="fas fa-code-branch"></i>&nbsp; Version</h2>
+					<p>
+						Current Version: 1.0 | Latest version:
+						<span id="checkVer" style="text-decoration: underline; cursor: pointer; color: blueviolet">Click to check</span>
+					</p>
+				</div>
+			</div>
+		</div>
+
+		<script type="text/javascript">
+			let checkVer = document.getElementById("checkVer");
+			checkVer.addEventListener("click", function () {
+				// check latest version from github
+				fetch("https://api.github.com/repos/Dadangdut33/simple-wallpaper-changer/releases/latest")
+					.then((response) => response.json())
+					.then((data) => {
+						let latestVer = data.tag_name;
+						let currentVer = "1.0";
+						if (latestVer > currentVer) {
+							checkVer.innerHTML = "New version available! Click to download";
+							checkVer.addEventListener("click", function () {
+								require("electron").shell.openExternal("https://github.com/Dadangdut33/Simple-Wallpaper-Changer/releases/latest");
+							});
+						} else {
+							checkVer.style.color = "";
+							checkVer.style.textDecoration = "";
+							checkVer.style.cursor = "default";
+							checkVer.innerHTML = "You are using the latest version";
+						}
+					});
+			});
+		</script>
+	</body>
+</html>
