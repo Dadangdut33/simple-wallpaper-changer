@@ -2,7 +2,8 @@ const { app, BrowserWindow, ipcMain, Menu, MenuItem, globalShortcut, dialog, Tra
 const path = require("path");
 let mainWindow = null,
 	trayApp = null,
-	iconPath = path.join(__dirname, "assets/logo.png");
+	iconPath = path.join(__dirname, "assets/logo.png"),
+	currentImageQueue = [];
 // ============================================================
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
