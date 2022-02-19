@@ -41,16 +41,27 @@
 				</ul>
 			</div>
 
-			<div class="control has-icons-left">
-				<div class="select">
-					<select id="album-select">
-						<option>Default</option>
-						<option>Add more</option>
-					</select>
+			<div class="field">
+				<label class="label">
+					Album
+					<span
+						class="has-tooltip-right has-tooltip-multiline"
+						data-tooltip="Album for the wallpaper. You can change setting of each album by selecting them and add more album by selecting the add more"
+					>
+						<i class="fas fa-info-circle"></i>
+					</span>
+				</label>
+				<div class="control has-icons-left">
+					<div class="select">
+						<select onchange="selectAlbumHandler()">
+							<option>Default</option>
+							<option>Add more</option>
+						</select>
+					</div>
+					<span class="icon is-left">
+						<i class="fas fa-image"></i>
+					</span>
 				</div>
-				<span class="icon is-left">
-					<i class="fas fa-image"></i>
-				</span>
 			</div>
 
 			<hr />
@@ -112,13 +123,47 @@
 						</div>
 					</div>
 				</div>
+
+				<div class="is-flex">
+					<div class="field is-grouped mx-auto">
+						<p class="control">
+							<a class="button is-primary is-small" id="save">
+								<span class="icon is-small">
+									<i class="fas fa-save" aria-hidden="true"></i>
+								</span>
+								<span>Save</span>
+							</a>
+						</p>
+						<p class="control">
+							<a class="button is-danger is-small" id="cancel">
+								<span class="icon is-small">
+									<i class="fas fa-times" aria-hidden="true"></i>
+								</span>
+								<span>Cancel</span>
+							</a>
+						</p>
+					</div>
+				</div>
 			</div>
 
 			<hr />
 
-			<div class="m-3">
-				<div class="is-flex-direction-row" id="img-container"></div>
+			<div class="is-flex">
+				<div class="mx-auto">
+					<p class="control">
+						<a class="button is-link" id="load-images">
+							<span class="icon is-small">
+								<i class="fas fa-eye" aria-hidden="true"></i>
+							</span>
+							<span>Load Album Images</span>
+						</a>
+					</p>
+				</div>
 			</div>
+		</div>
+
+		<div class="m-3">
+			<div class="is-flex-direction-row" id="img-container"></div>
 		</div>
 	</body>
 </html>
