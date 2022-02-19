@@ -6,7 +6,7 @@ const defaultConfig = {
 	profile: [
 		{
 			album: "Default",
-			baseFolder: [],
+			baseFolder: "",
 			active_wp: [],
 			inactive_wp: [],
 			preferred_Random: true,
@@ -18,7 +18,7 @@ const defaultConfig = {
 		currentQueue: [], // max 20 shown
 		currentAlbum: "Default",
 		currentRandom: true,
-		currentShuffle: 30, // minutes
+		currentShuffleInterval: 30, // minutes
 	},
 	appSettings: {
 		start_on_startup: false,
@@ -27,7 +27,7 @@ const defaultConfig = {
 		rescan_interval: 12,
 	},
 };
-const { ipcRenderer } = require("electron");
+let { ipcRenderer: ipcInFiles } = require("electron");
 
 // ============================================================
 // Files
@@ -42,28 +42,29 @@ const getFilesInFolder = (folder) => {
 		success = false;
 	errMsg = "";
 	try {
-		files = fs.readdirSync(folder);
+		// readdir and add the basefolder
+		files = fs.readdirSync(folder).map((file) => {
+			return path.join(folder, file);
+		});
 		success = true;
 	} catch (error) {
 		success = false;
 		errMsg = error;
-		ipcRenderer.send("dialogbox", ["error", errMsg]);
+		ipcInFiles.send("dialogbox", ["error", errMsg]);
 	}
 
 	return { files, success, errMsg };
 };
 
 // Filter image
-const filterImages = (files) => {
+const filterImages = (item) => {
 	const imageExt = ["jpg", "jpeg", "png", "gif", "bmp", "tiff", "tif"];
-	const images = files.map((file) => {
+	const images = item.files.filter((file) => {
 		const ext = path.extname(file);
-		if (imageExt.includes(ext.substring(1))) {
-			return file;
-		}
+		return imageExt.includes(ext.substring(1));
 	});
-	// remove undefined
-	return images.filter((img) => img);
+
+	return images;
 };
 
 // config

@@ -86,8 +86,7 @@ menu.append(
 
 /**
  * Run when the app is unresponsive
- * @param {object} event - The event object
- * @return {void}
+ * @param {object} e - The event object
  */
 function onUnresponsiveWindow(e) {
 	const window = BrowserWindow.getFocusedWindow();
@@ -124,7 +123,9 @@ const createTray = () => {
 
 // ============================================================
 // Functions
-
+/**
+ * Load settings, run on startup.
+ */
 const loadSetting = () => {
 	// load config
 	const config = loadConfig();
@@ -134,7 +135,12 @@ const loadSetting = () => {
 		currentConfig = config.data;
 	}
 };
-
+/**
+ * Save settings. If popup is true, will show save success message. Error handled directly in and Error dialogbox will be shown regardless of popup value.
+ * @param {object} setting - The setting object
+ * @param {boolean} [popup=true] - Whether to show save success message
+ * @return {boolean} - Whether the save is successful or not.
+ */
 const saveSettings = (setting, popup = true) => {
 	const res = saveConfig(setting);
 	if (!res.success) {
@@ -155,6 +161,12 @@ const saveSettings = (setting, popup = true) => {
 	return res.success;
 };
 
+/**
+ * Reset the appconfig section of the config file to default. Error handled directly in the function.
+ * @return {object} - The current configuration with the appconfig section reseted to default
+ * @return {boolean} - Whether the reset is successful or not.
+ * @return {string} - The error message if the reset is not successful.
+ */
 const resetDefaultAppConfig = () => {
 	const res = resetDefaultApp(currentConfig);
 	if (!res.success) {
@@ -171,7 +183,12 @@ const resetDefaultAppConfig = () => {
 
 	return res;
 };
-
+/**
+ * Change wallpaper
+ * @param {string} imagePath - The path of the image to be set as wallpaper
+ * @return {boolean} - Whether the change is successful or not.
+ * @return {string} - The error message if the change is not successful.
+ */
 const changeWallpaper = async (imagePath) => {
 	let success = false,
 		message = "";
@@ -187,48 +204,79 @@ const changeWallpaper = async (imagePath) => {
 
 // TODO:ADD FILL QUEUE
 
+/**
+ * Add image to queue in the runtimeSettings section of the config file. Will also update the current configuration file.
+ * @param {string} q_Item - The path of the image to be added to queue
+ */
 const addToQueue = (q_Item) => {
-	// update config
 	currentConfig.runtimeSettings.currentQueue.push(q_Item);
+	// update config
 	saveSettings(currentConfig);
 };
 
+/**
+ * Remove image from queue in the runtimeSettings section of the config file. Will also update the current configuration file.
+ * @param {string} q_Item - The path of the image to be removed from queue
+ */
 const removeFromQueue = (q_Item) => {
-	// update config
 	currentConfig.runtimeSettings.currentQueue.splice(currentConfig.runtimeSettings.currentQueue.indexOf(q_Item), 1);
-	saveSettings(currentConfig);
-};
-
-const clearQueue = () => {
 	// update config
-	currentConfig.runtimeSettings.currentQueue = [];
 	saveSettings(currentConfig);
 };
 
+/**
+ * Remove all images from queue in the runtimeSettings section of the config file. Will also update the current configuration file.
+ */
+const clearQueue = () => {
+	currentConfig.runtimeSettings.currentQueue = [];
+	// update config
+	saveSettings(currentConfig);
+};
+
+/**
+ * Set current album in the runtimeSettings section of the config file. Will also update the current configuration file.
+ * @param {string} album - The name of the album to be set as current
+ */
 const setCurrentAlbum = (album) => {
 	// update config
 	currentConfig.runtimeSettings.currentAlbum = album;
 	saveSettings(currentConfig);
 };
 
+/**
+ * Set random value in the runtimeSettings section of the config file. Will also update the current configuration file.
+ * @param {boolean} random - The random value to be set
+ */
 const setRandom = (random) => {
 	// update config
 	currentConfig.runtimeSettings.currentRandom = random;
 	saveSettings(currentConfig);
 };
 
+/**
+ * Set shuffle value in the runtimeSettings section of the config file. Will also update the current configuration file.
+ * @param {boolean} shuffle - The shuffle value to be set
+ */
 const setShuffle = (shuffle) => {
 	// update config
 	currentConfig.runtimeSettings.currentShuffleInterval = shuffle;
 	saveSettings(currentConfig);
 };
 
+/**
+ * Add album to profile section of the config file. Will also update the current configuration file.
+ * @param {object} album - The album object to be added.
+ */
 const addAlbum = (album) => {
 	// update config
 	currentConfig.profile.push(album);
 	saveSettings(currentConfig);
 };
 
+/**
+ * Update album in profile section of the config file. Will also update the current configuration file.
+ * @param {object} album - The album object to be updated.
+ */
 const updateAlbum = (updated) => {
 	const oldName = updated[0];
 	// update config
@@ -246,6 +294,8 @@ const updateAlbum = (updated) => {
 	currentConfig.profile[pos] = updated[1]; // updated data
 	saveSettings(currentConfig);
 };
+
+// delete album....
 
 const getAlbumData = (album = false) => {
 	const searchFor = album ? album : currentConfig.runtimeSettings.currentAlbum;
@@ -461,6 +511,16 @@ ipcMain.on("dialogbox", (event, args) => {
 				type: "warning",
 				buttons: ["Yes", "No"],
 				message: args[1],
+			});
+			break;
+		case "openDirectory":
+			res = dialog.showOpenDialogSync(mainWindow, {
+				properties: ["openDirectory"],
+			});
+			break;
+		case "openFile":
+			res = dialog.showOpenDialogSync(mainWindow, {
+				properties: ["openFile"],
 			});
 			break;
 		default:

@@ -7,6 +7,7 @@
 		<link rel="stylesheet" href="../style/bulma-tooltip.css" />
 		<link rel="stylesheet" href="../style/fa-all.min.css" />
 		<link rel="stylesheet" href="../style/index.css" />
+		<script defer src="../js/handler/files.js"></script>
 		<script defer src="../js/handler/modal.js"></script>
 	</head>
 
@@ -42,6 +43,7 @@
 			</div>
 
 			<div class="field">
+				<progress class="progress is-small is-info" max="100" id="loadbar" style="display: none">15%</progress>
 				<label class="label">
 					Album
 					<span
@@ -83,7 +85,7 @@
 							</label>
 
 							<div class="control">
-								<input class="input" type="text" name="base-folder" id="base-folder" placeholder="Base Folder" />
+								<input class="input" type="text" name="base-folder" id="base-folder" placeholder="Base Folder" onclick="pathDialog()" />
 							</div>
 						</div>
 					</div>
@@ -180,14 +182,20 @@
 			</div>
 		</div>
 
-		<script type="text/javascript">
+		<script defer type="text/javascript">
 			document.getElementById("shuffle-interval").addEventListener("change", function () {
 				if (this.value < 1) {
 					this.value = 1;
 				}
 			});
 
+			// prevent any input in base-folder
+			document.getElementById("base-folder").addEventListener("keydown", function (e) {
+				e.preventDefault();
+			});
+
 			const { ipcRenderer } = require("electron");
+
 			let selectedAlbum = "",
 				selectedAlbumData = {};
 
@@ -254,45 +262,85 @@
 				}
 			};
 
+			const pathDialog = () => {
+				const baseFolder = document.getElementById("base-folder").value;
+
+				const res = ipcRenderer.sendSync("dialogbox", ["openDirectory", baseFolder]);
+
+				if (res) document.getElementById("base-folder").value = res;
+			};
+
 			// save
 			document.getElementById("save").addEventListener("click", () => {
-				const album = document.getElementById("album-name").value;
-				const baseFolder = document.getElementById("base-folder").value;
-				const randomOrder = document.getElementById("random-order").checked;
-				const shuffleInterval = document.getElementById("shuffle-interval").value;
+				// show loadbar
+				document.getElementById("loadbar").style.display = "block";
 
-				if (album === "") {
-					ipcRenderer.send("dialogbox", ["error", "Album name cannot be empty!"]);
-					return;
-				}
+				// delay for .1 second to show the loadbar first
+				setTimeout(() => {
+					const album = document.getElementById("album-name").value;
+					const baseFolder = document.getElementById("base-folder").value;
+					const randomOrder = document.getElementById("random-order").checked;
+					const shuffleInterval = document.getElementById("shuffle-interval").value;
 
-				if (baseFolder === "") {
-					const confirmation = ipcRenderer.sendSync("dialogbox", ["warning", "Base folder is empty, continue?"]);
-					if (confirmation === 1) return; // no
-				}
+					if (album === "") {
+						ipcRenderer.send("dialogbox", ["error", "Album name cannot be empty!"]);
+						return;
+					}
 
-				if (selectedAlbum === "Add more") {
-					// add
-					const albumData = {
-						album: album,
-						baseFolder: baseFolder,
-						active_wp: [],
-						inactive_wp: [],
-						preferred_Random: randomOrder,
-						preferred_shuffle_interval: shuffleInterval,
-					};
-					ipcRenderer.send("add-album", albumData);
-				} else {
-					// get current album data first
-					let currentAlbumData = ipcRenderer.sendSync("get-current-album-data", selectedAlbumData.album);
+					if (baseFolder === "") {
+						const confirmation = ipcRenderer.sendSync("dialogbox", ["warning", "Base folder is empty, continue?"]);
+						if (confirmation === 1) {
+							document.getElementById("loadbar").style.display = "none";
+							return;
+						} // no
+					}
 
-					currentAlbumData.album = album;
-					currentAlbumData.baseFolder = baseFolder;
-					currentAlbumData.preferred_Random = randomOrder;
-					currentAlbumData.preferred_shuffle_interval = parseInt(shuffleInterval);
+					if (selectedAlbum === "Add more") {
+						let active_wp = [];
 
-					ipcRenderer.send("update-album", [selectedAlbumData.album, currentAlbumData]); // [albumName, updatedData]
-				}
+						active_wp = getFilesInFolder(baseFolder);
+						active_wp = filterImages(active_wp);
+
+						// add
+						const albumData = {
+							album: album,
+							baseFolder: baseFolder,
+							active_wp: active_wp,
+							inactive_wp: [],
+							preferred_Random: randomOrder,
+							preferred_shuffle_interval: shuffleInterval,
+						};
+						ipcRenderer.send("add-album", albumData);
+					} else {
+						// get current album data first
+						let currentAlbumData = ipcRenderer.sendSync("get-current-album-data", selectedAlbumData.album);
+						let new_active_wp = [];
+
+						currentAlbumData.album = album;
+						currentAlbumData.preferred_Random = randomOrder;
+						currentAlbumData.preferred_shuffle_interval = parseInt(shuffleInterval);
+
+						if (currentAlbumData.baseFolder !== baseFolder) {
+							currentAlbumData.baseFolder = baseFolder;
+							new_active_wp = getFilesInFolder(baseFolder);
+							new_active_wp = filterImages(new_active_wp);
+
+							// add new active wp to current active wp but make sure no duplicate
+							const newArr = [...currentAlbumData.active_wp, ...new_active_wp];
+							currentAlbumData.active_wp = [...new Set(newArr)];
+
+							// remove active wp that is currently in inactive_wp
+							currentAlbumData.active_wp = currentAlbumData.active_wp.filter((active_wp) => {
+								return !currentAlbumData.inactive_wp.includes(active_wp);
+							});
+						}
+
+						ipcRenderer.send("update-album", [selectedAlbumData.album, currentAlbumData]); // [albumName, updatedData]
+					}
+
+					// close loadbar
+					document.getElementById("loadbar").style.display = "none";
+				}, 100);
 			});
 		</script>
 	</body>
