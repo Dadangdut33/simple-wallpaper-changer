@@ -7,8 +7,6 @@
 		<link rel="stylesheet" href="../style/bulma-tooltip.css" />
 		<link rel="stylesheet" href="../style/fa-all.min.css" />
 		<link rel="stylesheet" href="../style/index.css" />
-
-		<script defer src="../js/handler/files.js"></script>
 	</head>
 
 	<body>
@@ -16,13 +14,13 @@
 			<div class="tabs is-centered">
 				<ul class="m-0">
 					<li>
-						<a href="../index.html">
+						<a href="../index.html" onclick="checkChanges()">
 							<span class="icon is-small"><i class="fas fa-home" aria-hidden="true"></i></span>
 							<span>Main Menu</span>
 						</a>
 					</li>
 					<li>
-						<a href="./album.html">
+						<a href="./album.html" onclick="checkChanges()">
 							<span class="icon is-small"><i class="fas fa-images" aria-hidden="true"></i></span>
 							<span>Album</span>
 						</a>
@@ -34,7 +32,7 @@
 						</a>
 					</li>
 					<li>
-						<a href="./about.html">
+						<a href="./about.html" onclick="checkChanges()">
 							<span class="icon is-small"><i class="fas fa-info" aria-hidden="true"></i></span>
 							<span>About</span>
 						</a>
@@ -62,11 +60,11 @@
 						<div class="tile is-parent is-6">
 							<article class="tile is-child">
 								<label class="checkbox">
-									<input type="checkbox" name="rescanEveryStart" id="rescanEveryStart" />
+									<input type="checkbox" name="autoRescan" id="autoRescan" />
 									Auto Rescan
 								</label>
 								<label class="label">Auto rescan interval (Hours)</label>
-								<input class="input" type="number" placeholder="Input in hours" min="1" max="24" value="1" />
+								<input class="input" name="autoRescanInterval" id="autoRescanInterval" type="number" placeholder="Input in hours" min="1" max="24" value="1" />
 							</article>
 						</div>
 					</div>
@@ -102,5 +100,88 @@
 				</div>
 			</div>
 		</div>
+
+		<script type="text/javascript">
+			const { ipcRenderer } = require("electron");
+			let loadedSetting = ipcRenderer.sendSync("get-settings");
+
+			const updateFields = (currentSetting) => {
+				document.getElementById("startupVal").checked = currentSetting.appSettings.start_on_startup;
+				document.getElementById("rescanEveryStart").checked = currentSetting.appSettings.rescan_every_start;
+				document.getElementById("autoRescan").checked = currentSetting.appSettings.auto_rescan;
+				document.getElementById("autoRescanInterval").value = currentSetting.appSettings.rescan_interval;
+			};
+
+			updateFields(loadedSetting);
+
+			const saveUpdate = () => {
+				const settingData = {
+					appSettings: {
+						start_on_startup: document.getElementById("startupVal").checked,
+						rescan_every_start: document.getElementById("rescanEveryStart").checked,
+						auto_rescan: document.getElementById("autoRescan").checked,
+						rescan_interval: document.getElementById("autoRescanInterval").value,
+					},
+				};
+
+				// get current setting first
+				const currentSetting = ipcRenderer.sendSync("get-settings");
+
+				// update setting
+				ipcRenderer.send("save-settings", {
+					...currentSetting,
+					...settingData,
+				});
+
+				// update loaded settings
+				loadedSetting = {
+					...currentSetting,
+					...settingData,
+				};
+			};
+
+			const checkChanges = () => {
+				// check if any changes is made
+				if (
+					document.getElementById("startupVal").checked != loadedSetting.appSettings.start_on_startup ||
+					document.getElementById("rescanEveryStart").checked != loadedSetting.appSettings.rescan_every_start ||
+					document.getElementById("autoRescan").checked != loadedSetting.appSettings.auto_rescan ||
+					document.getElementById("autoRescanInterval").value != loadedSetting.appSettings.rescan_interval
+				) {
+					// send message box to ask user if they want to save changes
+					const yesNo = ipcRenderer.sendSync("dialogbox", ["yesno", "Do you want to save changes made?"]);
+					if (yesNo === 1) return;
+					saveUpdate();
+				}
+
+				return true;
+			};
+
+			document.getElementById("save").addEventListener("click", () => {
+				const yesNo = ipcRenderer.sendSync("dialogbox", ["yesno", "Are you sure you want to save these settings?"]);
+				if (yesNo === 1) return; // no
+				saveUpdate();
+			});
+
+			document.getElementById("cancel").addEventListener("click", () => {
+				const yesNo = ipcRenderer.sendSync("dialogbox", ["yesno", "Are you sure you want to cancel and reset changes made?"]);
+				if (yesNo === 1) return; // no
+
+				updateFields(loadedSetting);
+
+				// send dialogbox
+				ipcRenderer.sendSync("dialogbox", ["info", "Canceled setting changes"]);
+			});
+
+			document.getElementById("default").addEventListener("click", () => {
+				const yesNo = ipcRenderer.sendSync("dialogbox", ["yesno", "Are you sure you want to reset to default?"]);
+				if (yesNo === 1) return; // no
+
+				const res = ipcRenderer.sendSync("default-app-settings");
+				loadedSetting = res.currentConfig;
+
+				updateFields(res.currentConfig);
+			});
+		</script>
 	</body>
 </html>

@@ -106,9 +106,20 @@ const loadConfig = () => {
 
 const resetDefault = () => {
 	const config = defaultConfig;
-	saveConfig(config);
+	const { success, errMsg } = saveConfig(config);
 
-	return config;
+	return { config, success, errMsg };
+};
+
+const resetDefaultApp = (currentConfig) => {
+	currentConfig.appSettings.start_on_startup = false;
+	currentConfig.appSettings.rescan_every_start = false;
+	currentConfig.appSettings.auto_rescan = false;
+	currentConfig.appSettings.rescan_interval = 12;
+
+	const { success, errMsg } = saveConfig(currentConfig);
+
+	return { currentConfig, success, errMsg };
 };
 
 // ============================================================
@@ -145,4 +156,5 @@ module.exports = {
 	saveConfig,
 	loadConfig,
 	resetDefault,
+	resetDefaultApp,
 };

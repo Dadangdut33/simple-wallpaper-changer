@@ -11,7 +11,7 @@
 
 	<script defer src="js/handler/modal.js"></script>
 	<script defer src="js/handler/link.js"></script>
-	<script defer src="js/renderer.js"></script>
+	<script defer src="js/pages/index_handler.js"></script>
 </head>
 
 <body>
@@ -75,6 +75,9 @@
 						<span class="has-tooltip-bottom" data-tooltip="Delete Image">
 							<i class="fas fa-trash"></i>
 						</span>
+						<span class="has-tooltip-bottom" data-tooltip="Open full image">
+							<i class="fas fa-external-link-alt"></i>
+						</span>
 					</div>
 				</div>
 			</div>
@@ -126,8 +129,8 @@
 
 		<div class="modal-content">
 			<div class="box">
-				<img src="https://picsum.photos/1920/1080" />
-				Image Path
+				<img id="img-modal" src="" alt="" />
+				<span id="img-modal-path"></span>
 			</div>
 
 			<button class="modal-close is-large" aria-label="close"></button>

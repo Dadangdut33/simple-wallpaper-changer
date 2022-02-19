@@ -4,15 +4,11 @@ const path = require("path");
 const wallpaper = require("wallpaper");
 
 // ============================================================
-const { loadConfig } = require("./js/handler/files");
+const { loadConfig, saveConfig, resetDefault, resetDefaultApp } = require("./js/handler/files");
 
 let mainWindow = BrowserWindow,
 	trayApp = Tray,
 	iconPath = path.join(__dirname, "assets/logo.png"),
-	currentImageQueue = [],
-	currentAlbum = "",
-	currentRandom = true,
-	currentShuffleInterval = true,
 	currentConfig = {};
 // ============================================================
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -49,7 +45,7 @@ const createWindow = () => {
 	});
 	mainWindow.on("unresponsive", onUnresponsiveWindow);
 
-	loadSettingStartup();
+	loadSetting();
 };
 
 // This method will be called when Electron has finished
@@ -121,19 +117,49 @@ const createTray = () => {
 
 // ============================================================
 // Functions
-const loadSettingStartup = () => {
+const loadSetting = () => {
 	// load config
 	const config = loadConfig();
 	if (!config.success) {
 		dialog.showErrorBox("Error", config.errMsg);
 	} else {
-		currentImageQueue = config.data.runtimeSettings.currentQueue;
-		currentAlbum = config.data.runtimeSettings.currentAlbum;
-		currentRandom = config.data.runtimeSettings.currentRandom;
-		currentShuffleInterval = config.data.runtimeSettings.currentShuffleInterval;
-
 		currentConfig = config.data;
 	}
+};
+
+const saveSettings = (setting) => {
+	const res = saveConfig(setting);
+	if (!res.success) {
+		dialog.showErrorBox("Error", res.errMsg);
+	} else {
+		currentConfig = setting;
+		// show success message
+		dialog.showMessageBox(mainWindow, {
+			title: "Success",
+			type: "info",
+			buttons: ["Ok"],
+			message: "Settings saved successfully",
+		});
+	}
+
+	return res.success;
+};
+
+const resetDefaultAppConfig = () => {
+	const res = resetDefaultApp(currentConfig);
+	if (!res.success) {
+		dialog.showErrorBox("Error", res.errMsg);
+	} else {
+		// show success
+		dialog.showMessageBox(mainWindow, {
+			title: "Success",
+			type: "info",
+			buttons: ["Ok"],
+			message: "Reset default app config successfully",
+		});
+	}
+
+	return res;
 };
 
 const changeWallpaper = async (imagePath) => {
@@ -152,32 +178,44 @@ const changeWallpaper = async (imagePath) => {
 // TODO:ADD FILL QUEUE
 
 const addToQueue = (q_Item) => {
-	currentImageQueue.push(q_Item);
+	// update config
+	currentConfig.runtimeSettings.currentQueue.push(q_Item);
+	saveSettings(currentConfig);
 };
 
 const removeFromQueue = (q_Item) => {
-	currentImageQueue.splice(currentImageQueue.indexOf(q_Item), 1);
+	// update config
+	currentConfig.runtimeSettings.currentQueue.splice(currentConfig.runtimeSettings.currentQueue.indexOf(q_Item), 1);
+	saveSettings(currentConfig);
 };
 
 const clearQueue = () => {
-	currentImageQueue = [];
+	// update config
+	currentConfig.runtimeSettings.currentQueue = [];
+	saveSettings(currentConfig);
 };
 
 const setCurrentAlbum = (album) => {
-	currentAlbum = album;
+	// update config
+	currentConfig.runtimeSettings.currentAlbum = album;
+	saveSettings(currentConfig);
 };
 
 const setRandom = (random) => {
-	currentRandom = random;
+	// update config
+	currentConfig.runtimeSettings.currentRandom = random;
+	saveSettings(currentConfig);
 };
 
 const setShuffle = (shuffle) => {
-	currentShuffleInterval = shuffle;
+	// update config
+	currentConfig.runtimeSettings.currentShuffleInterval = shuffle;
+	saveSettings(currentConfig);
 };
 
 const getAlbumData = () => {
 	for (let i = 0; i < currentConfig.profile.length; i++) {
-		if (currentConfig.profile[i].album === currentAlbum) {
+		if (currentConfig.profile[i].album === currentConfig.runtimeSettings.currentAlbum) {
 			return currentConfig.profile[i];
 		}
 	}
@@ -190,12 +228,13 @@ const getAlbumData = () => {
 // ipcMain
 // Timer
 let timerStarted = false;
-let seconds = currentShuffleInterval;
+let seconds = 0;
 let interval = null;
 ipcMain.on("start-timer", (event, args) => {
 	if (!timerStarted) {
 		clearInterval(interval);
 		timerStarted = true;
+		seconds = currentConfig.runtimeSettings.currentShuffleInterval;
 
 		interval = setInterval(() => {
 			seconds--;
@@ -217,7 +256,24 @@ ipcMain.on("reset-timer", (event, args) => {
 	// reset the timer
 	clearInterval(interval);
 	timerStarted = false;
-	seconds = currentShuffleInterval;
+	seconds = currentConfig.runtimeSettings.currentShuffleInterval;
+});
+
+// ======================
+// Settings
+ipcMain.on("save-settings", (event, args) => {
+	saveSettings(args);
+});
+
+// send sync
+ipcMain.on("get-settings", (event, args) => {
+	// get / load current
+	event.returnValue = currentConfig;
+});
+
+ipcMain.on("default-app-settings", (event, args) => {
+	const res = resetDefaultAppConfig();
+	event.returnValue = res;
 });
 
 // ======================
@@ -254,11 +310,11 @@ ipcMain.on("change-wallpaper", async (event, args) => {
 	// get wallpaper before
 	const wpBefore = (await wallpaper.get()).split("\\").pop();
 	// get queue item
-	const q_Item = currentImageQueue.shift();
+	const q_Item = currentConfig.runtimeSettings.currentQueue.shift();
 
 	// change wallpaper
 	if (q_Item) {
-		const result = await changeWallpaper(q_Item.path);
+		const result = await changeWallpaper(q_Item);
 		if (!result.success) {
 			dialog.showErrorBox("Error", result.message);
 
@@ -277,7 +333,7 @@ ipcMain.on("change-wallpaper", async (event, args) => {
 		return;
 	}
 
-	if (currentRandom) {
+	if (currentConfig.runtimeSettings.currentRandom) {
 		if (albumData.active_wp.length > 1) {
 			// if there are more than 1 images in the album
 			// make sure it's not the same as the last one
@@ -321,17 +377,25 @@ ipcMain.on("dialogbox", (event, args) => {
 		case "info":
 			res = dialog.showMessageBoxSync(mainWindow, {
 				title: "Info",
-				message: args[1],
 				type: "info",
 				buttons: ["OK"],
+				message: args[1],
 			});
 			break;
 		case "yesno":
 			res = dialog.showMessageBoxSync(mainWindow, {
 				title: "Confirmation",
-				message: args[1],
 				type: "question",
 				buttons: ["Yes", "No"],
+				message: args[1],
+			});
+			break;
+		case "success":
+			res = dialog.showMessageBoxSync(mainWindow, {
+				title: "Success",
+				type: "info",
+				buttons: ["OK"],
+				message: args[1],
 			});
 			break;
 		default:
