@@ -53,10 +53,7 @@
 				</label>
 				<div class="control has-icons-left">
 					<div class="select">
-						<select onchange="selectAlbumHandler()">
-							<option>Default</option>
-							<option>Add more</option>
-						</select>
+						<select onchange="selectAlbumHandler()" id="album-select"></select>
 					</div>
 					<span class="icon is-left">
 						<i class="fas fa-image"></i>
@@ -142,6 +139,14 @@
 								<span>Cancel</span>
 							</a>
 						</p>
+						<p class="control">
+							<a class="button is-danger is-small" id="delete">
+								<span class="icon is-small">
+									<i class="fas fa-trash" aria-hidden="true"></i>
+								</span>
+								<span>Delete</span>
+							</a>
+						</p>
 					</div>
 				</div>
 			</div>
@@ -174,5 +179,121 @@
 				<div class="is-flex-direction-row" id="img-container"></div>
 			</div>
 		</div>
+
+		<script type="text/javascript">
+			document.getElementById("shuffle-interval").addEventListener("change", function () {
+				if (this.value < 1) {
+					this.value = 1;
+				}
+			});
+
+			const { ipcRenderer } = require("electron");
+			let selectedAlbum = "",
+				selectedAlbumData = {};
+
+			const fillData = (data) => {
+				document.getElementById("album-name").value = data.album;
+				document.getElementById("base-folder").value = data.baseFolder;
+				document.getElementById("random-order").checked = data.preferred_Random;
+				document.getElementById("shuffle-interval").value = data.preferred_shuffle_interval;
+			};
+
+			// ================================================================
+			// page open
+			// ================================================================
+			// get all album first
+			const config = ipcRenderer.sendSync("get-settings");
+
+			// fill album-select with all albums available
+			const albumSelect = document.getElementById("album-select");
+			const albumList = config.profile;
+			albumList.forEach((album) => {
+				const option = document.createElement("option");
+				option.value = album.album;
+				option.innerText = album.album;
+				albumSelect.appendChild(option);
+			});
+
+			const lastOpt = document.createElement("option");
+			lastOpt.value = "Add more";
+			lastOpt.innerText = "Add more";
+			albumSelect.appendChild(lastOpt);
+
+			// get current album
+			selectedAlbum = ipcRenderer.sendSync("get-current-album");
+			selectedAlbumData = ipcRenderer.sendSync("get-current-album-data", false);
+
+			// set selected album as the current album and fill the data
+			albumSelect.value = selectedAlbum;
+			fillData(selectedAlbumData);
+			// ================================================================
+			// handler
+			// ================================================================
+			const selectAlbumHandler = () => {
+				const album = albumSelect.value;
+				selectedAlbum = album;
+				if (album === "Add more") {
+					selectedAlbumData = {};
+					document.getElementById("album-name").value = "";
+					document.getElementById("base-folder").value = "";
+					document.getElementById("random-order").checked = false;
+					document.getElementById("shuffle-interval").value = 1;
+
+					document.getElementById("img-container").innerHTML = "";
+				} else {
+					selectedAlbumData = ipcRenderer.sendSync("get-current-album-data", selectedAlbum);
+					fillData(selectedAlbumData);
+
+					document.getElementById("img-container").innerHTML = "";
+					// selectedAlbumData.active_wp.forEach((image) => {
+					// 	const img = document.createElement("img");
+					// 	img.src = image;
+					// 	img.className = "image is-128x128";
+					// 	document.getElementById("img-container").appendChild(img);
+					// });
+				}
+			};
+
+			// save
+			document.getElementById("save").addEventListener("click", () => {
+				const album = document.getElementById("album-name").value;
+				const baseFolder = document.getElementById("base-folder").value;
+				const randomOrder = document.getElementById("random-order").checked;
+				const shuffleInterval = document.getElementById("shuffle-interval").value;
+
+				if (album === "") {
+					ipcRenderer.send("dialogbox", ["error", "Album name cannot be empty!"]);
+					return;
+				}
+
+				if (baseFolder === "") {
+					const confirmation = ipcRenderer.sendSync("dialogbox", ["warning", "Base folder is empty, continue?"]);
+					if (confirmation === 1) return; // no
+				}
+
+				if (selectedAlbum === "Add more") {
+					// add
+					const albumData = {
+						album: album,
+						baseFolder: baseFolder,
+						active_wp: [],
+						inactive_wp: [],
+						preferred_Random: randomOrder,
+						preferred_shuffle_interval: shuffleInterval,
+					};
+					ipcRenderer.send("add-album", albumData);
+				} else {
+					// get current album data first
+					let currentAlbumData = ipcRenderer.sendSync("get-current-album-data", selectedAlbumData.album);
+
+					currentAlbumData.album = album;
+					currentAlbumData.baseFolder = baseFolder;
+					currentAlbumData.preferred_Random = randomOrder;
+					currentAlbumData.preferred_shuffle_interval = parseInt(shuffleInterval);
+
+					ipcRenderer.send("update-album", [selectedAlbumData.album, currentAlbumData]); // [albumName, updatedData]
+				}
+			});
+		</script>
 	</body>
 </html>

@@ -77,13 +77,18 @@ menu.append(
 	new MenuItem({
 		label: "Quit",
 		click: () => {
+			saveSettings(currentConfig, false);
 			app.exit();
 		},
 	})
 );
-
 // Menu.setApplicationMenu(menu);
 
+/**
+ * Run when the app is unresponsive
+ * @param {object} event - The event object
+ * @return {void}
+ */
 function onUnresponsiveWindow(e) {
 	const window = BrowserWindow.getFocusedWindow();
 	dialog.showMessageBox(window, {
@@ -93,8 +98,9 @@ function onUnresponsiveWindow(e) {
 		message: "Application is not responding…",
 	});
 }
-
-// tray
+/**
+ * Create a tray icon
+ */
 const createTray = () => {
 	trayApp = new Tray(iconPath);
 
@@ -103,6 +109,7 @@ const createTray = () => {
 		{
 			label: "Quit",
 			click: () => {
+				saveSettings(currentConfig, false);
 				app.exit(0);
 			},
 		},
@@ -117,6 +124,7 @@ const createTray = () => {
 
 // ============================================================
 // Functions
+
 const loadSetting = () => {
 	// load config
 	const config = loadConfig();
@@ -127,19 +135,21 @@ const loadSetting = () => {
 	}
 };
 
-const saveSettings = (setting) => {
+const saveSettings = (setting, popup = true) => {
 	const res = saveConfig(setting);
 	if (!res.success) {
 		dialog.showErrorBox("Error", res.errMsg);
 	} else {
 		currentConfig = setting;
-		// show success message
-		dialog.showMessageBox(mainWindow, {
-			title: "Success",
-			type: "info",
-			buttons: ["Ok"],
-			message: "Settings saved successfully",
-		});
+		if (popup) {
+			// show success message
+			dialog.showMessageBox(mainWindow, {
+				title: "Success",
+				type: "info",
+				buttons: ["Ok"],
+				message: "Settings saved successfully",
+			});
+		}
 	}
 
 	return res.success;
@@ -213,9 +223,35 @@ const setShuffle = (shuffle) => {
 	saveSettings(currentConfig);
 };
 
-const getAlbumData = () => {
+const addAlbum = (album) => {
+	// update config
+	currentConfig.profile.push(album);
+	saveSettings(currentConfig);
+};
+
+const updateAlbum = (updated) => {
+	const oldName = updated[0];
+	// update config
+	const pos = currentConfig.profile
+		.map((e) => {
+			return e.album; // album name
+		})
+		.indexOf(oldName);
+
+	// check runtime value
+	if (currentConfig.runtimeSettings.currentAlbum === oldName) {
+		currentConfig.runtimeSettings.currentAlbum = updated[1].album; // update the name
+	}
+
+	currentConfig.profile[pos] = updated[1]; // updated data
+	saveSettings(currentConfig);
+};
+
+const getAlbumData = (album = false) => {
+	const searchFor = album ? album : currentConfig.runtimeSettings.currentAlbum;
+
 	for (let i = 0; i < currentConfig.profile.length; i++) {
-		if (currentConfig.profile[i].album === currentConfig.runtimeSettings.currentAlbum) {
+		if (currentConfig.profile[i].album === searchFor) {
 			return currentConfig.profile[i];
 		}
 	}
@@ -277,7 +313,6 @@ ipcMain.on("default-app-settings", (event, args) => {
 });
 
 // ======================
-// Runtime settings
 // Queue handling
 ipcMain.on("queue-add", (event, args) => {
 	addToQueue(args);
@@ -291,9 +326,22 @@ ipcMain.on("queue-clear", (event, args) => {
 	clearQueue();
 });
 
+// ======================
 // Album and the config
 ipcMain.on("album-set", (event, args) => {
 	setCurrentAlbum(args);
+});
+
+ipcMain.on("add-album", (event, args) => {
+	// add album to config
+	res = addAlbum(args);
+});
+
+ipcMain.on("update-album", (event, args) => {
+	// args = [albumName, updatedData]
+
+	// update album in config
+	res = updateAlbum(args);
 });
 
 ipcMain.on("random-set", (event, args) => {
@@ -302,6 +350,15 @@ ipcMain.on("random-set", (event, args) => {
 
 ipcMain.on("shuffle-set", (event, args) => {
 	setShuffle(args);
+});
+
+ipcMain.on("get-current-album", (event, args) => {
+	event.returnValue = currentConfig.runtimeSettings.currentAlbum;
+});
+
+ipcMain.on("get-current-album-data", (event, args) => {
+	const albumData = getAlbumData(args);
+	event.returnValue = albumData;
 });
 
 // ======================
@@ -395,6 +452,14 @@ ipcMain.on("dialogbox", (event, args) => {
 				title: "Success",
 				type: "info",
 				buttons: ["OK"],
+				message: args[1],
+			});
+			break;
+		case "warning":
+			res = dialog.showMessageBoxSync(mainWindow, {
+				title: "Warning",
+				type: "warning",
+				buttons: ["Yes", "No"],
 				message: args[1],
 			});
 			break;
