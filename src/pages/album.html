@@ -149,7 +149,7 @@
 			<hr />
 
 			<div class="is-flex">
-				<div class="mx-auto">
+				<div class="field is-grouped mx-auto">
 					<p class="control">
 						<a class="button is-link" id="load-images">
 							<span class="icon is-small">
@@ -158,12 +158,21 @@
 							<span>Load Album Images</span>
 						</a>
 					</p>
+
+					<p class="control">
+						<a class="button is-info" id="add-images">
+							<span class="icon is-small">
+								<i class="fas fa-plus" aria-hidden="true"></i>
+							</span>
+							<span>Add Image to Album</span>
+						</a>
+					</p>
 				</div>
 			</div>
-		</div>
 
-		<div class="m-3">
-			<div class="is-flex-direction-row" id="img-container"></div>
+			<div class="m-3" id="the-images">
+				<div class="is-flex-direction-row" id="img-container"></div>
+			</div>
 		</div>
 	</body>
 </html>
