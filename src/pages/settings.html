@@ -45,25 +45,36 @@
 					<div class="tile">
 						<div class="tile is-parent is-vertical is-4">
 							<article class="tile is-child">
-								<label class="checkbox">
-									<input type="checkbox" name="startupVal" id="startupVal" />
-									Start application on startup
-								</label>
+								<span class="has-tooltip-right has-tooltip-multiline" data-tooltip="Will start application on computer startup">
+									<label class="checkbox">
+										<input type="checkbox" name="startupVal" id="startupVal" />
+										Start application on startup
+									</label>
+								</span>
 							</article>
 							<article class="tile is-child">
-								<label class="checkbox">
-									<input type="checkbox" name="rescanEveryStart" id="rescanEveryStart" />
-									Rescan album every time application starts
-								</label>
+								<span class="has-tooltip-right has-tooltip-multiline" data-tooltip="Will rescan album every time application starts">
+									<label class="checkbox">
+										<input type="checkbox" name="rescanEveryStart" id="rescanEveryStart" />
+										Rescan album every time application starts
+									</label>
+								</span>
 							</article>
 						</div>
 						<div class="tile is-parent is-6">
 							<article class="tile is-child">
-								<label class="checkbox">
-									<input type="checkbox" name="autoRescan" id="autoRescan" />
-									Auto Rescan
+								<span class="has-tooltip-right has-tooltip-multiline" data-tooltip="Auto rescan folder with given interval">
+									<label class="checkbox">
+										<input type="checkbox" name="autoRescan" id="autoRescan" />
+										Auto Rescan
+									</label>
+								</span>
+								<label class="label">
+									Auto rescan interval (Hours)
+									<span class="has-tooltip-right has-tooltip-multiline" data-tooltip="Every x hours, application will rescan folder for new images">
+										<i class="fas fa-info-circle"></i>
+									</span>
 								</label>
-								<label class="label">Auto rescan interval (Hours)</label>
 								<input class="input" name="autoRescanInterval" id="autoRescanInterval" type="number" placeholder="Input in hours" min="1" max="24" value="1" required />
 							</article>
 						</div>
