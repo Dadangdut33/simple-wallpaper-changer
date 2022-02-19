@@ -5,6 +5,13 @@ body {
 }
 
 /* ============== */
+/* for the tooltip */
+span[data-tooltip] {
+  font-weight: initial;
+  border-bottom: none !important;
+}
+
+/* ============== */
 /* Top Menu */
 .menu-container {
   padding: 2rem;
@@ -70,11 +77,6 @@ body {
   text-overflow: ellipsis;
   font-weight: bold;
   max-width: 280px;
-}
-
-/* for the tooltip */
-.img-desc div span {
-  border-bottom: none;
 }
 
 #image {
