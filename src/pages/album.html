@@ -7,8 +7,6 @@
 		<link rel="stylesheet" href="../style/bulma-tooltip.css" />
 		<link rel="stylesheet" href="../style/fa-all.min.css" />
 		<link rel="stylesheet" href="../style/index.css" />
-		<script defer src="../js/handler/link.js"></script>
-		<!-- <script defer src="../js/renderer.js"></script> -->
 		<script defer src="../js/handler/modal.js"></script>
 	</head>
 
@@ -43,10 +41,80 @@
 				</ul>
 			</div>
 
-			<div class="flex-row">
-				<div class="about-half">test</div>
-				<div class="about-half"></div>
+			<div class="control has-icons-left">
+				<div class="select">
+					<select id="album-select">
+						<option>Default</option>
+						<option>Add more</option>
+					</select>
+				</div>
+				<span class="icon is-left">
+					<i class="fas fa-image"></i>
+				</span>
 			</div>
+
+			<hr />
+
+			<div id="album-info">
+				<div class="columns">
+					<div class="column">
+						<div class="field">
+							<label class="label">
+								Album Name
+								<span class="has-tooltip-right has-tooltip-multiline" data-tooltip="The Name of The Album"><i class="fas fa-info-circle"></i></span>
+							</label>
+							<div class="control">
+								<input class="input" type="text" name="album-name" id="album-name" placeholder="Album Name" required />
+							</div>
+						</div>
+
+						<div class="field">
+							<label class="label">
+								Base Folder
+								<span class="has-tooltip-right has-tooltip-multiline" data-tooltip="Base folder for wallpaper imports and album scanning"><i class="fas fa-info-circle"></i></span>
+							</label>
+
+							<div class="control">
+								<input class="input" type="text" name="base-folder" id="base-folder" placeholder="Base Folder" />
+							</div>
+						</div>
+					</div>
+
+					<div class="column">
+						<div class="field">
+							<label class="label">
+								Preferred Shuffle Interval (Minutes)
+								<span
+									class="has-tooltip-right has-tooltip-multiline"
+									data-tooltip="Preferred shuffle interval for the queue. Will overwrite the setting in the queue page when switching album."
+								>
+									<i class="fas fa-info-circle"></i>
+								</span>
+							</label>
+
+							<div class="control">
+								<input class="input" type="number" name="shuffle-intervaL" id="shuffle-interval" placeholder="Preffered shuffle interval in minutes" min="1" required />
+							</div>
+						</div>
+
+						<div class="field">
+							<div class="control">
+								<span
+									class="has-tooltip-right has-tooltip-multiline"
+									data-tooltip="Preffered order of the wallpaper in the album for the queue. Will overwrite the setting in the queue page when switching album."
+								>
+									<label class="checkbox">
+										<input type="checkbox" name="random-order" id="random-order" />
+										Preferred Random Order
+									</label>
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<hr />
 
 			<div class="m-3">
 				<div class="is-flex-direction-row" id="img-container"></div>
