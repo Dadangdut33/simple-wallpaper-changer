@@ -4,12 +4,12 @@ const path = require("path");
 const wallpaper = require("wallpaper");
 
 // ============================================================
-const { loadConfig, saveConfig, resetDefault, resetDefaultApp } = require("./js/handler/files");
+const { loadConfig, saveConfig, resetDefault, resetDefaultApp, defaultConfig } = require("./js/handler/files");
 
 let mainWindow = BrowserWindow,
 	trayApp = Tray,
 	iconPath = path.join(__dirname, "assets/logo.png"),
-	currentConfig = {};
+	currentConfig = defaultConfig;
 // ============================================================
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {

@@ -157,4 +157,5 @@ module.exports = {
 	loadConfig,
 	resetDefault,
 	resetDefaultApp,
+	defaultConfig,
 };
