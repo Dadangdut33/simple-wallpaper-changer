@@ -8,7 +8,7 @@
 		<link rel="stylesheet" href="../style/fa-all.min.css" />
 		<link rel="stylesheet" href="../style/index.css" />
 		<script defer src="../js/handler/files.js"></script>
-		<script defer src="../js/handler/modal.js"></script>
+		<script defer src="../js/handler/image.js"></script>
 	</head>
 
 	<body>
@@ -16,7 +16,7 @@
 			<div class="tabs is-centered">
 				<ul class="m-0">
 					<li>
-						<a href="../index.html">
+						<a href="../index.html" onclick="pageSwitchingHandler()">
 							<span class="icon is-small"><i class="fas fa-home" aria-hidden="true"></i></span>
 							<span>Main Menu</span>
 						</a>
@@ -28,13 +28,13 @@
 						</a>
 					</li>
 					<li>
-						<a href="./settings.html">
+						<a href="./settings.html" onclick="pageSwitchingHandler()">
 							<span class="icon is-small"><i class="fas fa-cog" aria-hidden="true"></i></span>
 							<span>Settings</span>
 						</a>
 					</li>
 					<li>
-						<a href="./about.html">
+						<a href="./about.html" onclick="pageSwitchingHandler()">
 							<span class="icon is-small"><i class="fas fa-info" aria-hidden="true"></i></span>
 							<span>About</span>
 						</a>
@@ -135,7 +135,7 @@
 			<div class="is-flex">
 				<div class="field is-grouped mx-auto">
 					<p class="control">
-						<a class="button is-primary" id="load-images">
+						<a class="button is-primary is-small" id="load-images">
 							<span class="icon is-small">
 								<i class="fas fa-eye" aria-hidden="true"></i>
 							</span>
@@ -144,7 +144,7 @@
 					</p>
 
 					<p class="control">
-						<a class="button is-link" id="sync-folder">
+						<a class="button is-link is-small" id="sync-folder">
 							<span class="icon is-primary">
 								<i class="fas fa-sync" aria-hidden="true"></i>
 							</span>
@@ -153,11 +153,20 @@
 					</p>
 
 					<p class="control">
-						<a class="button is-info" id="add-images">
+						<a class="button is-info is-small" id="add-images">
 							<span class="icon is-small">
 								<i class="fas fa-plus" aria-hidden="true"></i>
 							</span>
 							<span>Add Image to Album</span>
+						</a>
+					</p>
+
+					<p class="control">
+						<a class="button is-danger is-small" id="add-images">
+							<span class="icon is-small">
+								<i class="fas fa-trash" aria-hidden="true"></i>
+							</span>
+							<span>Delete ALL Images</span>
 						</a>
 					</p>
 				</div>
@@ -181,6 +190,8 @@
 			const toast = document.getElementById("toast");
 			const toast_text = document.getElementById("toast-text");
 			const toast_close = document.getElementById("toast-close");
+			const imgContainer = document.getElementById("img-container");
+			const loadBar = document.getElementById("loadbar");
 
 			let selectedAlbum = "",
 				selectedAlbumData = {},
@@ -217,6 +228,75 @@
 				}
 			};
 
+			const loadImage = (images) => {
+				showToast("Loading images... Please wait as this might take a while depending on your computer's performance and the amount of images in the album.");
+				loadBar.style.display = "block";
+				images.some((image, i) => {
+					const div = document.createElement("div");
+					div.className = "img-wrapper";
+					const span = document.createElement("span");
+					div.appendChild(span);
+
+					// TODO:onclick for each button
+
+					const img = document.createElement("img");
+					img.src = image;
+					img.id = "image";
+					img.alt = `${image}`;
+					div.appendChild(img);
+
+					const desc = document.createElement("div");
+					desc.className = "img-desc fadeIn";
+					desc.style.display = "none";
+					desc.id = `desc-${i}`;
+					desc.innerHTML = `<p>${image}</p>`;
+					div.appendChild(desc);
+
+					const descHover = document.createElement("div");
+					const iconApply = document.createElement("span");
+					iconApply.className = "has-tooltip-bottom mx-1";
+					iconApply.dataset.tooltip = "Set as current wallpaper";
+					iconApply.innerHTML = `<i class="fas fa-check-circle"></i>`;
+					descHover.appendChild(iconApply);
+
+					const iconSkip = document.createElement("span");
+					iconSkip.className = "has-tooltip-bottom mx-1";
+					iconSkip.dataset.tooltip = "Skip this wallpaper from the list";
+					iconSkip.innerHTML = `<i class="fas fa-minus-circle"></i>`;
+					descHover.appendChild(iconSkip);
+
+					const iconDelete = document.createElement("span");
+					iconDelete.className = "has-tooltip-bottom mx-1";
+					iconDelete.dataset.tooltip = "Delete this wallpaper from the list";
+					iconDelete.innerHTML = `<i class="fas fa-trash-alt"></i>`;
+					descHover.appendChild(iconDelete);
+
+					const iconOpen = document.createElement("span");
+					iconOpen.className = "has-tooltip-bottom mx-1";
+					iconOpen.dataset.tooltip = "Open this wallpaper in the default viewer";
+					iconOpen.innerHTML = `<i class="fas fa-external-link-alt"></i>`;
+					descHover.appendChild(iconOpen);
+
+					desc.appendChild(descHover);
+
+					div.addEventListener("mouseenter", () => {
+						showDesc(i);
+					});
+
+					div.addEventListener("mouseleave", () => {
+						hideDesc(i);
+					});
+					imgContainer.appendChild(div);
+				});
+
+				let timeoutTime = images.length > 20 ? 7000 : 2000;
+				// delay 5 seconds to
+				setTimeout(() => {
+					loadBar.style.display = "none";
+					closeToast();
+				}, timeoutTime);
+			};
+
 			// ================================================================
 			// Toast
 			let toastCloseTimeout = null;
@@ -251,7 +331,7 @@
 			const saveChanges = () => {
 				// show loadbar
 				showToast("Saving changes...");
-				document.getElementById("loadbar").style.display = "block";
+				loadBar.style.display = "block";
 
 				const albumName = albumName_El.value.trim();
 				const baseFolder = baseFolder_El.value.trim();
@@ -259,7 +339,7 @@
 				if (albumName.length === 0) {
 					ipcRenderer.send("dialogbox", ["error", "Album name cannot be empty!"]);
 					setTimeout(() => {
-						document.getElementById("loadbar").style.display = "none";
+						loadBar.style.display = "none";
 						closeToast();
 					}, 500);
 					return;
@@ -269,7 +349,7 @@
 				if (albumName.toLowerCase() === "add more") {
 					ipcRenderer.send("dialogbox", ["error", "Invalid album name provided!"]);
 					setTimeout(() => {
-						document.getElementById("loadbar").style.display = "none";
+						loadBar.style.display = "none";
 						closeToast();
 					}, 500);
 					return;
@@ -279,7 +359,7 @@
 					const confirmation = ipcRenderer.sendSync("dialogbox", ["warning", "Base folder is empty, continue?"]);
 					if (confirmation === 1) {
 						setTimeout(() => {
-							document.getElementById("loadbar").style.display = "none";
+							loadBar.style.display = "none";
 							closeToast();
 						}, 500);
 						return;
@@ -293,7 +373,7 @@
 					if (allAlbum.some((album) => album.name.toLowerCase() === albumName.toLowerCase())) {
 						ipcRenderer.send("dialogbox", ["error", "Album with the same name already exist!"]);
 						setTimeout(() => {
-							document.getElementById("loadbar").style.display = "none";
+							loadBar.style.display = "none";
 							closeToast();
 						}, 500);
 						return;
@@ -325,7 +405,7 @@
 						if (allAlbum.some((album) => album.name.toLowerCase() === albumName.toLowerCase())) {
 							ipcRenderer.send("dialogbox", ["error", "Album with the same name already exist!"]);
 							setTimeout(() => {
-								document.getElementById("loadbar").style.display = "none";
+								loadBar.style.display = "none";
 								closeToast();
 							}, 500);
 							return;
@@ -370,7 +450,7 @@
 
 				// close loadbar
 				setTimeout(() => {
-					document.getElementById("loadbar").style.display = "none";
+					loadBar.style.display = "none";
 					closeToast();
 				}, 500);
 			};
@@ -387,11 +467,18 @@
 				}
 			};
 
+			const pageSwitchingHandler = () => {
+				checkChanges();
+
+				return true;
+			};
+
 			const selectAlbumHandler = () => {
 				checkChanges();
 
 				const album = albumSelect_El.value;
 				selectedAlbum = album;
+				btnLoadImg.style.display = "block";
 				if (album === "Add more") {
 					selectedAlbumData = {};
 					albumName_El.value = "";
@@ -403,12 +490,6 @@
 					fillData(selectedAlbumData);
 
 					document.getElementById("img-container").innerHTML = "";
-					// selectedAlbumData.active_wp.forEach((image) => {
-					// 	const img = document.createElement("img");
-					// 	img.src = image;
-					// 	img.className = "image is-128x128";
-					// 	document.getElementById("img-container").appendChild(img);
-					// });
 				}
 			};
 
@@ -460,6 +541,19 @@
 				allAlbum = ipcRenderer.sendSync("get-settings", "album");
 				listUpdate(allAlbum);
 			});
+
+			// ================================================================
+			// btn bottom
+			// ================================================================
+			const btnLoadImg = document.getElementById("load-images");
+
+			const btnLoadImgClick = () => {
+				btnLoadImg.style.display = "none";
+
+				loadImage(selectedAlbumData.active_wp);
+				loadImage(selectedAlbumData.inactive_wp);
+			};
+			btnLoadImg.addEventListener("click", () => btnLoadImgClick());
 
 			// ================================================================
 			// update data from ipcmain
