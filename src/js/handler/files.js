@@ -18,7 +18,7 @@ const albumSettings_Default = [
 
 const runtimeSettings_Default = {
 	currentQueue: [], // max 20 shown
-	currentAlbum: "Default",
+	currentAlbum: ["Default"],
 	currentRandom: true,
 	currentShuffleInterval: 30, // minutes
 };

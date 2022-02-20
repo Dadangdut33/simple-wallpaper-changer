@@ -1,6 +1,6 @@
 {
   "currentQueue": [],
-  "currentAlbum": "Default",
+  "currentAlbum": ["Default"],
   "currentRandom": true,
   "currentShuffleInterval": 30
 }
