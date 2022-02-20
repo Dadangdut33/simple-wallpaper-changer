@@ -370,6 +370,33 @@ const getAlbumData = (album = false) => {
 	// if not found -> should not happen but just in case
 	return false;
 };
+/**
+ * Delete album from the albumSettings and save it.
+ * @param {string} album - The album name to be deleted.
+ */
+const deleteAlbum = (album) => {
+	let pos = -1;
+
+	albumSettings.some((el, i) => {
+		if (el.name === album) {
+			pos = i;
+			return true;
+		}
+	});
+
+	if (pos !== -1) {
+		albumSettings.splice(pos, 1);
+		saveSettings("album", albumSettings, false);
+		dialog.showMessageBox(mainWindow, {
+			title: "Success",
+			type: "info",
+			buttons: ["Ok"],
+			message: "Album deleted successfully",
+		});
+	} else {
+		dialog.showErrorBox("Error", "Album not found");
+	}
+};
 
 // --- IPC ---
 
@@ -385,6 +412,11 @@ ipcMain.on("add-album", (event, args) => {
 ipcMain.on("update-album", (event, args) => {
 	// update album in config
 	res = updateAlbum(args); // args = [albumName, updatedData]
+});
+
+ipcMain.on("delete-album", (event, args) => {
+	// delete album from config
+	deleteAlbum(args);
 });
 
 // ============================================================

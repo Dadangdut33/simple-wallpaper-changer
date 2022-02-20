@@ -221,7 +221,7 @@
 				shuffleInterval_El.value = data.preferred_shuffle_interval;
 			};
 
-			const listUpdate = (albumList) => {
+			const listUpdate = (albumList, getRuntime = true) => {
 				albumSelect_El.innerHTML = "";
 
 				albumList.forEach((album) => {
@@ -236,9 +236,13 @@
 				lastOpt.innerText = "Add more";
 				albumSelect_El.appendChild(lastOpt);
 
-				// get current album
-				selectedAlbum = ipcRenderer.sendSync("get-current-album");
-				selectedAlbumData = ipcRenderer.sendSync("get-current-album-data", selectedAlbum[0]);
+				// get current album // if getRunTime else stays on the same album
+				if (getRuntime) {
+					selectedAlbum = ipcRenderer.sendSync("get-current-album")[0];
+					selectedAlbumData = ipcRenderer.sendSync("get-current-album-data", selectedAlbum);
+				}
+
+				console.log(selectedAlbum);
 
 				// set selected album as the current album and fill the data
 				albumSelect_El.value = selectedAlbum;
@@ -289,7 +293,7 @@
 					let active_wp = [];
 
 					// check if albumName already exist in allAlbum
-					if (allAlbum.some((album) => album.name === albumName)) {
+					if (allAlbum.some((album) => album.name.toLowerCase() === albumName.toLowerCase())) {
 						ipcRenderer.send("dialogbox", ["error", "Album with the same name already exist!"]);
 						setTimeout(() => (document.getElementById("loadbar").style.display = "none"), 500);
 						return;
@@ -310,10 +314,22 @@
 						preferred_shuffle_interval: parseInt(shuffleInterval),
 					};
 					ipcRenderer.send("add-album", albumData);
+
+					selectedAlbum = albumName;
+					selectedAlbumData = albumData;
 				} else {
 					// get current album data first
 					let currentAlbumData = ipcRenderer.sendSync("get-current-album-data", selectedAlbumData.name);
 					let new_active_wp = [];
+
+					// check if name is edited but it already exist in the album
+					if (selectedAlbumData.name !== albumName) {
+						if (allAlbum.some((album) => album.name.toLowerCase() === albumName.toLowerCase())) {
+							ipcRenderer.send("dialogbox", ["error", "Album with the same name already exist!"]);
+							setTimeout(() => (document.getElementById("loadbar").style.display = "none"), 500);
+							return;
+						}
+					}
 
 					currentAlbumData.name = albumName;
 					currentAlbumData.preferred_Random = randomOrder;
@@ -335,11 +351,18 @@
 					}
 
 					ipcRenderer.send("update-album", [selectedAlbumData.name, currentAlbumData]); // [albumName, updatedData]
+
+					// update selected album data
+					selectedAlbum = albumName;
+					selectedAlbumData = currentAlbumData;
 				}
+
+				// update allAlbum
+				allAlbum = ipcRenderer.sendSync("get-settings", "album");
 
 				// update select
 				allAlbum = ipcRenderer.sendSync("get-settings", "album");
-				listUpdate(allAlbum);
+				listUpdate(allAlbum, false);
 
 				// close loadbar
 				setTimeout(() => (document.getElementById("loadbar").style.display = "none"), 500);
@@ -415,6 +438,29 @@
 					randomOrder_El.checked = false;
 					shuffleInterval_El.value = 30;
 				}
+			});
+
+			// delete
+			document.getElementById("delete").addEventListener("click", () => {
+				const confirmation = ipcRenderer.sendSync("dialogbox", ["warning", "You will lose all data of this album, continue?"]);
+				if (confirmation === 1) return;
+
+				// check if album is selected
+				if (selectedAlbum === "Add more") {
+					ipcRenderer.send("dialogbox", ["error", "Please select an album to delete"]);
+					return;
+				}
+
+				// check selected album is in the runtime
+				const runTimeAlbum = ipcRenderer.sendSync("get-current-album");
+				if (runTimeAlbum.includes(selectedAlbum)) {
+					ipcRenderer.send("dialogbox", ["error", "You can't delete an album that is currently in use"]);
+					return;
+				}
+
+				ipcRenderer.send("delete-album", selectedAlbum);
+				allAlbum = ipcRenderer.sendSync("get-settings", "album");
+				listUpdate(allAlbum);
 			});
 		</script>
 	</body>
