@@ -304,7 +304,9 @@
 					desc.className = "img-desc fadeIn";
 					desc.style.display = "none";
 					desc.id = `desc-${i}`;
-					desc.innerHTML = `<p onclick="copyToClipboard('${image.replace(/\\/g, "/")}')" style="cursor: pointer;">${image}</p>`;
+					desc.innerHTML = `
+					<p class="has-tooltip-top" data-tooltip="Click to copy image path to clipboard" onclick="copyToClipboard('${image.replace(/\\/g, "/")}')" style="cursor: pointer;">${image}</p>
+					`;
 					div.appendChild(desc);
 
 					const descHover = document.createElement("div");
