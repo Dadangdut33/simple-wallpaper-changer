@@ -1,8 +1,9 @@
 // modules
-const { app, BrowserWindow, ipcMain, Menu, MenuItem, globalShortcut, dialog, Tray } = require("electron");
+const { app, BrowserWindow, ipcMain, Menu, MenuItem, globalShortcut, dialog, Tray, Notification } = require("electron");
 const path = require("path");
 const wallpaper = require("wallpaper");
-
+const firstRun = require("electron-first-run");
+const isFirstRun = firstRun();
 // ============================================================
 const { loadConfig, saveConfig, resetDefaultApp, albumSettings_Default, runtimeSettings_Default, appSettings_Default } = require("./js/handler/files");
 
@@ -43,11 +44,28 @@ const createWindow = () => {
 	// events
 	mainWindow.on("close", (event) => {
 		event.preventDefault();
+		// notify
+		new Notification({
+			title: "Simple Wallpaper Changer",
+			body: "Application is hidden to tray",
+			icon: iconPath,
+		}).show();
+
 		mainWindow.hide();
 	});
 	mainWindow.on("unresponsive", onUnresponsiveWindow);
 
 	loadSetting();
+
+	// check first run
+	if (firstRun) {
+		// notify
+		new Notification({
+			title: `Welcome to Simple Wallpaper Changer ${app.getVersion()}`,
+			body: "Installation is complete and You can start using the app by setting the album in the album tab.",
+			icon: iconPath,
+		}).show();
+	}
 };
 
 // This method will be called when Electron has finished
@@ -618,7 +636,6 @@ ipcMain.on("dialogbox", (event, args) => {
 
 // ============================================================
 // Get Version
-const version = app.getVersion();
 ipcMain.on("get-version", (event, args) => {
-	event.returnValue = version;
+	event.returnValue = app.getVersion();
 });
