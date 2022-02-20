@@ -57,7 +57,7 @@ const getFilesInFolder = (folder) => {
 	try {
 		// readdir and add the basefolder
 		files = fs.readdirSync(folder).map((file) => {
-			return path.join(folder, file);
+			return path.join(folder, file).replace(/\\/g, "/");
 		});
 		success = true;
 	} catch (error) {

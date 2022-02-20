@@ -184,6 +184,7 @@
 			});
 
 			const { ipcRenderer } = require("electron");
+			const shell = require("electron").shell;
 			const albumSelect_El = document.getElementById("album-select");
 			const albumName_El = document.getElementById("album-name");
 			const baseFolder_El = document.getElementById("base-folder");
@@ -193,7 +194,7 @@
 			const imgContainer = document.getElementById("img-container");
 			const loadBar = document.getElementById("loadbar");
 
-			let selectedAlbum = "",
+			let selectedAlbum_Name = "",
 				selectedAlbumData = {},
 				allAlbum = [];
 
@@ -219,19 +220,18 @@
 
 				// get current album // if getRunTime else stays on the same album
 				if (getRuntime) {
-					selectedAlbum = ipcRenderer.sendSync("get-current-album")[0];
-					selectedAlbumData = ipcRenderer.sendSync("get-current-album-data", selectedAlbum);
+					selectedAlbum_Name = ipcRenderer.sendSync("get-current-album")[0];
+					selectedAlbumData = ipcRenderer.sendSync("get-current-album-data", selectedAlbum_Name);
 
 					// set selected album as the current album and fill the data
-					albumSelect_El.value = selectedAlbum;
+					albumSelect_El.value = selectedAlbum_Name;
 					fillData(selectedAlbumData);
 				}
 			};
 
 			const wallpaper = require("wallpaper");
-
+			const { clipboard } = require("electron");
 			const setWallpaper = async (path) => {
-				console.log(path);
 				try {
 					await wallpaper.set(path);
 				} catch (error) {
@@ -239,12 +239,47 @@
 				}
 			};
 
-			const loadImage = (images) => {
+			const openInExplorer = (path) => {
+				shell.openPath(path);
+			};
+
+			const copyToClipboard = (path) => {
+				showToast("Copied to clipboard");
+				clipboard.writeText(path);
+
+				setTimeout(() => {
+					closeToast();
+				}, 1000);
+			};
+
+			const setActiveInactive = (el_this, id_num, path) => {
+				if (el_this.id === "active") {
+					ipcRenderer.send("set-img-inactive", [selectedAlbum_Name, path]);
+					el_this.id = "inactive";
+					document.getElementById("desc-span-" + id_num).className = "skipped";
+				} else {
+					ipcRenderer.send("set-img-active", [selectedAlbum_Name, path]);
+					el_this.id = "active";
+					document.getElementById("desc-span-" + id_num).className = "";
+				}
+			};
+
+			const deleteFromList = (el_this, id_num, path) => {
+				const activeOrNot = document.getElementById("desc-span-" + id_num).className === "skipped" ? true : false;
+
+				ipcRenderer.send("delete-img", [selectedAlbum_Name, path, activeOrNot]);
+
+				// remove from the list
+				document.getElementById("img-wrapper-" + id_num).remove();
+			};
+
+			const loadImage = (images, active = true) => {
 				showToast("Loading images... Please wait as this might take a while depending on your computer's performance and the amount of images in the album.");
 				loadBar.style.display = "block";
 				images.some((image, i) => {
 					const div = document.createElement("div");
 					div.className = "img-wrapper";
+					div.id = "img-wrapper-" + i;
 					div.onmouseenter = () => {
 						showDesc(i);
 					};
@@ -255,6 +290,8 @@
 					// span
 					const span = document.createElement("span");
 					span.id = "desc-span-" + i;
+					if (!active) span.className = "skipped";
+
 					div.appendChild(span);
 
 					const img = document.createElement("img");
@@ -267,32 +304,32 @@
 					desc.className = "img-desc fadeIn";
 					desc.style.display = "none";
 					desc.id = `desc-${i}`;
-					desc.innerHTML = `<p>${image}</p>`;
+					desc.innerHTML = `<p onclick="copyToClipboard('${image.replace(/\\/g, "/")}')" style="cursor: pointer;">${image}</p>`;
 					div.appendChild(desc);
 
 					const descHover = document.createElement("div");
 					const iconApply = document.createElement("span");
 					iconApply.className = "has-tooltip-bottom mx-1";
 					iconApply.dataset.tooltip = "Set as current wallpaper";
-					iconApply.innerHTML = `<i class="fas fa-check-circle" onclick="setWallpaper('${image.replace(/\\/g, "/")}')" ></i>`;
+					iconApply.innerHTML = `<i class="fas fa-check-circle" onclick="setWallpaper('${image.replace(/\\/g, "/")}')"></i>`;
 					descHover.appendChild(iconApply);
 
 					const iconSkip = document.createElement("span");
 					iconSkip.className = "has-tooltip-bottom mx-1";
 					iconSkip.dataset.tooltip = "Skip this wallpaper from the list";
-					iconSkip.innerHTML = `<i class="fas fa-minus-circle"></i>`;
+					iconSkip.innerHTML = `<i class="fas fa-minus-circle" id="${active ? "active" : "inactive"}" onclick="setActiveInactive(this, ${i},'${image.replace(/\\/g, "/")}')"></i>`;
 					descHover.appendChild(iconSkip);
 
 					const iconDelete = document.createElement("span");
 					iconDelete.className = "has-tooltip-bottom mx-1";
 					iconDelete.dataset.tooltip = "Delete this wallpaper from the list";
-					iconDelete.innerHTML = `<i class="fas fa-trash-alt"></i>`;
+					iconDelete.innerHTML = `<i class="fas fa-trash-alt" onclick="deleteFromList(this, ${i},'${image.replace(/\\/g, "/")}')"></i>`;
 					descHover.appendChild(iconDelete);
 
 					const iconOpen = document.createElement("span");
 					iconOpen.className = "has-tooltip-bottom mx-1";
 					iconOpen.dataset.tooltip = "Open this wallpaper in the default viewer";
-					iconOpen.innerHTML = `<i class="fas fa-external-link-alt"></i>`;
+					iconOpen.innerHTML = `<i class="fas fa-external-link-alt" onclick="openInExplorer('${image.replace(/\\/g, "/")}')"></i>`;
 					descHover.appendChild(iconOpen);
 
 					desc.appendChild(descHover);
@@ -377,7 +414,7 @@
 					} // no
 				}
 
-				if (selectedAlbum === "Add more") {
+				if (selectedAlbum_Name === "Add more") {
 					let active_wp = [];
 
 					// check if albumName already exist in allAlbum
@@ -404,7 +441,7 @@
 					};
 					ipcRenderer.send("add-album", albumData);
 
-					selectedAlbum = albumName;
+					selectedAlbum_Name = albumName;
 					selectedAlbumData = albumData;
 				} else {
 					// get current album data first
@@ -448,7 +485,7 @@
 					ipcRenderer.send("update-album", [selectedAlbumData.name, currentAlbumData]); // [albumName, updatedData]
 
 					// update selected album data
-					selectedAlbum = albumName;
+					selectedAlbum_Name = albumName;
 					selectedAlbumData = currentAlbumData;
 				}
 
@@ -467,7 +504,7 @@
 			};
 
 			const checkChanges = () => {
-				if (selectedAlbum !== "Add more") {
+				if (selectedAlbum_Name !== "Add more") {
 					if (selectedAlbumData.name !== albumName_El.value || selectedAlbumData.baseFolder !== baseFolder_El.value) {
 						const res = ipcRenderer.sendSync("dialogbox", ["yesno", "You have unsaved changes. Do you want to save them?"]);
 						if (res === 0) saveChanges();
@@ -488,7 +525,7 @@
 				checkChanges();
 
 				const album = albumSelect_El.value;
-				selectedAlbum = album;
+				selectedAlbum_Name = album;
 				btnLoadImg.style.display = "block";
 				if (album === "Add more") {
 					selectedAlbumData = {};
@@ -497,7 +534,7 @@
 
 					document.getElementById("img-container").innerHTML = "";
 				} else {
-					selectedAlbumData = ipcRenderer.sendSync("get-current-album-data", selectedAlbum);
+					selectedAlbumData = ipcRenderer.sendSync("get-current-album-data", selectedAlbum_Name);
 					fillData(selectedAlbumData);
 
 					document.getElementById("img-container").innerHTML = "";
@@ -522,7 +559,7 @@
 				const confirmation = ipcRenderer.sendSync("dialogbox", ["warning", "You will lose all changes made, continue?"]);
 				if (confirmation === 1) return;
 
-				if (selectedAlbum !== "Add more") {
+				if (selectedAlbum_Name !== "Add more") {
 					fillData(selectedAlbumData);
 				} else {
 					albumName_El.value = "";
@@ -536,19 +573,19 @@
 				if (confirmation === 1) return;
 
 				// check if album is selected
-				if (selectedAlbum === "Add more") {
+				if (selectedAlbum_Name === "Add more") {
 					ipcRenderer.send("dialogbox", ["error", "Please select an album to delete"]);
 					return;
 				}
 
 				// check selected album is in the runtime
 				const runTimeAlbum = ipcRenderer.sendSync("get-current-album");
-				if (runTimeAlbum.includes(selectedAlbum)) {
+				if (runTimeAlbum.includes(selectedAlbum_Name)) {
 					ipcRenderer.send("dialogbox", ["error", "You can't delete an album that is currently in use"]);
 					return;
 				}
 
-				ipcRenderer.send("delete-album", selectedAlbum);
+				ipcRenderer.send("delete-album", selectedAlbum_Name);
 				allAlbum = ipcRenderer.sendSync("get-settings", "album");
 				listUpdate(allAlbum);
 			});

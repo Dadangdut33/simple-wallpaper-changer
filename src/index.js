@@ -416,6 +416,47 @@ const deleteAlbum = (album) => {
 	}
 };
 
+const setImageActive = (album, image) => {
+	// remove the image from inactive_wp
+	const pos_Album = albumSettings.findIndex((el) => el.name === album);
+	const pos_Image = albumSettings[pos_Album].inactive_wp.findIndex((el) => el === image);
+	albumSettings[pos_Album].inactive_wp.splice(pos_Image, 1);
+
+	// add it to active_wp
+	albumSettings[pos_Album].active_wp.push(image);
+
+	// save setting
+	saveSettings("album", albumSettings, false);
+};
+
+const setImageInactive = (album, image) => {
+	// remove the image from active_wp
+	const pos_Album = albumSettings.findIndex((el) => el.name === album);
+	const pos_Image = albumSettings[pos_Album].active_wp.findIndex((el) => el === image);
+	albumSettings[pos_Album].active_wp.splice(pos_Image, 1);
+
+	// add it to inactive_wp
+	albumSettings[pos_Album].inactive_wp.push(image);
+
+	// save setting
+	saveSettings("album", albumSettings, false);
+};
+
+const deleteImage = (album, image, active) => {
+	// remove the image from active_wp
+	const pos_Album = albumSettings.findIndex((el) => el.name === album);
+	if (active) {
+		const pos_Image = albumSettings[pos_Album].active_wp.findIndex((el) => el === image);
+		albumSettings[pos_Album].active_wp.splice(pos_Image, 1);
+	} else {
+		const pos_Image = albumSettings[pos_Album].inactive_wp.findIndex((el) => el === image);
+		albumSettings[pos_Album].inactive_wp.splice(pos_Image, 1);
+	}
+
+	// save setting
+	saveSettings("album", albumSettings);
+};
+
 // --- IPC ---
 
 ipcMain.on("album-set", (event, args) => {
@@ -435,6 +476,18 @@ ipcMain.on("update-album", (event, args) => {
 ipcMain.on("delete-album", (event, args) => {
 	// delete album from config
 	deleteAlbum(args);
+});
+
+ipcMain.on("set-img-inactive", (event, args) => {
+	setImageInactive(args[0], args[1]);
+});
+
+ipcMain.on("set-img-active", (event, args) => {
+	setImageActive(args[0], args[1]);
+});
+
+ipcMain.on("delete-img", (event, args) => {
+	deleteImage(args[0], args[1], args[2]);
 });
 
 // ============================================================
