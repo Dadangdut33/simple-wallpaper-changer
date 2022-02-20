@@ -62,7 +62,7 @@ const createWindow = () => {
 		// notify
 		new Notification({
 			title: `Welcome to Simple Wallpaper Changer ${app.getVersion()}`,
-			body: "Installation is complete and You can start using the app by setting the album in the album tab.",
+			body: "Thanks for installing this app. You can start using the app by setting the album in the album tab.",
 			icon: iconPath,
 		}).show();
 	}

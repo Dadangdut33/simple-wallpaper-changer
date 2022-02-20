@@ -228,16 +228,34 @@
 				}
 			};
 
+			const wallpaper = require("wallpaper");
+
+			const setWallpaper = async (path) => {
+				console.log(path);
+				try {
+					await wallpaper.set(path);
+				} catch (error) {
+					ipcRenderer.send("dialogbox", ["error", error.message]);
+				}
+			};
+
 			const loadImage = (images) => {
 				showToast("Loading images... Please wait as this might take a while depending on your computer's performance and the amount of images in the album.");
 				loadBar.style.display = "block";
 				images.some((image, i) => {
 					const div = document.createElement("div");
 					div.className = "img-wrapper";
-					const span = document.createElement("span");
-					div.appendChild(span);
+					div.onmouseenter = () => {
+						showDesc(i);
+					};
+					div.onmouseleave = () => {
+						hideDesc(i);
+					};
 
-					// TODO:onclick for each button
+					// span
+					const span = document.createElement("span");
+					span.id = "desc-span-" + i;
+					div.appendChild(span);
 
 					const img = document.createElement("img");
 					img.src = image;
@@ -256,7 +274,7 @@
 					const iconApply = document.createElement("span");
 					iconApply.className = "has-tooltip-bottom mx-1";
 					iconApply.dataset.tooltip = "Set as current wallpaper";
-					iconApply.innerHTML = `<i class="fas fa-check-circle"></i>`;
+					iconApply.innerHTML = `<i class="fas fa-check-circle" onclick="setWallpaper('${image.replace(/\\/g, "/")}')" ></i>`;
 					descHover.appendChild(iconApply);
 
 					const iconSkip = document.createElement("span");
@@ -279,13 +297,6 @@
 
 					desc.appendChild(descHover);
 
-					div.addEventListener("mouseenter", () => {
-						showDesc(i);
-					});
-
-					div.addEventListener("mouseleave", () => {
-						hideDesc(i);
-					});
 					imgContainer.appendChild(div);
 				});
 
