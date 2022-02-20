@@ -134,7 +134,7 @@
 							</a>
 						</p>
 						<p class="control">
-							<a class="button is-danger is-small" id="cancel">
+							<a class="button is-warning is-small" id="cancel">
 								<span class="icon is-small">
 									<i class="fas fa-times" aria-hidden="true"></i>
 								</span>
@@ -158,11 +158,20 @@
 			<div class="is-flex">
 				<div class="field is-grouped mx-auto">
 					<p class="control">
-						<a class="button is-link" id="load-images">
+						<a class="button is-primary" id="load-images">
 							<span class="icon is-small">
 								<i class="fas fa-eye" aria-hidden="true"></i>
 							</span>
 							<span>Load Album Images</span>
+						</a>
+					</p>
+
+					<p class="control">
+						<a class="button is-link" id="sync-folder">
+							<span class="icon is-primary">
+								<i class="fas fa-sync" aria-hidden="true"></i>
+							</span>
+							<span>Sync Album to Base Folder</span>
 						</a>
 					</p>
 
@@ -371,6 +380,21 @@
 					// close loadbar
 					setTimeout(() => (document.getElementById("loadbar").style.display = "none"), 500);
 				}, 200);
+			});
+
+			// cancel
+			document.getElementById("cancel").addEventListener("click", () => {
+				const confirmation = ipcRenderer.sendSync("dialogbox", ["warning", "You will lose all changes made, continue?"]);
+				if (confirmation === 1) return;
+
+				if (selectedAlbum !== "Add more") {
+					fillData(selectedAlbumData);
+				} else {
+					albumName_El.value = "";
+					baseFolder_El.value = "";
+					randomOrder_El.checked = false;
+					shuffleInterval_El.value = 30;
+				}
 			});
 		</script>
 	</body>
