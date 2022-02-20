@@ -11,8 +11,6 @@ const albumSettings_Default = [
 		baseFolder: "",
 		active_wp: [],
 		inactive_wp: [],
-		preferred_Random: true,
-		preferred_shuffle_interval: 30, // minutes
 	},
 ];
 

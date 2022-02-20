@@ -42,6 +42,13 @@
 				</ul>
 			</div>
 
+			<div id="toast" class="toast" style="display: none">
+				<p id="toast-text"></p>
+				<span id="toast-close" class="toast-close">
+					<i class="fas fa-times"></i>
+				</span>
+			</div>
+
 			<div class="field">
 				<progress class="progress is-small is-info" max="100" id="loadbar" style="display: none">15%</progress>
 				<label class="label">
@@ -77,7 +84,9 @@
 								<input class="input" type="text" name="album-name" id="album-name" placeholder="Album Name" required />
 							</div>
 						</div>
+					</div>
 
+					<div class="column">
 						<div class="field">
 							<label class="label">
 								Base Folder
@@ -86,38 +95,6 @@
 
 							<div class="control">
 								<input class="input" type="text" name="base-folder" id="base-folder" placeholder="Base Folder" onclick="pathDialog()" />
-							</div>
-						</div>
-					</div>
-
-					<div class="column">
-						<div class="field">
-							<label class="label">
-								Preferred Shuffle Interval (Minutes)
-								<span
-									class="has-tooltip-right has-tooltip-multiline"
-									data-tooltip="Preferred shuffle interval for the queue. Will overwrite the setting in the queue page when switching album."
-								>
-									<i class="fas fa-info-circle"></i>
-								</span>
-							</label>
-
-							<div class="control">
-								<input class="input" type="number" name="shuffle-intervaL" id="shuffle-interval" placeholder="Preffered shuffle interval in minutes" min="1" required />
-							</div>
-						</div>
-
-						<div class="field">
-							<div class="control">
-								<span
-									class="has-tooltip-right has-tooltip-multiline"
-									data-tooltip="Preffered order of the wallpaper in the album for the queue. Will overwrite the setting in the queue page when switching album."
-								>
-									<label class="checkbox">
-										<input type="checkbox" name="random-order" id="random-order" />
-										Preferred Random Order
-									</label>
-								</span>
 							</div>
 						</div>
 					</div>
@@ -192,12 +169,6 @@
 		</div>
 
 		<script defer type="text/javascript">
-			document.getElementById("shuffle-interval").addEventListener("change", function () {
-				if (this.value < 1) {
-					this.value = 1;
-				}
-			});
-
 			// prevent any input in base-folder
 			document.getElementById("base-folder").addEventListener("keydown", function (e) {
 				e.preventDefault();
@@ -207,8 +178,9 @@
 			const albumSelect_El = document.getElementById("album-select");
 			const albumName_El = document.getElementById("album-name");
 			const baseFolder_El = document.getElementById("base-folder");
-			const randomOrder_El = document.getElementById("random-order");
-			const shuffleInterval_El = document.getElementById("shuffle-interval");
+			const toast = document.getElementById("toast");
+			const toast_text = document.getElementById("toast-text");
+			const toast_close = document.getElementById("toast-close");
 
 			let selectedAlbum = "",
 				selectedAlbumData = {},
@@ -217,8 +189,6 @@
 			const fillData = (data) => {
 				albumName_El.value = data.name;
 				baseFolder_El.value = data.baseFolder;
-				randomOrder_El.checked = data.preferred_Random;
-				shuffleInterval_El.value = data.preferred_shuffle_interval;
 			};
 
 			const listUpdate = (albumList, getRuntime = true) => {
@@ -240,14 +210,33 @@
 				if (getRuntime) {
 					selectedAlbum = ipcRenderer.sendSync("get-current-album")[0];
 					selectedAlbumData = ipcRenderer.sendSync("get-current-album-data", selectedAlbum);
+
+					// set selected album as the current album and fill the data
+					albumSelect_El.value = selectedAlbum;
+					fillData(selectedAlbumData);
 				}
-
-				console.log(selectedAlbum);
-
-				// set selected album as the current album and fill the data
-				albumSelect_El.value = selectedAlbum;
-				fillData(selectedAlbumData);
 			};
+
+			// ================================================================
+			// Toast
+			let toastCloseTimeout = null;
+			const closeToast = () => {
+				toast.classList.add("slide-out");
+				clearTimeout(toastCloseTimeout);
+
+				// timeout 0.45 seconds then add style display none
+				toastCloseTimeout = setTimeout(() => {
+					toast.style.display = "none";
+				}, 450);
+			};
+
+			const showToast = (msg) => {
+				toast.classList.remove("slide-out");
+				toast.style.display = "block";
+				toast_text.innerText = msg;
+			};
+
+			toast_close.addEventListener("click", closeToast);
 
 			// ================================================================
 			// page open
@@ -261,30 +250,38 @@
 			// ================================================================
 			const saveChanges = () => {
 				// show loadbar
+				showToast("Saving changes...");
 				document.getElementById("loadbar").style.display = "block";
 
 				const albumName = albumName_El.value.trim();
 				const baseFolder = baseFolder_El.value.trim();
-				const randomOrder = randomOrder_El.checked;
-				const shuffleInterval = shuffleInterval_El.value;
 
 				if (albumName.length === 0) {
 					ipcRenderer.send("dialogbox", ["error", "Album name cannot be empty!"]);
-					setTimeout(() => (document.getElementById("loadbar").style.display = "none"), 500);
+					setTimeout(() => {
+						document.getElementById("loadbar").style.display = "none";
+						closeToast();
+					}, 500);
 					return;
 				}
 
 				// invalid albumName
 				if (albumName.toLowerCase() === "add more") {
 					ipcRenderer.send("dialogbox", ["error", "Invalid album name provided!"]);
-					setTimeout(() => (document.getElementById("loadbar").style.display = "none"), 500);
+					setTimeout(() => {
+						document.getElementById("loadbar").style.display = "none";
+						closeToast();
+					}, 500);
 					return;
 				}
 
 				if (baseFolder.length === 0) {
 					const confirmation = ipcRenderer.sendSync("dialogbox", ["warning", "Base folder is empty, continue?"]);
 					if (confirmation === 1) {
-						setTimeout(() => (document.getElementById("loadbar").style.display = "none"), 500);
+						setTimeout(() => {
+							document.getElementById("loadbar").style.display = "none";
+							closeToast();
+						}, 500);
 						return;
 					} // no
 				}
@@ -295,7 +292,10 @@
 					// check if albumName already exist in allAlbum
 					if (allAlbum.some((album) => album.name.toLowerCase() === albumName.toLowerCase())) {
 						ipcRenderer.send("dialogbox", ["error", "Album with the same name already exist!"]);
-						setTimeout(() => (document.getElementById("loadbar").style.display = "none"), 500);
+						setTimeout(() => {
+							document.getElementById("loadbar").style.display = "none";
+							closeToast();
+						}, 500);
 						return;
 					}
 
@@ -310,8 +310,6 @@
 						baseFolder: baseFolder,
 						active_wp: active_wp,
 						inactive_wp: [],
-						preferred_Random: randomOrder,
-						preferred_shuffle_interval: parseInt(shuffleInterval),
 					};
 					ipcRenderer.send("add-album", albumData);
 
@@ -326,28 +324,34 @@
 					if (selectedAlbumData.name !== albumName) {
 						if (allAlbum.some((album) => album.name.toLowerCase() === albumName.toLowerCase())) {
 							ipcRenderer.send("dialogbox", ["error", "Album with the same name already exist!"]);
-							setTimeout(() => (document.getElementById("loadbar").style.display = "none"), 500);
+							setTimeout(() => {
+								document.getElementById("loadbar").style.display = "none";
+								closeToast();
+							}, 500);
 							return;
 						}
 					}
 
 					currentAlbumData.name = albumName;
-					currentAlbumData.preferred_Random = randomOrder;
-					currentAlbumData.preferred_shuffle_interval = parseInt(shuffleInterval);
 
+					// check if basefolder is edited
 					if (currentAlbumData.baseFolder !== baseFolder) {
 						currentAlbumData.baseFolder = baseFolder;
-						new_active_wp = getFilesInFolder(baseFolder);
-						new_active_wp = filterImages(new_active_wp);
 
-						// add new active wp to current active wp but make sure no duplicate
-						const newArr = [...currentAlbumData.active_wp, ...new_active_wp];
-						currentAlbumData.active_wp = [...new Set(newArr)];
+						// if it is not empty
+						if (baseFolder.length > 0) {
+							new_active_wp = getFilesInFolder(baseFolder);
+							new_active_wp = filterImages(new_active_wp);
 
-						// remove active wp that is currently in inactive_wp
-						currentAlbumData.active_wp = currentAlbumData.active_wp.filter((active_wp) => {
-							return !currentAlbumData.inactive_wp.includes(active_wp);
-						});
+							// add new active wp to current active wp but make sure no duplicate
+							const newArr = [...currentAlbumData.active_wp, ...new_active_wp];
+							currentAlbumData.active_wp = [...new Set(newArr)];
+
+							// remove active wp that is currently in inactive_wp
+							currentAlbumData.active_wp = currentAlbumData.active_wp.filter((active_wp) => {
+								return !currentAlbumData.inactive_wp.includes(active_wp);
+							});
+						}
 					}
 
 					ipcRenderer.send("update-album", [selectedAlbumData.name, currentAlbumData]); // [albumName, updatedData]
@@ -365,21 +369,19 @@
 				listUpdate(allAlbum, false);
 
 				// close loadbar
-				setTimeout(() => (document.getElementById("loadbar").style.display = "none"), 500);
+				setTimeout(() => {
+					document.getElementById("loadbar").style.display = "none";
+					closeToast();
+				}, 500);
 			};
 
 			const checkChanges = () => {
 				if (selectedAlbum !== "Add more") {
-					if (
-						selectedAlbumData.name !== albumName_El.value ||
-						selectedAlbumData.baseFolder !== baseFolder_El.value ||
-						selectedAlbumData.preferred_Random !== randomOrder_El.checked ||
-						selectedAlbumData.preferred_shuffle_interval !== parseInt(shuffleInterval_El.value)
-					) {
+					if (selectedAlbumData.name !== albumName_El.value || selectedAlbumData.baseFolder !== baseFolder_El.value) {
 						const res = ipcRenderer.sendSync("dialogbox", ["yesno", "You have unsaved changes. Do you want to save them?"]);
 						if (res === 0) saveChanges();
 					}
-				} else if (albumName_El.value.length > 0 || baseFolder_El.value.value > 0 || randomOrder_El.checked || parseInt(shuffleInterval_El.value) !== 30) {
+				} else if (albumName_El.value.length > 0 || baseFolder_El.value.value > 0) {
 					const res = ipcRenderer.sendSync("dialogbox", ["yesno", "You have unsaved changes. Do you want to save them?"]);
 					if (res === 0) saveChanges();
 				}
@@ -394,8 +396,6 @@
 					selectedAlbumData = {};
 					albumName_El.value = "";
 					baseFolder_El.value = "";
-					randomOrder_El.checked = false;
-					shuffleInterval_El.value = 30;
 
 					document.getElementById("img-container").innerHTML = "";
 				} else {
@@ -435,8 +435,6 @@
 				} else {
 					albumName_El.value = "";
 					baseFolder_El.value = "";
-					randomOrder_El.checked = false;
-					shuffleInterval_El.value = 30;
 				}
 			});
 
@@ -461,6 +459,16 @@
 				ipcRenderer.send("delete-album", selectedAlbum);
 				allAlbum = ipcRenderer.sendSync("get-settings", "album");
 				listUpdate(allAlbum);
+			});
+
+			// ================================================================
+			// update data from ipcmain
+			// ================================================================
+			ipcRenderer.on("update-album-data", (event, arg) => {
+				allAlbum = ipcRenderer.sendSync("get-settings", "album");
+				listUpdate(allAlbum, false);
+
+				showToast("Album has been updated by the app. Reload album image if needed.");
 			});
 		</script>
 	</body>

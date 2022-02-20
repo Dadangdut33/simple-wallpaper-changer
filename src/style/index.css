@@ -19,6 +19,62 @@ span[data-tooltip] {
 }
 
 /* ============== */
+/* Toast */
+.toast {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 9999;
+  width: 100%;
+  padding: 1rem;
+  background-color: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+  animation: slide-in 0.5s ease-out;
+}
+
+#toast-text {
+  margin: 0;
+}
+
+.toast-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 0.5rem;
+  color: #fff;
+  background-color: #000;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  display: block;
+  transform: scale(0.8);
+}
+
+.slide-out {
+  animation: slide-out 0.5s ease-out;
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateY(-100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-out {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-100%);
+  }
+}
+
+/* ============== */
 /* Image */
 #img-container {
   display: flex;

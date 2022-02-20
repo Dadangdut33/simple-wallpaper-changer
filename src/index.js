@@ -443,9 +443,9 @@ const setRandom = (random) => {
 
 /**
  * Set shuffle value in the runtimeSettings and save it.
- * @param {boolean} shuffle - The shuffle value to be set
+ * @param {int} shuffle - The shuffle interval value to be set
  */
-const setShuffle = (shuffle) => {
+const setShuffleInterval = (shuffle) => {
 	runtimeSettings.currentShuffleInterval = shuffle;
 	// update config
 	saveSettings("runtime", runtimeSettings);
@@ -467,7 +467,7 @@ ipcMain.on("random-set", (event, args) => {
 });
 
 ipcMain.on("shuffle-set", (event, args) => {
-	setShuffle(args);
+	setShuffleInterval(args);
 });
 
 // ============================================================
