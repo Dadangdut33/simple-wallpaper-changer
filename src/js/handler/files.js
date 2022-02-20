@@ -1,32 +1,35 @@
 const fs = require("fs");
 const path = require("path");
 const configDir = path.join(__dirname, "..\\..\\config\\");
-const configPath = path.join(configDir, "config.json");
-const defaultConfig = {
-	profile: [
-		{
-			album: "Default",
-			baseFolder: "",
-			active_wp: [],
-			inactive_wp: [],
-			preferred_Random: true,
-			preferred_shuffle_interval: 30, // minutes
-		},
-	],
-	runtimeSettings: {
-		// runtime settings -> setting each time the app is started
-		currentQueue: [], // max 20 shown
-		currentAlbum: "Default",
-		currentRandom: true,
-		currentShuffleInterval: 30, // minutes
+const albumSettingsPath = path.join(configDir, "album.json");
+const runtimeSettingsPath = path.join(configDir, "runtimSettings.json");
+const appSettingsPath = path.join(configDir, "appSettings.json");
+
+const albumSettings_Default = [
+	{
+		name: "Default",
+		baseFolder: "",
+		active_wp: [],
+		inactive_wp: [],
+		preferred_Random: true,
+		preferred_shuffle_interval: 30, // minutes
 	},
-	appSettings: {
-		start_on_startup: false,
-		rescan_every_start: false,
-		auto_rescan: false,
-		rescan_interval: 12,
-	},
+];
+
+const runtimeSettings_Default = {
+	currentQueue: [], // max 20 shown
+	currentAlbum: "Default",
+	currentRandom: true,
+	currentShuffleInterval: 30, // minutes
 };
+
+const appSettings_Default = {
+	start_on_startup: false,
+	rescan_every_start: false,
+	auto_rescan: false,
+	rescan_interval: 12,
+};
+
 let { ipcRenderer: ipcInFiles } = require("electron");
 
 // ============================================================
@@ -68,12 +71,12 @@ const filterImages = (item) => {
 };
 
 // config
-const saveConfig = (config) => {
+const saveConfig = (path, config) => {
 	let success = false,
 		errMsg = "";
 	createPathIfNotExist(configDir);
 	try {
-		fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+		fs.writeFileSync(path, JSON.stringify(config, null, 2), "utf8");
 		success = true;
 	} catch (error) {
 		success = false;
@@ -83,19 +86,32 @@ const saveConfig = (config) => {
 	return { success, errMsg };
 };
 
-const loadConfig = () => {
+const loadConfig = (type) => {
 	let data = {},
 		success = false,
 		errMsg = "";
+
+	let dataPath_Dict = {
+		album: albumSettingsPath,
+		runtime: runtimeSettingsPath,
+		app: appSettingsPath,
+	};
+
+	let dataDefault_Dict = {
+		album: albumSettings_Default,
+		runtime: runtimeSettings_Default,
+		app: appSettings_Default,
+	};
+
 	try {
-		data = JSON.parse(fs.readFileSync(configPath));
+		data = JSON.parse(fs.readFileSync(dataPath_Dict[type], "utf8"));
 		success = true;
 	} catch (error) {
 		// check if error file not found
 		if (error.code === "ENOENT") {
 			// create default config file
-			saveConfig(defaultConfig);
-			data = defaultConfig;
+			saveConfig(dataPath_Dict[type], dataDefault_Dict[type]);
+			data = dataDefault_Dict[type];
 			success = true;
 		} else {
 			success = false;
@@ -105,20 +121,10 @@ const loadConfig = () => {
 	return { data, success, errMsg };
 };
 
-const resetDefault = () => {
-	const config = defaultConfig;
-	const { success, errMsg } = saveConfig(config);
+const resetDefaultApp = (appConfig) => {
+	appConfig = appSettings_Default;
 
-	return { config, success, errMsg };
-};
-
-const resetDefaultApp = (currentConfig) => {
-	currentConfig.appSettings.start_on_startup = false;
-	currentConfig.appSettings.rescan_every_start = false;
-	currentConfig.appSettings.auto_rescan = false;
-	currentConfig.appSettings.rescan_interval = 12;
-
-	const { success, errMsg } = saveConfig(currentConfig);
+	const { success, errMsg } = saveConfig(appSettingsPath, appConfig);
 
 	return { currentConfig, success, errMsg };
 };
@@ -126,8 +132,8 @@ const resetDefaultApp = (currentConfig) => {
 // ============================================================
 // Test
 var fnName = function () {
-	console.log("🚀 ~ file: files.js ~ line 4 ~ fnName ~ configDir", configDir);
-	console.log("🚀 ~ file: files.js ~ line 4 ~ fnName ~ configPath", configPath);
+	// console.log("🚀 ~ file: files.js ~ line 4 ~ fnName ~ configDir", configDir);
+	// console.log("🚀 ~ file: files.js ~ line 4 ~ fnName ~ configPath", albumSettingsPath);
 
 	// const wp = getFilesInFolder("C:\\\\Users\\ffant\\Pictures\\Wallpaper\\test\\");
 	// console.log("🚀 ~ file: files.js ~ fnName ~ wp", wp);
@@ -144,19 +150,37 @@ var fnName = function () {
 
 	// reset config
 	// let z = resetDefault();
+
+	// load config test
+	let dataAlbum = loadConfig("album");
+	console.log("🚀 ~ file: files.js ~ fnName ~ data ", dataAlbum.data);
+	console.log("🚀 ~ file: files.js ~ fnName ~ success ", dataAlbum.success);
+	console.log("🚀 ~ file: files.js ~ fnName ~ errMsg ", dataAlbum.errMsg);
+
+	let dataRuntime = loadConfig("runtime");
+	console.log("🚀 ~ file: files.js ~ fnName ~ data ", dataRuntime.data);
+	console.log("🚀 ~ file: files.js ~ fnName ~ success ", dataRuntime.success);
+	console.log("🚀 ~ file: files.js ~ fnName ~ errMsg ", dataRuntime.errMsg);
+
+	let dataApp = loadConfig("app");
+	console.log("🚀 ~ file: files.js ~ fnName ~ data ", dataApp.data);
+	console.log("🚀 ~ file: files.js ~ fnName ~ success ", dataApp.success);
+	console.log("🚀 ~ file: files.js ~ fnName ~ errMsg ", dataApp.errMsg);
 };
 
 if (typeof require !== "undefined" && require.main === module) {
 	fnName();
 }
 
-module.exports = {
-	createPathIfNotExist,
-	getFilesInFolder,
-	filterImages,
-	saveConfig,
-	loadConfig,
-	resetDefault,
-	resetDefaultApp,
-	defaultConfig,
-};
+// module.exports = {
+// 	createPathIfNotExist,
+// 	getFilesInFolder,
+// 	filterImages,
+// 	saveConfig,
+// 	loadConfig,
+// 	resetDefault,
+// 	resetDefaultApp,
+// 	albumSettings_Default,
+// 	runtimeSettings_Default,
+// 	appSettings_Default,
+// };
