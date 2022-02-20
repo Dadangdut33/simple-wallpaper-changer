@@ -157,7 +157,7 @@
 					document.getElementById("autoRescanInterval").value != loadedSetting.rescan_interval
 				) {
 					// send message box to ask user if they want to save changes
-					const yesNo = ipcRenderer.sendSync("dialogbox", ["yesno", "Do you want to save changes made?"]);
+					const yesNo = ipcRenderer.sendSync("dialogbox", ["yesno", "You have unsaved changes. Do you want to save them?"]);
 					if (yesNo === 1) return;
 					saveUpdate();
 				}

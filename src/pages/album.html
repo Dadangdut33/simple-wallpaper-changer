@@ -255,7 +255,116 @@
 			// ================================================================
 			// handler
 			// ================================================================
+			const saveChanges = () => {
+				// show loadbar
+				document.getElementById("loadbar").style.display = "block";
+
+				const albumName = albumName_El.value.trim();
+				const baseFolder = baseFolder_El.value.trim();
+				const randomOrder = randomOrder_El.checked;
+				const shuffleInterval = shuffleInterval_El.value;
+
+				if (albumName.length === 0) {
+					ipcRenderer.send("dialogbox", ["error", "Album name cannot be empty!"]);
+					setTimeout(() => (document.getElementById("loadbar").style.display = "none"), 500);
+					return;
+				}
+
+				// invalid albumName
+				if (albumName.toLowerCase() === "add more") {
+					ipcRenderer.send("dialogbox", ["error", "Invalid album name provided!"]);
+					setTimeout(() => (document.getElementById("loadbar").style.display = "none"), 500);
+					return;
+				}
+
+				if (baseFolder.length === 0) {
+					const confirmation = ipcRenderer.sendSync("dialogbox", ["warning", "Base folder is empty, continue?"]);
+					if (confirmation === 1) {
+						setTimeout(() => (document.getElementById("loadbar").style.display = "none"), 500);
+						return;
+					} // no
+				}
+
+				if (selectedAlbum === "Add more") {
+					let active_wp = [];
+
+					// check if albumName already exist in allAlbum
+					if (allAlbum.some((album) => album.name === albumName)) {
+						ipcRenderer.send("dialogbox", ["error", "Album with the same name already exist!"]);
+						setTimeout(() => (document.getElementById("loadbar").style.display = "none"), 500);
+						return;
+					}
+
+					if (baseFolder.length > 0) {
+						active_wp = getFilesInFolder(baseFolder);
+						active_wp = filterImages(active_wp);
+					}
+
+					// add
+					const albumData = {
+						name: albumName,
+						baseFolder: baseFolder,
+						active_wp: active_wp,
+						inactive_wp: [],
+						preferred_Random: randomOrder,
+						preferred_shuffle_interval: parseInt(shuffleInterval),
+					};
+					ipcRenderer.send("add-album", albumData);
+				} else {
+					// get current album data first
+					let currentAlbumData = ipcRenderer.sendSync("get-current-album-data", selectedAlbumData.name);
+					let new_active_wp = [];
+
+					currentAlbumData.name = albumName;
+					currentAlbumData.preferred_Random = randomOrder;
+					currentAlbumData.preferred_shuffle_interval = parseInt(shuffleInterval);
+
+					if (currentAlbumData.baseFolder !== baseFolder) {
+						currentAlbumData.baseFolder = baseFolder;
+						new_active_wp = getFilesInFolder(baseFolder);
+						new_active_wp = filterImages(new_active_wp);
+
+						// add new active wp to current active wp but make sure no duplicate
+						const newArr = [...currentAlbumData.active_wp, ...new_active_wp];
+						currentAlbumData.active_wp = [...new Set(newArr)];
+
+						// remove active wp that is currently in inactive_wp
+						currentAlbumData.active_wp = currentAlbumData.active_wp.filter((active_wp) => {
+							return !currentAlbumData.inactive_wp.includes(active_wp);
+						});
+					}
+
+					ipcRenderer.send("update-album", [selectedAlbumData.name, currentAlbumData]); // [albumName, updatedData]
+				}
+
+				// update select
+				allAlbum = ipcRenderer.sendSync("get-settings", "album");
+				listUpdate(allAlbum);
+
+				// close loadbar
+				setTimeout(() => (document.getElementById("loadbar").style.display = "none"), 500);
+			};
+
+			const checkChanges = () => {
+				if (selectedAlbum !== "Add more") {
+					if (
+						selectedAlbumData.name !== albumName_El.value ||
+						selectedAlbumData.baseFolder !== baseFolder_El.value ||
+						selectedAlbumData.preferred_Random !== randomOrder_El.checked ||
+						selectedAlbumData.preferred_shuffle_interval !== parseInt(shuffleInterval_El.value)
+					) {
+						const res = ipcRenderer.sendSync("dialogbox", ["yesno", "You have unsaved changes. Do you want to save them?"]);
+						if (res === 0) saveChanges();
+					}
+				} else if (albumName_El.value.length > 0 || baseFolder_El.value.value > 0 || randomOrder_El.checked || parseInt(shuffleInterval_El.value) !== 30) {
+					const res = ipcRenderer.sendSync("dialogbox", ["yesno", "You have unsaved changes. Do you want to save them?"]);
+					if (res === 0) saveChanges();
+				}
+			};
+
 			const selectAlbumHandler = () => {
+				checkChanges();
+
 				const album = albumSelect_El.value;
 				selectedAlbum = album;
 				if (album === "Add more") {
@@ -290,96 +399,7 @@
 
 			// save
 			document.getElementById("save").addEventListener("click", () => {
-				// show loadbar
-				document.getElementById("loadbar").style.display = "block";
-
-				// delay for .1 second to show the loadbar first
-				setTimeout(() => {
-					const albumName = albumName_El.value.trim();
-					const baseFolder = baseFolder_El.value.trim();
-					const randomOrder = randomOrder_El.checked;
-					const shuffleInterval = shuffleInterval_El.value;
-
-					if (albumName.length === 0) {
-						ipcRenderer.send("dialogbox", ["error", "Album name cannot be empty!"]);
-						setTimeout(() => (document.getElementById("loadbar").style.display = "none"), 1000);
-						return;
-					}
-
-					// invalid albumName
-					if (albumName.toLowerCase() === "add more") {
-						ipcRenderer.send("dialogbox", ["error", "Invalid album name provided!"]);
-						setTimeout(() => (document.getElementById("loadbar").style.display = "none"), 1000);
-						return;
-					}
-
-					if (baseFolder.length === 0) {
-						const confirmation = ipcRenderer.sendSync("dialogbox", ["warning", "Base folder is empty, continue?"]);
-						if (confirmation === 1) {
-							setTimeout(() => (document.getElementById("loadbar").style.display = "none"), 1000);
-							return;
-						} // no
-					}
-
-					if (selectedAlbum === "Add more") {
-						let active_wp = [];
-
-						// check if albumName already exist in allAlbum
-						if (allAlbum.some((album) => album.name === albumName)) {
-							ipcRenderer.send("dialogbox", ["error", "Album with the same name already exist!"]);
-							setTimeout(() => (document.getElementById("loadbar").style.display = "none"), 1000);
-							return;
-						}
-
-						if (baseFolder.length > 0) {
-							active_wp = getFilesInFolder(baseFolder);
-							active_wp = filterImages(active_wp);
-						}
-
-						// add
-						const albumData = {
-							name: albumName,
-							baseFolder: baseFolder,
-							active_wp: active_wp,
-							inactive_wp: [],
-							preferred_Random: randomOrder,
-							preferred_shuffle_interval: parseInt(shuffleInterval),
-						};
-						ipcRenderer.send("add-album", albumData);
-					} else {
-						// get current album data first
-						let currentAlbumData = ipcRenderer.sendSync("get-current-album-data", selectedAlbumData.name);
-						let new_active_wp = [];
-
-						currentAlbumData.name = albumName;
-						currentAlbumData.preferred_Random = randomOrder;
-						currentAlbumData.preferred_shuffle_interval = parseInt(shuffleInterval);
-
-						if (currentAlbumData.baseFolder !== baseFolder) {
-							currentAlbumData.baseFolder = baseFolder;
-							new_active_wp = getFilesInFolder(baseFolder);
-							new_active_wp = filterImages(new_active_wp);
-
-							// add new active wp to current active wp but make sure no duplicate
-							const newArr = [...currentAlbumData.active_wp, ...new_active_wp];
-							currentAlbumData.active_wp = [...new Set(newArr)];
-
-							// remove active wp that is currently in inactive_wp
-							currentAlbumData.active_wp = currentAlbumData.active_wp.filter((active_wp) => {
-								return !currentAlbumData.inactive_wp.includes(active_wp);
-							});
-						}
-
-						ipcRenderer.send("update-album", [selectedAlbumData.name, currentAlbumData]); // [albumName, updatedData]
-					}
-
-					// update select
-					allAlbum = ipcRenderer.sendSync("get-settings", "album");
-					listUpdate(allAlbum);
-
-					// close loadbar
-					setTimeout(() => (document.getElementById("loadbar").style.display = "none"), 500);
-				}, 200);
+				saveChanges();
 			});
 
 			// cancel
