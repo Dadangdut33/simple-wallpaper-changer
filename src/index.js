@@ -123,8 +123,8 @@ const createTray = () => {
 	});
 };
 
+// ========================================================================
 // ============================================================
-// ======================
 // Timer
 let timerStarted = false;
 let seconds = 0;
@@ -158,7 +158,7 @@ ipcMain.on("reset-timer", (event, args) => {
 	seconds = runtimeSettings.currentShuffleInterval;
 });
 
-// ======================
+// ============================================================
 // Settings
 /**
  * Load settings, run on startup.
@@ -188,7 +188,7 @@ const loadSetting = () => {
 	}
 };
 /**
- * Save settings. If popup is true, will show save success message. Error handled directly in and Error dialogbox will be shown regardless of popup value.
+ * Save settings. If popup is true, will show save success message. Error handled directly in the function and Error dialogbox will be shown regardless of popup value.
  * @param {string} type - The type of the settings to be saved.
  * @param {object} setting - The setting object
  * @param {boolean} [popup=true] - Whether to show save success message
@@ -227,7 +227,7 @@ const saveSettings = (type, setting, popup = true) => {
 };
 
 /**
- * Reset the appconfig section of the config file to default. Error handled directly in the function.
+ * Reset the appSettings to default. Error handled directly in the function.
  * @return {object} - The current configuration with the appconfig section reseted to default
  * @return {boolean} - Whether the reset is successful or not.
  * @return {string} - The error message if the reset is not successful.
@@ -250,6 +250,8 @@ const resetDefaultAppConfig = () => {
 	return res;
 };
 
+// --- IPC ---
+
 ipcMain.on("save-settings", (event, args) => {
 	saveSettings(args[0], args[1]);
 });
@@ -270,11 +272,11 @@ ipcMain.on("default-app-settings", (event, args) => {
 	event.returnValue = res;
 });
 
-// ======================
+// ============================================================
 // Queue handling
 // TODO:ADD FILL QUEUE
 /**
- * Add image to queue in the runtimeSettings section of the config file. Will also update the current configuration file.
+ * Add image to queue in the runtimeSettings and save it.
  * @param {string} q_Item - The path of the image to be added to queue
  */
 const addToQueue = (q_Item) => {
@@ -284,7 +286,7 @@ const addToQueue = (q_Item) => {
 };
 
 /**
- * Remove image from queue in the runtimeSettings section of the config file. Will also update the current configuration file.
+ * Remove image from queue in the runtimeSettings and save it.
  * @param {string} q_Item - The path of the image to be removed from queue
  */
 const removeFromQueue = (q_Item) => {
@@ -294,13 +296,15 @@ const removeFromQueue = (q_Item) => {
 };
 
 /**
- * Remove all images from queue in the runtimeSettings section of the config file. Will also update the current configuration file.
+ * Remove all images from queue in the runtimeSettings and save it.
  */
 const clearQueue = () => {
 	runtimeSettings.currentQueue = [];
 	// update config
 	saveSettings("runtime", runtimeSettings);
 };
+
+// --- IPC ---
 
 ipcMain.on("queue-add", (event, args) => {
 	addToQueue(args);
@@ -314,10 +318,10 @@ ipcMain.on("queue-clear", (event, args) => {
 	clearQueue();
 });
 
-// ======================
+// ============================================================
 // Album and the config
 /**
- * Add album to profile section of the config file. Will also update the current configuration file.
+ * Add album to albumSettings and save it.
  * @param {object} album - The album object to be added.
  */
 const addAlbum = (album) => {
@@ -327,7 +331,7 @@ const addAlbum = (album) => {
 };
 
 /**
- * Update album in profile section of the config file. Will also update the current configuration file.
+ * Update album in the albumSettings and save it.
  * @param {object} album - The album object to be updated.
  */
 const updateAlbum = (updated) => {
@@ -349,7 +353,11 @@ const updateAlbum = (updated) => {
 };
 
 // TODO: delete album....
-
+/**
+ * Get the album object from the albumSettings. If album parameter is set, will return the queried album object else will return currently set album in the runtimeSettings.
+ * @param {string} [album=false] - The album name to be queried.
+ * @return {object} - The album object get.
+ */
 const getAlbumData = (album = false) => {
 	const searchFor = album ? album : runtimeSettings.currentAlbum;
 
@@ -362,6 +370,8 @@ const getAlbumData = (album = false) => {
 	// if not found -> should not happen but just in case
 	return false;
 };
+
+// --- IPC ---
 
 ipcMain.on("album-set", (event, args) => {
 	setCurrentAlbum(args);
@@ -377,11 +387,10 @@ ipcMain.on("update-album", (event, args) => {
 	res = updateAlbum(args); // args = [albumName, updatedData]
 });
 
-// ======================
+// ============================================================
 // runtime
-
 /**
- * Set current album in the runtimeSettings section of the config file. Will also update the current configuration file.
+ * Set current album in the runtimeSettings and save it.
  * @param {string} album - The name of the album to be set as current
  */
 const setCurrentAlbum = (album) => {
@@ -391,7 +400,7 @@ const setCurrentAlbum = (album) => {
 };
 
 /**
- * Set random value in the runtimeSettings section of the config file. Will also update the current configuration file.
+ * Set random value in the runtimeSettings and save it.
  * @param {boolean} random - The random value to be set
  */
 const setRandom = (random) => {
@@ -401,7 +410,7 @@ const setRandom = (random) => {
 };
 
 /**
- * Set shuffle value in the runtimeSettings section of the config file. Will also update the current configuration file.
+ * Set shuffle value in the runtimeSettings and save it.
  * @param {boolean} shuffle - The shuffle value to be set
  */
 const setShuffle = (shuffle) => {
@@ -409,6 +418,8 @@ const setShuffle = (shuffle) => {
 	// update config
 	saveSettings("runtime", runtimeSettings);
 };
+
+// --- IPC ---
 
 ipcMain.on("get-current-album", (event, args) => {
 	event.returnValue = runtimeSettings.currentAlbum;
@@ -427,7 +438,7 @@ ipcMain.on("shuffle-set", (event, args) => {
 	setShuffle(args);
 });
 
-// ======================
+// ============================================================
 // wallpaper
 /**
  * Change wallpaper
@@ -447,6 +458,8 @@ const changeWallpaper = async (imagePath) => {
 
 	return { success, message };
 };
+
+// --- IPC ---
 
 ipcMain.on("change-wallpaper", async (event, args) => {
 	// get wallpaper before
@@ -507,8 +520,8 @@ ipcMain.on("change-wallpaper", async (event, args) => {
 	addToQueue(newWpToAdd);
 });
 
-// ======================
-// Dialogbox
+// ============================================================
+// Dialogboxes to call from ipcRenderer
 ipcMain.on("dialogbox", (event, args) => {
 	let res = null;
 	switch (args[0]) {
@@ -566,7 +579,7 @@ ipcMain.on("dialogbox", (event, args) => {
 	event.returnValue = res;
 });
 
-// ======================
+// ============================================================
 // Get Version
 const version = app.getVersion();
 ipcMain.on("get-version", (event, args) => {
