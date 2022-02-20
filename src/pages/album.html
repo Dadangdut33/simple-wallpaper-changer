@@ -202,7 +202,8 @@
 			const shuffleInterval_El = document.getElementById("shuffle-interval");
 
 			let selectedAlbum = "",
-				selectedAlbumData = {};
+				selectedAlbumData = {},
+				allAlbum = [];
 
 			const fillData = (data) => {
 				albumName_El.value = data.name;
@@ -212,6 +213,8 @@
 			};
 
 			const listUpdate = (albumList) => {
+				albumSelect_El.innerHTML = "";
+
 				albumList.forEach((album) => {
 					const option = document.createElement("option");
 					option.value = album.name;
@@ -226,7 +229,7 @@
 
 				// get current album
 				selectedAlbum = ipcRenderer.sendSync("get-current-album");
-				selectedAlbumData = ipcRenderer.sendSync("get-current-album-data", false);
+				selectedAlbumData = ipcRenderer.sendSync("get-current-album-data", selectedAlbum[0]);
 
 				// set selected album as the current album and fill the data
 				albumSelect_El.value = selectedAlbum;
@@ -237,11 +240,8 @@
 			// page open
 			// ================================================================
 			// get all album first
-			const allAlbum = ipcRenderer.sendSync("get-settings", "album");
-
-			// fill album-select with all albums available
-			const albumList = allAlbum;
-			listUpdate(albumList);
+			allAlbum = ipcRenderer.sendSync("get-settings", "album");
+			listUpdate(allAlbum);
 
 			// ================================================================
 			// handler
@@ -254,7 +254,7 @@
 					albumName_El.value = "";
 					baseFolder_El.value = "";
 					randomOrder_El.checked = false;
-					shuffleInterval_El.value = 1;
+					shuffleInterval_El.value = 30;
 
 					document.getElementById("img-container").innerHTML = "";
 				} else {
@@ -292,14 +292,22 @@
 					const shuffleInterval = shuffleInterval_El.value;
 
 					if (albumName.length === 0) {
-						ipcRenderer.sendSync("dialogbox", ["error", "Album name cannot be empty!"]);
+						ipcRenderer.send("dialogbox", ["error", "Album name cannot be empty!"]);
+						setTimeout(() => (document.getElementById("loadbar").style.display = "none"), 1000);
+						return;
+					}
+
+					// invalid albumName
+					if (albumName.toLowerCase() === "add more") {
+						ipcRenderer.send("dialogbox", ["error", "Invalid album name provided!"]);
+						setTimeout(() => (document.getElementById("loadbar").style.display = "none"), 1000);
 						return;
 					}
 
 					if (baseFolder.length === 0) {
 						const confirmation = ipcRenderer.sendSync("dialogbox", ["warning", "Base folder is empty, continue?"]);
 						if (confirmation === 1) {
-							document.getElementById("loadbar").style.display = "none";
+							setTimeout(() => (document.getElementById("loadbar").style.display = "none"), 1000);
 							return;
 						} // no
 					}
@@ -307,8 +315,17 @@
 					if (selectedAlbum === "Add more") {
 						let active_wp = [];
 
-						active_wp = getFilesInFolder(baseFolder);
-						active_wp = filterImages(active_wp);
+						// check if albumName already exist in allAlbum
+						if (allAlbum.some((album) => album.name === albumName)) {
+							ipcRenderer.send("dialogbox", ["error", "Album with the same name already exist!"]);
+							setTimeout(() => (document.getElementById("loadbar").style.display = "none"), 1000);
+							return;
+						}
+
+						if (baseFolder.length > 0) {
+							active_wp = getFilesInFolder(baseFolder);
+							active_wp = filterImages(active_wp);
+						}
 
 						// add
 						const albumData = {
@@ -317,7 +334,7 @@
 							active_wp: active_wp,
 							inactive_wp: [],
 							preferred_Random: randomOrder,
-							preferred_shuffle_interval: shuffleInterval,
+							preferred_shuffle_interval: parseInt(shuffleInterval),
 						};
 						ipcRenderer.send("add-album", albumData);
 					} else {
@@ -347,9 +364,13 @@
 						ipcRenderer.send("update-album", [selectedAlbumData.name, currentAlbumData]); // [albumName, updatedData]
 					}
 
+					// update select
+					allAlbum = ipcRenderer.sendSync("get-settings", "album");
+					listUpdate(allAlbum);
+
 					// close loadbar
-					document.getElementById("loadbar").style.display = "none";
-				}, 100);
+					setTimeout(() => (document.getElementById("loadbar").style.display = "none"), 500);
+				}, 200);
 			});
 		</script>
 	</body>

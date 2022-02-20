@@ -524,56 +524,61 @@ ipcMain.on("change-wallpaper", async (event, args) => {
 // Dialogboxes to call from ipcRenderer
 ipcMain.on("dialogbox", (event, args) => {
 	let res = null;
-	switch (args[0]) {
-		case "error":
-			dialog.showErrorBox("Error", args[1]);
-			res = "Error box closed";
-			break;
-		case "info":
-			res = dialog.showMessageBoxSync(mainWindow, {
-				title: "Info",
-				type: "info",
-				buttons: ["OK"],
-				message: args[1],
-			});
-			break;
-		case "yesno":
-			res = dialog.showMessageBoxSync(mainWindow, {
-				title: "Confirmation",
-				type: "question",
-				buttons: ["Yes", "No"],
-				message: args[1],
-			});
-			break;
-		case "success":
-			res = dialog.showMessageBoxSync(mainWindow, {
-				title: "Success",
-				type: "info",
-				buttons: ["OK"],
-				message: args[1],
-			});
-			break;
-		case "warning":
-			res = dialog.showMessageBoxSync(mainWindow, {
-				title: "Warning",
-				type: "warning",
-				buttons: ["Yes", "No"],
-				message: args[1],
-			});
-			break;
-		case "openDirectory":
-			res = dialog.showOpenDialogSync(mainWindow, {
-				properties: ["openDirectory"],
-			});
-			break;
-		case "openFile":
-			res = dialog.showOpenDialogSync(mainWindow, {
-				properties: ["openFile"],
-			});
-			break;
-		default:
-			res = "Invalid messagebox options!";
-			break;
+	try {
+		switch (args[0]) {
+			case "error":
+				dialog.showErrorBox("Error", args[1]);
+				res = "Error box closed";
+				break;
+			case "info":
+				res = dialog.showMessageBoxSync(mainWindow, {
+					title: "Info",
+					type: "info",
+					buttons: ["OK"],
+					message: args[1],
+				});
+				break;
+			case "yesno":
+				res = dialog.showMessageBoxSync(mainWindow, {
+					title: "Confirmation",
+					type: "question",
+					buttons: ["Yes", "No"],
+					message: args[1],
+				});
+				break;
+			case "success":
+				res = dialog.showMessageBoxSync(mainWindow, {
+					title: "Success",
+					type: "info",
+					buttons: ["OK"],
+					message: args[1],
+				});
+				break;
+			case "warning":
+				res = dialog.showMessageBoxSync(mainWindow, {
+					title: "Warning",
+					type: "warning",
+					buttons: ["Yes", "No"],
+					message: args[1],
+				});
+				break;
+			case "openDirectory":
+				res = dialog.showOpenDialogSync(mainWindow, {
+					properties: ["openDirectory"],
+				});
+				break;
+			case "openFile":
+				res = dialog.showOpenDialogSync(mainWindow, {
+					properties: ["openFile"],
+				});
+				break;
+			default:
+				res = "Invalid messagebox options!";
+				break;
+		}
+	} catch (error) {
+		dialog.showErrorBox("Error", error);
+		res = `Unexpected error: ${error}`;
 	}
 
 	event.returnValue = res;
