@@ -162,11 +162,11 @@
 					</p>
 
 					<p class="control">
-						<a class="button is-danger is-small" id="add-images">
+						<a class="button is-danger is-small" id="delete-all-images">
 							<span class="icon is-small">
 								<i class="fas fa-trash" aria-hidden="true"></i>
 							</span>
-							<span>Delete ALL Images</span>
+							<span>Delete ALL Images from the album</span>
 						</a>
 					</p>
 				</div>
@@ -604,6 +604,17 @@
 				loadImage(selectedAlbumData.inactive_wp);
 			};
 			btnLoadImg.addEventListener("click", () => btnLoadImgClick());
+
+			const btnAddImg = document.getElementById("add-images");
+
+			const btnAddImgClick = () => {
+				const images = ipcRenderer.sendSync("add-images", selectedAlbum_Name);
+
+				if (images) {
+					loadImage(images);
+				}
+			};
+			btnAddImg.addEventListener("click", () => btnAddImgClick());
 
 			// ================================================================
 			// update data from ipcmain

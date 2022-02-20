@@ -454,7 +454,46 @@ const deleteImage = (album, image, active) => {
 	}
 
 	// save setting
-	saveSettings("album", albumSettings);
+	saveSettings("album", albumSettings, false);
+
+	// dialogbox show success
+	dialog.showMessageBox(mainWindow, {
+		title: "Success",
+		type: "info",
+		buttons: ["Ok"],
+		message: "Image deleted successfully",
+	});
+};
+
+const addImages = (album) => {
+	const pos_Album = albumSettings.findIndex((el) => el.name === album);
+	const files = dialog.showOpenDialogSync(mainWindow, {
+		title: "Add images",
+		properties: ["openFile", "multiSelections"],
+		filters: [
+			{
+				name: "Images",
+				extensions: ["jpg", "jpeg", "png", "gif", "bmp", "tiff", "tif"],
+			},
+		],
+	});
+
+	if (files) {
+		files.forEach((file) => {
+			albumSettings[pos_Album].active_wp.push(file);
+		});
+		saveSettings("album", albumSettings, false);
+
+		// dialogbox show success
+		dialog.showMessageBox(mainWindow, {
+			title: "Success",
+			type: "info",
+			buttons: ["Ok"],
+			message: "Images added successfully",
+		});
+	}
+
+	return files;
 };
 
 // --- IPC ---
@@ -488,6 +527,11 @@ ipcMain.on("set-img-active", (event, args) => {
 
 ipcMain.on("delete-img", (event, args) => {
 	deleteImage(args[0], args[1], args[2]);
+});
+
+ipcMain.on("add-images", (event, args) => {
+	const returnVal = addImages(args);
+	event.returnValue = returnVal;
 });
 
 // ============================================================
