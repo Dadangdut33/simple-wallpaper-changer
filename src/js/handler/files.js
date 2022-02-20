@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const configDir = path.join(__dirname, "..\\..\\config\\");
 const albumSettingsPath = path.join(configDir, "album.json");
-const runtimeSettingsPath = path.join(configDir, "runtimSettings.json");
+const runtimeSettingsPath = path.join(configDir, "runtimeSettings.json");
 const appSettingsPath = path.join(configDir, "appSettings.json");
 
 const albumSettings_Default = [
@@ -30,7 +30,19 @@ const appSettings_Default = {
 	rescan_interval: 12,
 };
 
-let { ipcRenderer: ipcInFiles } = require("electron");
+const dataPath_Dict = {
+	album: albumSettingsPath,
+	runtime: runtimeSettingsPath,
+	app: appSettingsPath,
+};
+
+const dataDefault_Dict = {
+	album: albumSettings_Default,
+	runtime: runtimeSettings_Default,
+	app: appSettings_Default,
+};
+
+const { ipcRenderer: ipcInFiles } = require("electron");
 
 // ============================================================
 // Files
@@ -71,12 +83,15 @@ const filterImages = (item) => {
 };
 
 // config
-const saveConfig = (path, config) => {
+const saveConfig = (type, config) => {
 	let success = false,
 		errMsg = "";
+
+	// check if directory exists. If not create it
 	createPathIfNotExist(configDir);
+
 	try {
-		fs.writeFileSync(path, JSON.stringify(config, null, 2), "utf8");
+		fs.writeFileSync(dataPath_Dict[type], JSON.stringify(config, null, 2), "utf8");
 		success = true;
 	} catch (error) {
 		success = false;
@@ -91,18 +106,6 @@ const loadConfig = (type) => {
 		success = false,
 		errMsg = "";
 
-	let dataPath_Dict = {
-		album: albumSettingsPath,
-		runtime: runtimeSettingsPath,
-		app: appSettingsPath,
-	};
-
-	let dataDefault_Dict = {
-		album: albumSettings_Default,
-		runtime: runtimeSettings_Default,
-		app: appSettings_Default,
-	};
-
 	try {
 		data = JSON.parse(fs.readFileSync(dataPath_Dict[type], "utf8"));
 		success = true;
@@ -110,7 +113,7 @@ const loadConfig = (type) => {
 		// check if error file not found
 		if (error.code === "ENOENT") {
 			// create default config file
-			saveConfig(dataPath_Dict[type], dataDefault_Dict[type]);
+			saveConfig(type, dataDefault_Dict[type]);
 			data = dataDefault_Dict[type];
 			success = true;
 		} else {
@@ -121,12 +124,10 @@ const loadConfig = (type) => {
 	return { data, success, errMsg };
 };
 
-const resetDefaultApp = (appConfig) => {
-	appConfig = appSettings_Default;
+const resetDefaultApp = () => {
+	const { success, errMsg } = saveConfig("app", appSettings_Default);
 
-	const { success, errMsg } = saveConfig(appSettingsPath, appConfig);
-
-	return { currentConfig, success, errMsg };
+	return { appSettings_Default, success, errMsg };
 };
 
 // ============================================================
@@ -172,15 +173,14 @@ if (typeof require !== "undefined" && require.main === module) {
 	fnName();
 }
 
-// module.exports = {
-// 	createPathIfNotExist,
-// 	getFilesInFolder,
-// 	filterImages,
-// 	saveConfig,
-// 	loadConfig,
-// 	resetDefault,
-// 	resetDefaultApp,
-// 	albumSettings_Default,
-// 	runtimeSettings_Default,
-// 	appSettings_Default,
-// };
+module.exports = {
+	createPathIfNotExist,
+	getFilesInFolder,
+	filterImages,
+	saveConfig,
+	loadConfig,
+	resetDefaultApp,
+	albumSettings_Default,
+	runtimeSettings_Default,
+	appSettings_Default,
+};

@@ -122,50 +122,39 @@
 			});
 
 			const { ipcRenderer } = require("electron");
-			let loadedSetting = ipcRenderer.sendSync("get-settings");
+			let loadedSetting = ipcRenderer.sendSync("get-settings", "app");
 
 			const updateFields = (currentSetting) => {
-				document.getElementById("startupVal").checked = currentSetting.appSettings.start_on_startup;
-				document.getElementById("rescanEveryStart").checked = currentSetting.appSettings.rescan_every_start;
-				document.getElementById("autoRescan").checked = currentSetting.appSettings.auto_rescan;
-				document.getElementById("autoRescanInterval").value = currentSetting.appSettings.rescan_interval;
+				document.getElementById("startupVal").checked = currentSetting.start_on_startup;
+				document.getElementById("rescanEveryStart").checked = currentSetting.rescan_every_start;
+				document.getElementById("autoRescan").checked = currentSetting.auto_rescan;
+				document.getElementById("autoRescanInterval").value = currentSetting.rescan_interval;
 			};
 
 			updateFields(loadedSetting);
 
 			const saveUpdate = () => {
-				const settingData = {
-					appSettings: {
-						start_on_startup: document.getElementById("startupVal").checked,
-						rescan_every_start: document.getElementById("rescanEveryStart").checked,
-						auto_rescan: document.getElementById("autoRescan").checked,
-						rescan_interval: document.getElementById("autoRescanInterval").value,
-					},
+				const appSettings = {
+					start_on_startup: document.getElementById("startupVal").checked,
+					rescan_every_start: document.getElementById("rescanEveryStart").checked,
+					auto_rescan: document.getElementById("autoRescan").checked,
+					rescan_interval: document.getElementById("autoRescanInterval").value,
 				};
-
-				// get current setting first
-				const currentSetting = ipcRenderer.sendSync("get-settings");
 
 				// update setting
-				ipcRenderer.send("save-settings", {
-					...currentSetting,
-					...settingData,
-				});
+				ipcRenderer.send("save-settings", ["app", appSettings]);
 
 				// update loaded settings
-				loadedSetting = {
-					...currentSetting,
-					...settingData,
-				};
+				loadedSetting = appSettings;
 			};
 
 			const checkChanges = () => {
 				// check if any changes is made
 				if (
-					document.getElementById("startupVal").checked != loadedSetting.appSettings.start_on_startup ||
-					document.getElementById("rescanEveryStart").checked != loadedSetting.appSettings.rescan_every_start ||
-					document.getElementById("autoRescan").checked != loadedSetting.appSettings.auto_rescan ||
-					document.getElementById("autoRescanInterval").value != loadedSetting.appSettings.rescan_interval
+					document.getElementById("startupVal").checked != loadedSetting.start_on_startup ||
+					document.getElementById("rescanEveryStart").checked != loadedSetting.rescan_every_start ||
+					document.getElementById("autoRescan").checked != loadedSetting.auto_rescan ||
+					document.getElementById("autoRescanInterval").value != loadedSetting.rescan_interval
 				) {
 					// send message box to ask user if they want to save changes
 					const yesNo = ipcRenderer.sendSync("dialogbox", ["yesno", "Do you want to save changes made?"]);
@@ -197,9 +186,9 @@
 				if (yesNo === 1) return; // no
 
 				const res = ipcRenderer.sendSync("default-app-settings");
-				loadedSetting = res.currentConfig;
+				loadedSetting = res.appSettings_Default;
 
-				updateFields(res.currentConfig);
+				updateFields(res.appSettings_Default);
 			});
 		</script>
 	</body>

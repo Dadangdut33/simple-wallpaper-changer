@@ -4,12 +4,14 @@ const path = require("path");
 const wallpaper = require("wallpaper");
 
 // ============================================================
-const { loadConfig, saveConfig, resetDefault, resetDefaultApp, defaultConfig } = require("./js/handler/files");
+const { loadConfig, saveConfig, resetDefaultApp, albumSettings_Default, runtimeSettings_Default, appSettings_Default } = require("./js/handler/files");
 
 let mainWindow = BrowserWindow,
 	trayApp = Tray,
 	iconPath = path.join(__dirname, "assets/logo.png"),
-	currentConfig = defaultConfig;
+	albumSettings = albumSettings_Default,
+	runtimeSettings = runtimeSettings_Default,
+	appSettings = appSettings_Default;
 // ============================================================
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -77,7 +79,7 @@ menu.append(
 	new MenuItem({
 		label: "Quit",
 		click: () => {
-			saveSettings(currentConfig, false);
+			saveSettings("runtime", runtimeSettings, false);
 			app.exit();
 		},
 	})
@@ -108,7 +110,7 @@ const createTray = () => {
 		{
 			label: "Quit",
 			click: () => {
-				saveSettings(currentConfig, false);
+				saveSettings("runtime", runtimeSettings, false);
 				app.exit(0);
 			},
 		},
@@ -122,196 +124,7 @@ const createTray = () => {
 };
 
 // ============================================================
-// Functions
-/**
- * Load settings, run on startup.
- */
-const loadSetting = () => {
-	// load config
-	const config = loadConfig();
-	if (!config.success) {
-		dialog.showErrorBox("Error", config.errMsg);
-	} else {
-		currentConfig = config.data;
-	}
-};
-/**
- * Save settings. If popup is true, will show save success message. Error handled directly in and Error dialogbox will be shown regardless of popup value.
- * @param {object} setting - The setting object
- * @param {boolean} [popup=true] - Whether to show save success message
- * @return {boolean} - Whether the save is successful or not.
- */
-const saveSettings = (setting, popup = true) => {
-	const res = saveConfig(setting);
-	if (!res.success) {
-		dialog.showErrorBox("Error", res.errMsg);
-	} else {
-		currentConfig = setting;
-		if (popup) {
-			// show success message
-			dialog.showMessageBox(mainWindow, {
-				title: "Success",
-				type: "info",
-				buttons: ["Ok"],
-				message: "Settings saved successfully",
-			});
-		}
-	}
-
-	return res.success;
-};
-
-/**
- * Reset the appconfig section of the config file to default. Error handled directly in the function.
- * @return {object} - The current configuration with the appconfig section reseted to default
- * @return {boolean} - Whether the reset is successful or not.
- * @return {string} - The error message if the reset is not successful.
- */
-const resetDefaultAppConfig = () => {
-	const res = resetDefaultApp(currentConfig);
-	if (!res.success) {
-		dialog.showErrorBox("Error", res.errMsg);
-	} else {
-		// show success
-		dialog.showMessageBox(mainWindow, {
-			title: "Success",
-			type: "info",
-			buttons: ["Ok"],
-			message: "Reset default app config successfully",
-		});
-	}
-
-	return res;
-};
-/**
- * Change wallpaper
- * @param {string} imagePath - The path of the image to be set as wallpaper
- * @return {boolean} - Whether the change is successful or not.
- * @return {string} - The error message if the change is not successful.
- */
-const changeWallpaper = async (imagePath) => {
-	let success = false,
-		message = "";
-	try {
-		await wallpaper.set(imagePath);
-		success = true;
-	} catch (error) {
-		message = error;
-	}
-
-	return { success, message };
-};
-
-// TODO:ADD FILL QUEUE
-
-/**
- * Add image to queue in the runtimeSettings section of the config file. Will also update the current configuration file.
- * @param {string} q_Item - The path of the image to be added to queue
- */
-const addToQueue = (q_Item) => {
-	currentConfig.runtimeSettings.currentQueue.push(q_Item);
-	// update config
-	saveSettings(currentConfig);
-};
-
-/**
- * Remove image from queue in the runtimeSettings section of the config file. Will also update the current configuration file.
- * @param {string} q_Item - The path of the image to be removed from queue
- */
-const removeFromQueue = (q_Item) => {
-	currentConfig.runtimeSettings.currentQueue.splice(currentConfig.runtimeSettings.currentQueue.indexOf(q_Item), 1);
-	// update config
-	saveSettings(currentConfig);
-};
-
-/**
- * Remove all images from queue in the runtimeSettings section of the config file. Will also update the current configuration file.
- */
-const clearQueue = () => {
-	currentConfig.runtimeSettings.currentQueue = [];
-	// update config
-	saveSettings(currentConfig);
-};
-
-/**
- * Set current album in the runtimeSettings section of the config file. Will also update the current configuration file.
- * @param {string} album - The name of the album to be set as current
- */
-const setCurrentAlbum = (album) => {
-	// update config
-	currentConfig.runtimeSettings.currentAlbum = album;
-	saveSettings(currentConfig);
-};
-
-/**
- * Set random value in the runtimeSettings section of the config file. Will also update the current configuration file.
- * @param {boolean} random - The random value to be set
- */
-const setRandom = (random) => {
-	// update config
-	currentConfig.runtimeSettings.currentRandom = random;
-	saveSettings(currentConfig);
-};
-
-/**
- * Set shuffle value in the runtimeSettings section of the config file. Will also update the current configuration file.
- * @param {boolean} shuffle - The shuffle value to be set
- */
-const setShuffle = (shuffle) => {
-	// update config
-	currentConfig.runtimeSettings.currentShuffleInterval = shuffle;
-	saveSettings(currentConfig);
-};
-
-/**
- * Add album to profile section of the config file. Will also update the current configuration file.
- * @param {object} album - The album object to be added.
- */
-const addAlbum = (album) => {
-	// update config
-	currentConfig.profile.push(album);
-	saveSettings(currentConfig);
-};
-
-/**
- * Update album in profile section of the config file. Will also update the current configuration file.
- * @param {object} album - The album object to be updated.
- */
-const updateAlbum = (updated) => {
-	const oldName = updated[0];
-	// update config
-	const pos = currentConfig.profile
-		.map((e) => {
-			return e.album; // album name
-		})
-		.indexOf(oldName);
-
-	// check runtime value
-	if (currentConfig.runtimeSettings.currentAlbum === oldName) {
-		currentConfig.runtimeSettings.currentAlbum = updated[1].album; // update the name
-	}
-
-	currentConfig.profile[pos] = updated[1]; // updated data
-	saveSettings(currentConfig);
-};
-
-// delete album....
-
-const getAlbumData = (album = false) => {
-	const searchFor = album ? album : currentConfig.runtimeSettings.currentAlbum;
-
-	for (let i = 0; i < currentConfig.profile.length; i++) {
-		if (currentConfig.profile[i].album === searchFor) {
-			return currentConfig.profile[i];
-		}
-	}
-
-	// if not found -> should not happen but just in case
-	return false;
-};
-
 // ======================
-// ipcMain
 // Timer
 let timerStarted = false;
 let seconds = 0;
@@ -320,7 +133,7 @@ ipcMain.on("start-timer", (event, args) => {
 	if (!timerStarted) {
 		clearInterval(interval);
 		timerStarted = true;
-		seconds = currentConfig.runtimeSettings.currentShuffleInterval;
+		seconds = runtimeSettings.currentShuffleInterval;
 
 		interval = setInterval(() => {
 			seconds--;
@@ -342,19 +155,114 @@ ipcMain.on("reset-timer", (event, args) => {
 	// reset the timer
 	clearInterval(interval);
 	timerStarted = false;
-	seconds = currentConfig.runtimeSettings.currentShuffleInterval;
+	seconds = runtimeSettings.currentShuffleInterval;
 });
 
 // ======================
 // Settings
+/**
+ * Load settings, run on startup.
+ */
+const loadSetting = () => {
+	// load config
+	const configAlbum = loadConfig("album");
+	const configRuntime = loadConfig("runtime");
+	const configApp = loadConfig("app");
+
+	if (!configAlbum.success) {
+		dialog.showErrorBox("Error", configAlbum.errMsg);
+	} else {
+		albumSettings = configAlbum.data;
+	}
+
+	if (!configRuntime.success) {
+		dialog.showErrorBox("Error", configRuntime.errMsg);
+	} else {
+		runtimeSettings = configRuntime.data;
+	}
+
+	if (!configApp.success) {
+		dialog.showErrorBox("Error", configApp.errMsg);
+	} else {
+		appSettings = configApp.data;
+	}
+};
+/**
+ * Save settings. If popup is true, will show save success message. Error handled directly in and Error dialogbox will be shown regardless of popup value.
+ * @param {string} type - The type of the settings to be saved.
+ * @param {object} setting - The setting object
+ * @param {boolean} [popup=true] - Whether to show save success message
+ * @return {boolean} - Whether the save is successful or not.
+ */
+const saveSettings = (type, setting, popup = true) => {
+	const res = saveConfig(type, setting);
+	if (!res.success) {
+		dialog.showErrorBox("Error", res.errMsg);
+	} else {
+		switch (type) {
+			case "album":
+				albumSettings = setting;
+				break;
+			case "runtime":
+				runtimeSettings = setting;
+				break;
+			case "app":
+				appSettings = setting;
+				break;
+			default:
+				break;
+		}
+		if (popup) {
+			// show success message
+			dialog.showMessageBox(mainWindow, {
+				title: "Success",
+				type: "info",
+				buttons: ["Ok"],
+				message: "Settings saved successfully",
+			});
+		}
+	}
+
+	return res.success;
+};
+
+/**
+ * Reset the appconfig section of the config file to default. Error handled directly in the function.
+ * @return {object} - The current configuration with the appconfig section reseted to default
+ * @return {boolean} - Whether the reset is successful or not.
+ * @return {string} - The error message if the reset is not successful.
+ */
+const resetDefaultAppConfig = () => {
+	const res = resetDefaultApp();
+	if (!res.success) {
+		dialog.showErrorBox("Error", res.errMsg);
+	} else {
+		// show success
+		dialog.showMessageBox(mainWindow, {
+			title: "Success",
+			type: "info",
+			buttons: ["Ok"],
+			message: "Reset default app config successfully",
+		});
+		appSettings = res.appSettings_Default;
+	}
+
+	return res;
+};
+
 ipcMain.on("save-settings", (event, args) => {
-	saveSettings(args);
+	saveSettings(args[0], args[1]);
 });
 
 // send sync
 ipcMain.on("get-settings", (event, args) => {
-	// get / load current
-	event.returnValue = currentConfig;
+	const settingGet = {
+		album: albumSettings,
+		runtime: runtimeSettings,
+		app: appSettings,
+	};
+
+	event.returnValue = settingGet[args];
 });
 
 ipcMain.on("default-app-settings", (event, args) => {
@@ -364,6 +272,36 @@ ipcMain.on("default-app-settings", (event, args) => {
 
 // ======================
 // Queue handling
+// TODO:ADD FILL QUEUE
+/**
+ * Add image to queue in the runtimeSettings section of the config file. Will also update the current configuration file.
+ * @param {string} q_Item - The path of the image to be added to queue
+ */
+const addToQueue = (q_Item) => {
+	runtimeSettings.currentQueue.puhs(q_Item);
+	// update config
+	saveSettings("runtime", runtimeSettings);
+};
+
+/**
+ * Remove image from queue in the runtimeSettings section of the config file. Will also update the current configuration file.
+ * @param {string} q_Item - The path of the image to be removed from queue
+ */
+const removeFromQueue = (q_Item) => {
+	runtimeSettings.currentQueue.splice(aruntimeSettings.currentQueue.indexOf(q_Item), 1);
+	// update config
+	saveSettings("runtime", runtimeSettings);
+};
+
+/**
+ * Remove all images from queue in the runtimeSettings section of the config file. Will also update the current configuration file.
+ */
+const clearQueue = () => {
+	runtimeSettings.currentQueue = [];
+	// update config
+	saveSettings("runtime", runtimeSettings);
+};
+
 ipcMain.on("queue-add", (event, args) => {
 	addToQueue(args);
 });
@@ -378,6 +316,53 @@ ipcMain.on("queue-clear", (event, args) => {
 
 // ======================
 // Album and the config
+/**
+ * Add album to profile section of the config file. Will also update the current configuration file.
+ * @param {object} album - The album object to be added.
+ */
+const addAlbum = (album) => {
+	albumSettings.push(album);
+	// update config
+	saveSettings("album", albumSettings);
+};
+
+/**
+ * Update album in profile section of the config file. Will also update the current configuration file.
+ * @param {object} album - The album object to be updated.
+ */
+const updateAlbum = (updated) => {
+	const oldName = updated[0];
+	// update config
+	const pos = albumSettings
+		.map((e) => {
+			return e.name; // album name
+		})
+		.indexOf(oldName);
+
+	// check runtime value
+	if (runtimeSettings.currentAlbum === oldName) {
+		runtimeSettings.currentAlbum = updated[1].name; // update the name
+	}
+
+	albumSettings[pos] = updated[1]; // updated data
+	saveSettings("album", albumSettings);
+};
+
+// TODO: delete album....
+
+const getAlbumData = (album = false) => {
+	const searchFor = album ? album : runtimeSettings.currentAlbum;
+
+	for (let i = 0; i < albumSettings.length; i++) {
+		if (albumSettings[i].name === searchFor) {
+			return albumSettings[i];
+		}
+	}
+
+	// if not found -> should not happen but just in case
+	return false;
+};
+
 ipcMain.on("album-set", (event, args) => {
 	setCurrentAlbum(args);
 });
@@ -388,10 +373,50 @@ ipcMain.on("add-album", (event, args) => {
 });
 
 ipcMain.on("update-album", (event, args) => {
-	// args = [albumName, updatedData]
-
 	// update album in config
-	res = updateAlbum(args);
+	res = updateAlbum(args); // args = [albumName, updatedData]
+});
+
+// ======================
+// runtime
+
+/**
+ * Set current album in the runtimeSettings section of the config file. Will also update the current configuration file.
+ * @param {string} album - The name of the album to be set as current
+ */
+const setCurrentAlbum = (album) => {
+	runtimeSettings.currentAlbum = album;
+	// update config
+	saveSettings("runtime", runtimeSettings);
+};
+
+/**
+ * Set random value in the runtimeSettings section of the config file. Will also update the current configuration file.
+ * @param {boolean} random - The random value to be set
+ */
+const setRandom = (random) => {
+	runtimeSettings.currentRandom = random;
+	// update config
+	saveSettings("runtime", runtimeSettings);
+};
+
+/**
+ * Set shuffle value in the runtimeSettings section of the config file. Will also update the current configuration file.
+ * @param {boolean} shuffle - The shuffle value to be set
+ */
+const setShuffle = (shuffle) => {
+	runtimeSettings.currentShuffleInterval = shuffle;
+	// update config
+	saveSettings("runtime", runtimeSettings);
+};
+
+ipcMain.on("get-current-album", (event, args) => {
+	event.returnValue = runtimeSettings.currentAlbum;
+});
+
+ipcMain.on("get-current-album-data", (event, args) => {
+	const albumData = getAlbumData(args);
+	event.returnValue = albumData;
 });
 
 ipcMain.on("random-set", (event, args) => {
@@ -402,22 +427,32 @@ ipcMain.on("shuffle-set", (event, args) => {
 	setShuffle(args);
 });
 
-ipcMain.on("get-current-album", (event, args) => {
-	event.returnValue = currentConfig.runtimeSettings.currentAlbum;
-});
-
-ipcMain.on("get-current-album-data", (event, args) => {
-	const albumData = getAlbumData(args);
-	event.returnValue = albumData;
-});
-
 // ======================
 // wallpaper
+/**
+ * Change wallpaper
+ * @param {string} imagePath - The path of the image to be set as wallpaper
+ * @return {boolean} - Whether the change is successful or not.
+ * @return {string} - The error message if the change is not successful.
+ */
+const changeWallpaper = async (imagePath) => {
+	let success = false,
+		message = "";
+	try {
+		await wallpaper.set(imagePath);
+		success = true;
+	} catch (error) {
+		message = error;
+	}
+
+	return { success, message };
+};
+
 ipcMain.on("change-wallpaper", async (event, args) => {
 	// get wallpaper before
 	const wpBefore = (await wallpaper.get()).split("\\").pop();
 	// get queue item
-	const q_Item = currentConfig.runtimeSettings.currentQueue.shift();
+	const q_Item = albumSettings.runtimeSettings.currentQueue.shift();
 
 	// change wallpaper
 	if (q_Item) {
@@ -440,7 +475,7 @@ ipcMain.on("change-wallpaper", async (event, args) => {
 		return;
 	}
 
-	if (currentConfig.runtimeSettings.currentRandom) {
+	if (albumSettings.runtimeSettings.currentRandom) {
 		if (albumData.active_wp.length > 1) {
 			// if there are more than 1 images in the album
 			// make sure it's not the same as the last one
@@ -478,7 +513,7 @@ ipcMain.on("dialogbox", (event, args) => {
 	let res = null;
 	switch (args[0]) {
 		case "error":
-			dialog.showErrorBox(mainWindow, args[1]);
+			dialog.showErrorBox("Error", args[1]);
 			res = "Error box closed";
 			break;
 		case "info":
