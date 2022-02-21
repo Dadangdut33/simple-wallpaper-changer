@@ -444,6 +444,12 @@
 							loadBar.style.display = "none";
 							closeToast();
 						}, 500);
+
+						showToast("Cancelled!");
+
+						setTimeout(() => {
+							closeToast();
+						}, 500);
 						return;
 					} // no
 				}

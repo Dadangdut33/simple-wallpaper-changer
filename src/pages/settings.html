@@ -45,7 +45,7 @@
 					<div class="tile">
 						<div class="tile is-parent is-vertical is-4">
 							<article class="tile is-child">
-								<span class="has-tooltip-right has-tooltip-multiline" data-tooltip="Will start application on computer startup">
+								<span class="has-tooltip-right has-tooltip-multiline has-tooltip-arrow" data-tooltip="Will start application on computer startup">
 									<label class="checkbox">
 										<input type="checkbox" name="startupVal" id="startupVal" />
 										Start application on startup
@@ -53,7 +53,7 @@
 								</span>
 							</article>
 							<article class="tile is-child">
-								<span class="has-tooltip-right has-tooltip-multiline" data-tooltip="Will rescan album every time application starts">
+								<span class="has-tooltip-bottom has-tooltip-multiline has-tooltip-arrow" data-tooltip="Will rescan album every time application starts">
 									<label class="checkbox">
 										<input type="checkbox" name="rescanEveryStart" id="rescanEveryStart" />
 										Rescan album every time application starts
@@ -63,7 +63,7 @@
 						</div>
 						<div class="tile is-parent is-6">
 							<article class="tile is-child">
-								<span class="has-tooltip-right has-tooltip-multiline" data-tooltip="Auto rescan folder with given interval">
+								<span class="has-tooltip-right has-tooltip-multiline has-tooltip-arrow" data-tooltip="Auto rescan folder with given interval">
 									<label class="checkbox">
 										<input type="checkbox" name="autoRescan" id="autoRescan" />
 										Auto Rescan
@@ -71,7 +71,10 @@
 								</span>
 								<label class="label">
 									Auto rescan interval (Hours)
-									<span class="has-tooltip-right has-tooltip-multiline" data-tooltip="Every x hours, application will rescan folder for new images if base folder is set and valid">
+									<span
+										class="has-tooltip-right has-tooltip-multiline has-tooltip-arrow"
+										data-tooltip="Every x hours, application will rescan folder for new images if base folder is set and valid"
+									>
 										<i class="fas fa-info-circle"></i>
 									</span>
 								</label>
@@ -93,7 +96,7 @@
 						</a>
 					</p>
 					<p class="control">
-						<a class="button is-danger is-small" id="cancel">
+						<a class="button is-warning is-small" id="cancel">
 							<span class="icon is-small">
 								<i class="fas fa-times" aria-hidden="true"></i>
 							</span>
@@ -101,7 +104,7 @@
 						</a>
 					</p>
 					<p class="control">
-						<a class="button is-link is-small" id="default">
+						<a class="button is-danger is-small" id="default">
 							<span class="icon is-small">
 								<i class="fas fa-undo" aria-hidden="true"></i>
 							</span>
