@@ -919,11 +919,13 @@ ipcMain.on("change-wallpaper", async (event, args) => {
 let timerStarted = false;
 let seconds = 0;
 let interval = null;
-ipcMain.on("start-timer", (event, args) => {
+ipcMain.on("start-queue-timer", (event, args) => {
 	if (!timerStarted) {
 		clearInterval(interval);
 		timerStarted = true;
-		seconds = runtimeSettings.currentShuffleInterval * 60; // minutes
+
+		// check wether it is already in progress or not
+		seconds = seconds === 0 ? runtimeSettings.currentShuffleInterval * 60 : seconds;
 
 		interval = setInterval(() => {
 			seconds--;
@@ -935,17 +937,23 @@ ipcMain.on("start-timer", (event, args) => {
 	}
 });
 
-ipcMain.on("stop-timer", (event, args) => {
+ipcMain.on("stop-queue-timer", (event, args) => {
 	// stop or pause the timer
 	clearInterval(interval);
 	timerStarted = false;
 });
 
-ipcMain.on("reset-timer", (event, args) => {
+ipcMain.on("reset-queue-timer", (event, args) => {
 	// reset the timer
 	clearInterval(interval);
 	timerStarted = false;
 	seconds = runtimeSettings.currentShuffleInterval;
+});
+
+ipcMain.on("pause-queue-timer", (event, args) => {
+	// pause the timer
+	clearInterval(interval);
+	timerStarted = false;
 });
 
 // ============================================================

@@ -131,7 +131,7 @@ const setNightModeAlbum = (e) => {
 // ============================================================
 // timer
 const timerQueue = document.getElementById("timer-queue");
-ipcRenderer.send("start-timer", null);
+ipcRenderer.send("start-queue-timer");
 ipcRenderer.on("timer", (event, arg) => {
 	timerQueue.innerHTML = formatTimerWithHours(arg);
 });
@@ -152,6 +152,34 @@ const fillQueue = () => {
 
 btnRefillQueue_El.onclick = () => {
 	fillQueue();
+};
+
+const pauseQueue = () => {
+	showToast("Queue paused");
+
+	ipcRenderer.send("pause-queue-timer");
+
+	setTimeout(() => {
+		closeToast();
+	}, 3500);
+};
+
+btnPauseQueue_El.onclick = () => {
+	pauseQueue();
+};
+
+const startQueue = () => {
+	showToast("Queue started");
+
+	ipcRenderer.send("start-queue-timer");
+
+	setTimeout(() => {
+		closeToast();
+	}, 3500);
+};
+
+btnStartQueue_El.onclick = () => {
+	startQueue();
 };
 
 const loadImage_Queue = (images) => {
