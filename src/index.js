@@ -415,8 +415,12 @@ const deleteAlbum = (album) => {
 		dialog.showErrorBox("Error", "Album not found");
 	}
 };
-
-const setImageActiveInactive = (album, image) => {
+/**
+ * Set image as active in the album setting
+ * @param {string} album - The album name of the image
+ * @param {string} image - The image path to be set as active.
+ */
+const setImageActive = (album, image) => {
 	// remove the image from inactive_wp
 	const pos_Album = albumSettings.findIndex((el) => el.name === album);
 	const pos_Image = albumSettings[pos_Album].inactive_wp.findIndex((el) => el === image);
@@ -428,7 +432,11 @@ const setImageActiveInactive = (album, image) => {
 	// save setting
 	saveSettings("album", albumSettings, false);
 };
-
+/**
+ * Set image as inactive in the album setting
+ * @param {string} album - The album name of the image
+ * @param {string} image - The image path to be set as inactive.
+ */
 const setImageInactive = (album, image) => {
 	// remove the image from active_wp
 	const pos_Album = albumSettings.findIndex((el) => el.name === album);
@@ -441,7 +449,13 @@ const setImageInactive = (album, image) => {
 	// save setting
 	saveSettings("album", albumSettings, false);
 };
-
+/**
+ * Delete image from the album setting
+ * @param {string} album - The album name of the image
+ * @param {string} image - The image path to be deleted.
+ * @param {boolean} [active] - If true, will delete from active_wp, else will delete from inactive_wp.
+ * @param {boolean} [withPopup] - If true, will show a popup to show success result.
+ */
 const deleteImage = (album, image, active, withPopup = true) => {
 	// remove the image from active_wp
 	const pos_Album = albumSettings.findIndex((el) => el.name === album);
@@ -467,6 +481,24 @@ const deleteImage = (album, image, active, withPopup = true) => {
 	}
 };
 
+const deleteAllImages = (album) => {
+	// remove the image from active_wp
+	const pos_Album = albumSettings.findIndex((el) => el.name === album);
+	albumSettings[pos_Album].active_wp = [];
+	albumSettings[pos_Album].inactive_wp = [];
+
+	// save setting
+	saveSettings("album", albumSettings, false);
+
+	// popup success
+	return true;
+};
+
+/**
+ * Add image to the album setting
+ * @param {string} album - The album name of the image
+ * @param {boolean} [withPopup] - If true, will show a popup to show success result.
+ */
 const addImages = (album, withPopup = true) => {
 	const pos_Album = albumSettings.findIndex((el) => el.name === album);
 	let files = dialog.showOpenDialogSync(mainWindow, {
@@ -509,7 +541,11 @@ const addImages = (album, withPopup = true) => {
 
 	return files;
 };
-
+/**
+ * Sync the album settings with the base image folder that is set.
+ * @param {string} album - The album name of the image
+ * @returns {boolean} - If true, sync was successful.
+ */
 const syncAlbum = (album) => {
 	const pos_Album = albumSettings.findIndex((el) => el.name === album);
 
@@ -537,8 +573,11 @@ const syncAlbum = (album) => {
 			buttons: ["Ok"],
 			message: "Album synced successfully",
 		});
+
+		return true;
 	} else {
 		dialog.showErrorBox("Error", "Please set the base folder first");
+		return false;
 	}
 };
 
@@ -568,11 +607,16 @@ ipcMain.on("set-img-inactive", (event, args) => {
 });
 
 ipcMain.on("set-img-active", (event, args) => {
-	setImageActiveInactive(args[0], args[1]);
+	setImageActive(args[0], args[1]);
 });
 
 ipcMain.on("delete-img", (event, args) => {
 	deleteImage(args[0], args[1], args[2], false);
+});
+
+ipcMain.on("delete-all-images", (event, args) => {
+	const resGet = deleteAllImages(args);
+	event.returnValue = resGet;
 });
 
 ipcMain.on("add-images", (event, args) => {
@@ -581,7 +625,8 @@ ipcMain.on("add-images", (event, args) => {
 });
 
 ipcMain.on("sync-album", (event, args) => {
-	syncAlbum(args);
+	const returnVal = syncAlbum(args);
+	event.returnValue = returnVal;
 });
 
 // ============================================================

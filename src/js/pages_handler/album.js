@@ -433,19 +433,21 @@ btnLoadImg.addEventListener("click", () => btnLoadImgClick());
 const btnSyncFolder = document.getElementById("sync-folder");
 
 const btnSyncFolderClick = () => {
-	ipcRenderer.send("sync-album", selectedAlbum_Name);
+	const res = ipcRenderer.sendSync("sync-album", selectedAlbum_Name);
 
-	// get new album data
-	const newlySyncedAlbumData = ipcRenderer.sendSync("get-current-album-data", selectedAlbum_Name);
+	if (res) {
+		// get new album data
+		const newlySyncedAlbumData = ipcRenderer.sendSync("get-current-album-data", selectedAlbum_Name);
 
-	// filter the only new data
-	const newData = newlySyncedAlbumData.active_wp.filter((img) => !selectedAlbumData.active_wp.includes(img));
+		// filter the only new data
+		const newData = newlySyncedAlbumData.active_wp.filter((img) => !selectedAlbumData.active_wp.includes(img));
 
-	// update current data
-	selectedAlbumData = newlySyncedAlbumData;
+		// update current data
+		selectedAlbumData = newlySyncedAlbumData;
 
-	// load the new data
-	loadImage(newData);
+		// load the new data
+		loadImage(newData);
+	}
 };
 btnSyncFolder.addEventListener("click", () => btnSyncFolderClick());
 
@@ -472,6 +474,26 @@ const btnAddImgClick = () => {
 	}
 };
 btnAddImg.addEventListener("click", () => btnAddImgClick());
+
+// ----------------
+const btnDeleteAllImages = document.getElementById("delete-all-images");
+
+const btnDeleteAllImagesClick = () => {
+	const confirmation = ipcRenderer.sendSync("dialogbox", ["warning", "You will lose all images of this album, continue?"]);
+	if (confirmation === 1) return;
+
+	const res = ipcRenderer.sendSync("delete-all-images", selectedAlbum_Name);
+	if (res) {
+		document.getElementById("img-container").innerHTML = "";
+		showToast("All images deleted successfully");
+
+		// hide toast
+		setTimeout(() => {
+			closeToast();
+		}, 3000);
+	}
+};
+btnDeleteAllImages.addEventListener("click", () => btnDeleteAllImagesClick());
 
 // ================================================================
 // update data from ipcmain
