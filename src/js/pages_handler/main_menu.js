@@ -178,7 +178,7 @@ const loadImage_Queue = (images) => {
 
 		const iconDelete = document.createElement("span");
 		iconDelete.className = "has-tooltip-bottom mx-1 has-tooltip-arrow";
-		iconDelete.dataset.tooltip = "Delete this wallpaper from the list";
+		iconDelete.dataset.tooltip = "Delete this wallpaper from the queue";
 		iconDelete.innerHTML = `<i class="fas fa-trash-alt" onclick="deleteFromQueue('${identifier}','${image.replace(/\\/g, "/")}')"></i>`;
 		descHover.appendChild(iconDelete);
 
@@ -193,6 +193,30 @@ const loadImage_Queue = (images) => {
 		imgContainer.appendChild(div);
 	});
 };
+
+const deleteFromQueue = (identifier, path) => {
+	ipcRenderer.send("delete-img-from-queue", path);
+
+	const queue_El = document.getElementById("img-wrapper-" + identifier);
+
+	// remove from the list
+	queue_El.remove();
+	addedElements = addedElements.filter((el) => el !== identifier);
+
+	// add 1 queue
+	const newToQ = ipcRenderer.sendSync("fill-queue-once", path);
+	loadImage_Queue(newToQ);
+
+	// update selected album data
+	currentRuntimeSetting = ipcRenderer.sendSync("get-settings", "runtime");
+
+	showToast("Image deleted from the queue successfully");
+
+	setTimeout(() => {
+		closeToast();
+	}, 3000);
+};
+
 // Queue
 const fillQueue = (startup = false) => {
 	// ask confirmation first
@@ -278,24 +302,6 @@ const resetQueueTimer = () => {
 
 btnResetQueue_El.onclick = () => {
 	resetQueueTimer();
-};
-
-const deleteFromQueue = (identifier, path) => {
-	ipcRenderer.send("delete-img-from-queue", path);
-
-	const queue_El = document.getElementById("img-wrapper-" + identifier);
-
-	// remove from the list
-	queue_El.remove();
-
-	// update selected album data
-	currentRuntimeSetting = ipcRenderer.sendSync("get-settings", "runtime");
-
-	showToast("Image deleted from the queue successfully");
-
-	setTimeout(() => {
-		closeToast();
-	}, 3000);
 };
 
 // ============================================================

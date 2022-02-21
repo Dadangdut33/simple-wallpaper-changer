@@ -705,6 +705,7 @@ const setNightModeAlbum = (albumName) => {
 const fillQueue = (onlyAddOne = false) => {
 	// first combine all active wp in all albums
 	let all_Wp = [];
+	let returnItem = [];
 
 	// -------------------------
 	// Getting time
@@ -779,10 +780,14 @@ const fillQueue = (onlyAddOne = false) => {
 			}
 		}
 	} else {
-		runtimeSettings.currentQueue.push(all_Wp[Math.floor(Math.random() * all_Wp.length)]);
+		const addOnce = all_Wp[Math.floor(Math.random() * all_Wp.length)];
+		returnItem.push(addOnce);
+		runtimeSettings.currentQueue.push(addOnce);
 	}
 
 	saveSettings("runtime", runtimeSettings, false);
+
+	return returnItem;
 };
 
 const deleteImageFromQueue = (imagePath) => {
@@ -836,7 +841,8 @@ ipcMain.on("fill-queue", (event, args) => {
 });
 
 ipcMain.on("fill-queue-once", (event, args) => {
-	fillQueue(true);
+	const retVal = fillQueue(true);
+	event.returnValue = retVal;
 });
 
 ipcMain.on("delete-image-from-queue", (event, args) => {
