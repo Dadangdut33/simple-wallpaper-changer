@@ -2,13 +2,11 @@
 const { app, BrowserWindow, ipcMain, Menu, MenuItem, globalShortcut, dialog, Tray, Notification } = require("electron");
 const path = require("path");
 const wallpaper = require("wallpaper");
-const firstRun = require("electron-first-run");
-const isFirstRun = firstRun();
 // ============================================================
 const { loadConfig, saveConfig, resetDefaultApp, albumSettings_Default, runtimeSettings_Default, appSettings_Default, getFilesInFolder, filterImages } = require("./js/handler/files");
 
-let mainWindow = BrowserWindow,
-	trayApp = Tray,
+let mainWindow = null,
+	trayApp = null,
 	iconPath = path.join(__dirname, "assets/logo.png"),
 	albumSettings = albumSettings_Default,
 	runtimeSettings = runtimeSettings_Default,
@@ -60,16 +58,6 @@ const createWindow = () => {
 	});
 
 	loadSetting();
-
-	// check first run
-	if (firstRun) {
-		// notify
-		new Notification({
-			title: `Welcome to Simple Wallpaper Changer ${app.getVersion()}`,
-			body: "Thanks for installing this app. You can start using the app by setting the album in the album tab.",
-			icon: iconPath,
-		}).show();
-	}
 };
 
 // prevent multiple instances
@@ -80,9 +68,12 @@ if (!gotTheLock) {
 } else {
 	app.on("second-instance", (event, commandLine, workingDirectory) => {
 		// Someone tried to run a second instance, we should focus our window.
-		if (myWindow) {
-			if (myWindow.isMinimized()) myWindow.restore();
-			myWindow.focus();
+		if (mainWindow) {
+			if (mainWindow.isMinimized()) mainWindow.restore();
+
+			if (!mainWindow.isVisible()) mainWindow.show();
+
+			mainWindow.focus();
 		}
 	});
 
