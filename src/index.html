@@ -8,7 +8,7 @@
 		<link rel="stylesheet" href="style/fa-all.min.css" />
 		<link rel="stylesheet" href="style/index.css" />
 
-		<script defer src="../js/handler/toast.js"></script>
+		<script defer src="js/handler/toast.js"></script>
 		<script defer src="js/handler/image.js"></script>
 		<script defer src="js/pages_handler/main_menu.js"></script>
 	</head>
@@ -60,13 +60,7 @@
 						</span>
 					</label>
 
-					<!-- ex data -->
-					<div id="album-set">
-						<label class="checkbox mr-2">
-							<input type="checkbox" onclick="" />
-							Default
-						</label>
-					</div>
+					<div id="album-set-active"></div>
 
 					<div class="field" style="margin-top: 12px">
 						<label class="label">
@@ -100,33 +94,27 @@
 						</span>
 					</label>
 
-					<!-- ex data -->
-					<div id="album-set">
-						<label class="checkbox mr-2">
-							<input type="checkbox" onclick="" />
-							Default
-						</label>
-					</div>
+					<div id="album-set-nightmode"></div>
 
 					<div class="field" style="margin-top: 12px">
 						<label class="label">
 							Night mode period
-							<span class="has-tooltip-right has-tooltip-multiline has-tooltip-arrow" data-tooltip="Start and end period of night mode">
+							<span class="has-tooltip-right has-tooltip-multiline has-tooltip-arrow" data-tooltip="Start and end period of night mode. Format (HH:MM)">
 								<i class="fas fa-info-circle"></i>
 							</span>
 						</label>
 						<div class="columns">
 							<div class="column">
 								<div class="control">
-									<span class="has-tooltip-left has-tooltip-multiline has-tooltip-arrow" data-tooltip="Start period of night mode">
-										<input class="input" type="number" placeholder="Time start" min="1" />
+									<span class="has-tooltip-left has-tooltip-multiline has-tooltip-arrow" data-tooltip="Start period of night mode. Format (HH:MM)">
+										<input class="input" id="night-start" placeholder="Time start" maxlength="5" />
 									</span>
 								</div>
 							</div>
 							<div class="column">
 								<div class="control">
-									<span class="has-tooltip-left has-tooltip-multiline has-tooltip-arrow" data-tooltip="End period of night mode">
-										<input class="input" type="number" placeholder="Time End" min="1" />
+									<span class="has-tooltip-left has-tooltip-multiline has-tooltip-arrow" data-tooltip="End period of night mode. Format (HH:MM)">
+										<input class="input" id="night-end" placeholder="Time End" min="1" maxlength="5" />
 									</span>
 								</div>
 							</div>
@@ -137,7 +125,7 @@
 						<div class="control">
 							<label class="checkbox">
 								<span class="has-tooltip-right has-tooltip-multiline has-tooltip-arrow" data-tooltip="**Will use night mode album only** when entering the set period of night mode.">
-									<input type="checkbox" />
+									<input type="checkbox" id="enable-nightmode" />
 									Enable night mode
 								</span>
 							</label>

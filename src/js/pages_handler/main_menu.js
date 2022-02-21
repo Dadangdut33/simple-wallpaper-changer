@@ -1,7 +1,58 @@
 const { ipcRenderer } = require("electron");
 const imgContainer = document.getElementById("img-container");
+let currentRuntimeSetting = ipcRenderer.sendSync("get-settings", "runtime");
+let allAlbumData = ipcRenderer.sendSync("get-settings", "album");
 
-const timerQueue = document.getElementById("timer-queue");
+const divAlbumSetActive = document.getElementById("album-set-active");
+const divAlbumSetNightmode = document.getElementById("album-set-nightmode");
+
+const queueInterval_El = document.getElementById("queue-interval");
+const randomizeQueue_El = document.getElementById("randomize-queue");
+const nightStart_El = document.getElementById("night-start");
+const nightEnd_El = document.getElementById("night-end");
+const enableNightMode_El = document.getElementById("enable-nightmode");
+
+// ============================================================
+// Page open
+// ============================================================
+// Load data
+const fillAlbumData = (data, data_type) => {
+	for (let album of data) {
+		const labelEl = document.createElement("label");
+		labelEl.className = "checkbox mr-2";
+		const inputEl = document.createElement("input");
+		inputEl.type = "checkbox";
+
+		if (data_type === "active-inactive") {
+			inputEl.onclick = () => {
+				ipcRenderer.send("set-active-album", album.name);
+			};
+			// check if active or not
+			if (currentRuntimeSetting.currentAlbum.includes(album.name)) {
+				inputEl.checked = true;
+			}
+		} else {
+			// night mode
+			inputEl.onclick = () => {
+				ipcRenderer.send("set-nightmode-album", album.name);
+			};
+			// check if active or not
+			if (currentRuntimeSetting.currentNightModeAlbum.includes(album.name)) {
+				inputEl.checked = true;
+			}
+		}
+
+		labelEl.appendChild(inputEl);
+		labelEl.appendChild(document.createTextNode(" " + album.name + " "));
+
+		if (data_type === "active-inactive") divAlbumSetActive.appendChild(labelEl);
+		else divAlbumSetNightmode.appendChild(labelEl);
+	}
+};
+
+fillAlbumData(allAlbumData, "active-inactive");
+fillAlbumData(allAlbumData, "nightmode");
+
 const formatTimerWithHours = (time) => {
 	let hours = Math.floor(time / 3600);
 	let minutes = Math.floor((time - hours * 3600) / 60);
@@ -13,6 +64,20 @@ const formatTimerWithHours = (time) => {
 
 	return `${hours}:${minutes}:${seconds}`;
 };
+
+const loadData = () => {
+	queueInterval_El.value = currentRuntimeSetting.currentShuffleInterval;
+	randomizeQueue_El.checked = currentRuntimeSetting.currentRandom;
+	nightStart_El.value = currentRuntimeSetting.currentNightModeStart;
+	nightEnd_El.value = currentRuntimeSetting.currentNightModeEnd;
+	enableNightMode_El.checked = currentRuntimeSetting.currentNightMode;
+};
+
+loadData();
+
+// ============================================================
+
+const timerQueue = document.getElementById("timer-queue");
 ipcRenderer.send("start-timer", null);
 ipcRenderer.on("timer", (event, arg) => {
 	timerQueue.innerHTML = formatTimerWithHours(arg);
