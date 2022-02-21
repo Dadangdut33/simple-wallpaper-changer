@@ -14,6 +14,7 @@ const updateFields = (currentSetting) => {
 	document.getElementById("rescanEveryStart").checked = currentSetting.rescan_every_start;
 	document.getElementById("autoRescan").checked = currentSetting.auto_rescan;
 	document.getElementById("autoRescanInterval").value = currentSetting.rescan_interval;
+	document.getElementById("maxQueueSize").value = currentSetting.maxQueueSize;
 };
 
 updateFields(loadedSetting);
@@ -24,6 +25,7 @@ const saveUpdate = () => {
 		rescan_every_start: document.getElementById("rescanEveryStart").checked,
 		auto_rescan: document.getElementById("autoRescan").checked,
 		rescan_interval: document.getElementById("autoRescanInterval").value,
+		maxQueueSize: document.getElementById("maxQueueSize").value,
 	};
 
 	// update setting
@@ -39,7 +41,8 @@ const checkChanges = () => {
 		document.getElementById("startupVal").checked != loadedSetting.start_on_startup ||
 		document.getElementById("rescanEveryStart").checked != loadedSetting.rescan_every_start ||
 		document.getElementById("autoRescan").checked != loadedSetting.auto_rescan ||
-		document.getElementById("autoRescanInterval").value != loadedSetting.rescan_interval
+		document.getElementById("autoRescanInterval").value != loadedSetting.rescan_interval ||
+		document.getElementById("maxQueueSize").value != loadedSetting.maxQueueSize
 	) {
 		// send message box to ask user if they want to save changes
 		const yesNo = ipcRenderer.sendSync("dialogbox", ["yesno", "You have unsaved changes. Do you want to save them?"]);

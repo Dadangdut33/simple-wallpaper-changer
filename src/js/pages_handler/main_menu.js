@@ -350,9 +350,7 @@ ipcRenderer.on("queue-shifted", (event, arg) => {
 
 		// remove from the list
 		queue_El.remove();
-	} catch (error) {
-		console.log(error);
-	}
+	} catch (error) {} // ignore
 
 	const shiftedItem = arg;
 

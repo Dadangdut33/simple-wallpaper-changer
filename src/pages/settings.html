@@ -73,12 +73,6 @@
 						</div>
 						<div class="tile is-parent is-6">
 							<article class="tile is-child">
-								<span class="has-tooltip-right has-tooltip-multiline has-tooltip-arrow" data-tooltip="Auto rescan folder with given interval">
-									<label class="checkbox">
-										<input type="checkbox" name="autoRescan" id="autoRescan" />
-										Auto Rescan
-									</label>
-								</span>
 								<label class="label">
 									Auto rescan interval (Hours)
 									<span
@@ -89,6 +83,26 @@
 									</span>
 								</label>
 								<input class="input" name="autoRescanInterval" id="autoRescanInterval" type="number" placeholder="Input in hours" min="1" max="24" value="1" required />
+								<span class="has-tooltip-right has-tooltip-multiline has-tooltip-arrow" data-tooltip="Auto rescan folder with given interval">
+									<label class="checkbox">
+										<input type="checkbox" name="autoRescan" id="autoRescan" />
+										Auto Rescan
+									</label>
+								</span>
+							</article>
+						</div>
+						<div class="tile is-parent is-vertical is-4">
+							<article class="tile is-child">
+								<label class="label">
+									Max Queue Size
+									<span
+										class="has-tooltip-right has-tooltip-multiline has-tooltip-arrow"
+										data-tooltip="Max queue size. Queue is shown in main menu. The higher the number, the more images will be shown, which mean the more resources it will take. Performance won't be impacted if the app is minimized or position not on main menu."
+									>
+										<i class="fas fa-info-circle"></i>
+									</span>
+								</label>
+								<input class="input" name="maxQueueSize" id="maxQueueSize" type="number" placeholder="Input in hours" min="5" max="100" value="5" required />
 							</article>
 						</div>
 					</div>

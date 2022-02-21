@@ -30,6 +30,7 @@ const appSettings_Default = {
 	rescan_every_start: false,
 	auto_rescan: false,
 	rescan_interval: 12,
+	maxQueueSize: 13,
 };
 
 const dataPath_Dict = {

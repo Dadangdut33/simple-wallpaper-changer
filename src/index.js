@@ -767,7 +767,7 @@ const fillQueue = (onlyAddOne = false) => {
 
 		let itemBefore = "",
 			newItem = "";
-		for (let i = 0; i < 13; i++) {
+		for (let i = 0; i < appSettings.maxQueueSize; i++) {
 			// make sure it's not the same as the last one but only if there is more than 1 item
 			if (all_Wp.length > 1) {
 				while (itemBefore === newItem) {
@@ -939,6 +939,8 @@ const autoRescan = () => {
 const checkStopAutoRescan = () => {
 	if (!appSettings.auto_rescan) {
 		clearInterval(scan_interval);
+	} else {
+		autoRescan();
 	}
 };
 
