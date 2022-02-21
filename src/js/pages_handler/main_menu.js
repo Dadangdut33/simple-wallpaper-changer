@@ -1,145 +1,77 @@
 const { ipcRenderer } = require("electron");
-const wallpaper = require("wallpaper");
-const fs = require("fs");
-const changeWp = document.getElementById("changeWp");
-const loadWp = document.getElementById("loadWp");
 const imgContainer = document.getElementById("img-container");
 
-// TEST
-const baseFolder = "C:\\\\Users\\ffant\\Pictures\\Wallpaper\\test\\";
-
-// the general idea
-// 1. First user can set a folder with images to load/sync the wallpaper list
-// 2. user can also add image individually to a list
-// 3. there can be multiple list
-
-// saving the data ?
-// might be using json
-
 const testVar = document.getElementById("test-var");
-// timer
+// TODO: timer
 ipcRenderer.send("start-timer", null);
 ipcRenderer.on("timer", (event, arg) => {
 	testVar.innerHTML = arg;
 });
 
-const showDesc = (id) => {
-	const desc = document.getElementById("desc-" + id);
+const loadImage_Queue = (images) => {
+	images.some((image) => {
+		let identifier = getImageName(image);
 
-	if (desc.style.display === "none") {
-		desc.style.display = "flex";
-	}
-};
-
-const hideDesc = (id) => {
-	const desc = document.getElementById("desc-" + id);
-	let timeOut = null;
-	if (desc.style.display === "flex") {
-		// add fadeout then display none after animation is done
-		clearTimeout(timeOut);
-		desc.classList.add("fadeOut");
-		timeOut = setTimeout(() => {
-			desc.style.display = "none";
-			desc.classList.remove("fadeOut");
-		}, 180);
-	}
-};
-
-const getFilesInFolder = (folder) => {
-	console.log("getFilesInFolder");
-	console.log(folder);
-	const files = fs.readdirSync(folder);
-	console.log(files);
-	return files;
-};
-
-const setWp = async () => {
-	const testWp = getFilesInFolder(baseFolder);
-	let wpBefore = (await wallpaper.get()).split("\\").pop();
-
-	// set wallpaper every 10 seconds
-	// setInterval(() => {
-	// 	const randomWp = wpArr[Math.floor(Math.random() * wpArr.length)];
-	// 	console.log(randomWp);
-	// 	wallpaper.set(randomWp);
-	// }, 10000);
-	let randomWp = "";
-	while (true) {
-		randomWp = baseFolder + testWp[Math.floor(Math.random() * testWp.length)];
-		if (wpBefore !== randomWp.split("\\").pop()) {
-			break;
-		}
-	}
-
-	console.log(randomWp);
-	await wallpaper.set(randomWp);
-};
-
-const loadWallpaper = async () => {
-	const testWp = getFilesInFolder(baseFolder);
-
-	// loop through all files in folder
-	let counter = 5;
-	for (let wp of testWp) {
 		const div = document.createElement("div");
 		div.className = "img-wrapper";
-		// TODO
-		// Check if already skipped or not
-		// SPAN IF SKIPPED, CONTAINS SKIPPED CLASS
+		div.id = "img-wrapper-" + identifier;
+		div.onmouseenter = () => {
+			showDesc(identifier);
+		};
+		div.onmouseleave = () => {
+			hideDesc(identifier);
+		};
+
+		// span
 		const span = document.createElement("span");
-		span.className = "skipped";
+		span.id = "desc-span-" + identifier;
+		if (!active) span.className = "skipped";
+		else span.className = "normal";
 		div.appendChild(span);
 
-		// onclick for each button
-
 		const img = document.createElement("img");
-		img.src = baseFolder + wp;
+		img.src = image;
 		img.id = "image";
-		img.alt = `${wp}`;
+		img.alt = `${image}`;
 		div.appendChild(img);
 
 		const desc = document.createElement("div");
 		desc.className = "img-desc fadeIn";
 		desc.style.display = "none";
-		desc.id = `desc-${counter}`;
-		desc.innerHTML = `<p>${wp}</p>`;
+		desc.id = `desc-${identifier}`;
+		desc.innerHTML = `
+					<p class="has-tooltip-top has-tooltip-arrow" data-tooltip="Click to copy image path to clipboard" onclick="copyToClipboard('${image.replace(/\\/g, "/")}')" style="cursor: pointer;">${image}</p>
+					`;
 		div.appendChild(desc);
 
 		const descHover = document.createElement("div");
 		const iconApply = document.createElement("span");
-		iconApply.className = "has-tooltip-bottom mx-1";
+		iconApply.className = "has-tooltip-bottom mx-1 has-tooltip-arrow";
 		iconApply.dataset.tooltip = "Set as current wallpaper";
-		// BtnApply.onclick = `wallpaper.set("${baseFolder + wp}")`;
-		iconApply.innerHTML = `<i class="fas fa-check-circle"></i>`;
+		iconApply.innerHTML = `<i class="fas fa-check-circle" onclick="setWallpaper('${image.replace(/\\/g, "/")}')"></i>`;
 		descHover.appendChild(iconApply);
 
 		const iconSkip = document.createElement("span");
-		iconSkip.className = "has-tooltip-bottom mx-1";
-		iconSkip.dataset.tooltip = "Skip this wallpaper from the list";
-		iconSkip.innerHTML = `<i class="fas fa-minus-circle"></i>`;
+		iconSkip.className = "has-tooltip-bottom mx-1 has-tooltip-arrow";
+		iconSkip.dataset.tooltip = "Skip/Unskip this wallpaper from the list";
+		// prettier-ignore
+		iconSkip.innerHTML = `<i class="fas ${active ? "fa-minus-circle" : "fa-plus-circle"}" id="${active ? "active" : "inactive"}" onclick="setActiveInactive(this, '${identifier}','${image.replace(/\\/g, "/")}')"></i>`;
 		descHover.appendChild(iconSkip);
 
 		const iconDelete = document.createElement("span");
-		iconDelete.className = "has-tooltip-bottom mx-1";
+		iconDelete.className = "has-tooltip-bottom mx-1 has-tooltip-arrow";
 		iconDelete.dataset.tooltip = "Delete this wallpaper from the list";
-		iconDelete.innerHTML = `<i class="fas fa-trash-alt"></i>`;
+		iconDelete.innerHTML = `<i class="fas fa-trash-alt" onclick="deleteFromList(this, '${identifier}','${image.replace(/\\/g, "/")}')"></i>`;
 		descHover.appendChild(iconDelete);
+
+		const iconOpen = document.createElement("span");
+		iconOpen.className = "has-tooltip-bottom mx-1 has-tooltip-arrow";
+		iconOpen.dataset.tooltip = "Open this wallpaper in the default viewer";
+		iconOpen.innerHTML = `<i class="fas fa-external-link-alt" onclick="openInExplorer('${image.replace(/\\/g, "/")}')"></i>`;
+		descHover.appendChild(iconOpen);
 
 		desc.appendChild(descHover);
 
-		let x = counter;
-		div.addEventListener("mouseenter", () => {
-			showDesc(x);
-		});
-
-		div.addEventListener("mouseleave", () => {
-			hideDesc(x);
-		});
 		imgContainer.appendChild(div);
-
-		counter++;
-	}
+	});
 };
-
-changeWp.addEventListener("click", setWp);
-loadWp.addEventListener("click", loadWallpaper);
