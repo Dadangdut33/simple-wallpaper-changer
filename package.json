@@ -47,6 +47,7 @@
   "dependencies": {
     "bulma-calendar": "^6.1.16",
     "electron-squirrel-startup": "^1.0.0",
+    "moment": "^2.29.1",
     "wallpaper": "^5.0.1"
   },
   "devDependencies": {

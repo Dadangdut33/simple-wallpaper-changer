@@ -2,6 +2,7 @@
 const { app, BrowserWindow, ipcMain, Menu, MenuItem, globalShortcut, dialog, Tray, Notification } = require("electron");
 const path = require("path");
 const wallpaper = require("wallpaper");
+const moment = require("moment");
 // ============================================================
 const { loadConfig, saveConfig, resetDefaultApp, albumSettings_Default, runtimeSettings_Default, appSettings_Default, getFilesInFolder, filterImages } = require("./js/handler/files");
 
@@ -706,40 +707,37 @@ const fillQueue = (onlyAddOne = false) => {
 	// first combine all active wp in all albums
 	let all_Wp = [];
 	let returnItem = [];
+	let inNightMode = false;
 
 	// -------------------------
-	// Getting time
-	// get current time first
-	const currentDate = new Date();
-
-	// get only the date
-	const currentDateOnly = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1 < 10 ? "0" + parseInt(currentDate.getMonth() + 1) : parseInt(currentDate.getMonth() + 1)}-${
-		currentDate.getDate() < 10 ? "0" + currentDate.getDate() : currentDate.getDate()
-	}`;
-
-	// get accurate current time because for some reason the time is off because of timezone ? maybe
-	const currentDateWithTime = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1 < 10 ? "0" + parseInt(currentDate.getMonth() + 1) : parseInt(currentDate.getMonth() + 1)}-${
-		currentDate.getDate() < 10 ? "0" + currentDate.getDate() : currentDate.getDate()
-	}T${currentDate.getHours < 10 ? "0" + currentDate.getHours() : currentDate.getHours()}:${currentDate.getMinutes() < 10 ? "0" + currentDate.getMinutes() : currentDate.getMinutes()}:${
-		currentDate.getSeconds() < 10 ? "0" + currentDate.getSeconds() : currentDate.getSeconds()
-	}.000Z`;
-
-	// parse them all to date
-	const currentDateAccurate = new Date(currentDateWithTime);
-	const startDate = new Date(`${currentDateOnly}T${runtimeSettings.currentNightModeStart}:00.000Z`);
-	const endDate = new Date(`${currentDateOnly}T${runtimeSettings.currentNightModeEnd}:00.000Z`);
-
-	// if end time is < start time, meaning next day period
-	if (startDate > endDate) {
-		// add 1 day to endDate
-		endDate.setDate(endDate.getDate() + 1);
-	}
-	// -------------------------
-
-	// check if in period
+	// check if night mode or not
 	if (runtimeSettings.currentNightMode) {
 		// check if in night mode period
-		if (currentDateAccurate >= startDate && currentDateAccurate <= endDate) {
+		// Getting time
+		const currentDate = new moment();
+		const startDate = currentDate.clone();
+		startDate.set({ hour: runtimeSettings.currentNightModeStart.split(":")[0], minute: runtimeSettings.currentNightModeStart.split(":")[1], second: 0, millisecond: 0 });
+		const endDate = currentDate.clone();
+		endDate.set({ hour: runtimeSettings.currentNightModeEnd.split(":")[0], minute: runtimeSettings.currentNightModeEnd.split(":")[1], second: 0, millisecond: 0 });
+
+		// CASE A: Startdate is > enddate
+		if (startDate.hour() > endDate.hour()) {
+			if (currentDate.hour() <= endDate.hour() && currentDate.hour() <= startDate.hour()) {
+				inNightMode = true;
+			} else if (currentDate.hour() >= endDate.hour() && currentDate.hour() >= startDate.hour()) {
+				inNightMode = true;
+			}
+		}
+
+		// CASE B: Startdate is < enddate
+		if (startDate.hour() < endDate.hour()) {
+			if (currentDate.hour() >= startDate.hour() && currentDate.hour() <= endDate.hour()) {
+				inNightMode = true;
+			}
+		}
+
+		// if in night mode period
+		if (inNightMode) {
 			// in night mode period use nightmode album for the list
 			albumSettings.forEach((album) => {
 				if (runtimeSettings.currentNightModeAlbum.includes(album.name)) {
