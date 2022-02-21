@@ -19,6 +19,10 @@ const runtimeSettings_Default = {
 	currentAlbum: ["Default"],
 	currentRandom: true,
 	currentShuffleInterval: 30, // minutes
+	currentNightMode: false,
+	currentNightModeAlbum: [],
+	currentNightModeStart: "18:00",
+	currentNightModeEnd: "06:00",
 };
 
 const appSettings_Default = {

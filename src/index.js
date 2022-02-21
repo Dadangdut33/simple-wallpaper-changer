@@ -151,7 +151,7 @@ ipcMain.on("start-timer", (event, args) => {
 	if (!timerStarted) {
 		clearInterval(interval);
 		timerStarted = true;
-		seconds = runtimeSettings.currentShuffleInterval;
+		seconds = runtimeSettings.currentShuffleInterval * 60; // minutes
 
 		interval = setInterval(() => {
 			seconds--;

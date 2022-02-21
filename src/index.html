@@ -51,37 +51,98 @@
 				</span>
 			</div>
 
-			<label class="label">
-				Set Active Album
-				<span class="has-tooltip-right has-tooltip-multiline has-tooltip-arrow" data-tooltip="Album to be used for the wallpaper queue">
-					<i class="fas fa-info-circle"></i>
-				</span>
-			</label>
-			<div id="album-set">
-				<label class="checkbox mr-2">
-					<input type="checkbox" />
-					Default
-				</label>
-			</div>
-
-			<div class="field" style="margin-top: 12px">
-				<label class="label">
-					Queue Interval (In minutes)
-					<span class="has-tooltip-right has-tooltip-multiline has-tooltip-arrow" data-tooltip="Time interval between each wallpaper changes in the queue.">
-						<i class="fas fa-info-circle"></i>
-					</span>
-				</label>
-				<div class="control">
-					<input class="input" type="number" placeholder="Queue Interval in minutes" min="1" />
-				</div>
-			</div>
-
-			<div class="field">
-				<div class="control">
-					<label class="checkbox">
-						<input type="checkbox" />
-						Randomize Queue
+			<div class="columns">
+				<div class="column">
+					<label class="label">
+						Set Active Album
+						<span class="has-tooltip-right has-tooltip-multiline has-tooltip-arrow" data-tooltip="Album to be used for the wallpaper queue">
+							<i class="fas fa-info-circle"></i>
+						</span>
 					</label>
+
+					<!-- ex data -->
+					<div id="album-set">
+						<label class="checkbox mr-2">
+							<input type="checkbox" onclick="" />
+							Default
+						</label>
+					</div>
+
+					<div class="field" style="margin-top: 12px">
+						<label class="label">
+							Queue Interval (In minutes)
+							<span class="has-tooltip-right has-tooltip-multiline has-tooltip-arrow" data-tooltip="Time interval between each wallpaper changes in the queue.">
+								<i class="fas fa-info-circle"></i>
+							</span>
+						</label>
+						<div class="control">
+							<input class="input" type="number" id="queue-interval" placeholder="Queue Interval in minutes" min="1" />
+						</div>
+					</div>
+
+					<div class="field">
+						<div class="control">
+							<label class="checkbox">
+								<span class="has-tooltip-right has-tooltip-multiline has-tooltip-arrow" data-tooltip="Will randomize queue order.">
+									<input type="checkbox" id="randomize-queue" />
+									Randomize Queue
+								</span>
+							</label>
+						</div>
+					</div>
+				</div>
+
+				<div class="column">
+					<label class="label">
+						Set Night Album
+						<span class="has-tooltip-right has-tooltip-multiline has-tooltip-arrow" data-tooltip="Album to be used for night mode. night mode is set below.">
+							<i class="fas fa-info-circle"></i>
+						</span>
+					</label>
+
+					<!-- ex data -->
+					<div id="album-set">
+						<label class="checkbox mr-2">
+							<input type="checkbox" onclick="" />
+							Default
+						</label>
+					</div>
+
+					<div class="field" style="margin-top: 12px">
+						<label class="label">
+							Night mode period
+							<span class="has-tooltip-right has-tooltip-multiline has-tooltip-arrow" data-tooltip="Start and end period of night mode">
+								<i class="fas fa-info-circle"></i>
+							</span>
+						</label>
+						<div class="columns">
+							<div class="column">
+								<div class="control">
+									<span class="has-tooltip-left has-tooltip-multiline has-tooltip-arrow" data-tooltip="Start period of night mode">
+										<input class="input" type="number" placeholder="Time start" min="1" />
+									</span>
+								</div>
+							</div>
+							<div class="column">
+								<div class="control">
+									<span class="has-tooltip-left has-tooltip-multiline has-tooltip-arrow" data-tooltip="End period of night mode">
+										<input class="input" type="number" placeholder="Time End" min="1" />
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="field">
+						<div class="control">
+							<label class="checkbox">
+								<span class="has-tooltip-right has-tooltip-multiline has-tooltip-arrow" data-tooltip="**Will use night mode album only** when entering the set period of night mode.">
+									<input type="checkbox" />
+									Enable night mode
+								</span>
+							</label>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

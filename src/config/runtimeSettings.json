@@ -1,6 +1,12 @@
 {
   "currentQueue": [],
-  "currentAlbum": ["Default"],
+  "currentAlbum": [
+    "Default"
+  ],
   "currentRandom": true,
-  "currentShuffleInterval": 30
+  "currentShuffleInterval": 30,
+  "currentNightMode": false,
+  "currentNightModeAlbum": [],
+  "currentNightModeStart": "18:00",
+  "currentNightModeEnd": "06:00"
 }
