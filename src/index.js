@@ -203,6 +203,18 @@ const loadSetting = () => {
 		dialog.showErrorBox("Error", configApp.errMsg);
 	} else {
 		appSettings = configApp.data;
+
+		if (appSettings.rescan_every_start) {
+			// rescan the album
+			albumSettings.forEach((album) => {
+				syncAlbum(album.name);
+			});
+		}
+
+		if (appSettings.auto_rescan) {
+			// auto rescan the album
+			autoRescan();
+		}
 	}
 };
 /**
@@ -226,6 +238,7 @@ const saveSettings = (type, setting, popup = true) => {
 				break;
 			case "app":
 				appSettings = setting;
+				checkStopAutoRescan();
 				break;
 			default:
 				break;
@@ -263,6 +276,7 @@ const resetDefaultAppConfig = () => {
 			message: "Reset default app config successfully",
 		});
 		appSettings = res.appSettings_Default;
+		checkStopAutoRescan();
 	}
 
 	return res;
@@ -761,6 +775,29 @@ ipcMain.on("change-wallpaper", async (event, args) => {
 	// add the new wp to the queue
 	addToQueue(newWpToAdd);
 });
+
+// ============================================================
+// scan interval
+let scan_interval = null;
+let time_scan_interval = null;
+
+const autoRescan = () => {
+	clearInterval(scan_interval);
+	// rescan interval times it to be hour
+	time_scan_interval = appSettings.rescan_interval * 60 * 60 * 1000;
+
+	scan_interval = setInterval(() => {
+		albumSettings.forEach((album) => {
+			syncAlbum(album.name);
+		});
+	}, time_scan_interval);
+};
+
+const checkStopAutoRescan = () => {
+	if (!appSettings.auto_rescan) {
+		clearInterval(scan_interval);
+	}
+};
 
 // ============================================================
 // Dialogboxes to call from ipcRenderer
