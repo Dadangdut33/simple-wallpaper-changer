@@ -204,7 +204,9 @@ const deleteFromQueue = (identifier, path) => {
 
 	// add 1 queue
 	const newToQ = ipcRenderer.sendSync("fill-queue-once", path);
-	loadImage_Queue(newToQ);
+	if (newToQ.length > 0) {
+		loadImage_Queue(newToQ);
+	}
 
 	// update selected album data
 	currentRuntimeSetting = ipcRenderer.sendSync("get-settings", "runtime");
@@ -232,7 +234,9 @@ const fillQueue = (startup = false) => {
 
 	currentRuntimeSetting = ipcRenderer.sendSync("get-settings", "runtime");
 	addedElements = [];
-	loadImage_Queue(currentRuntimeSetting.currentQueue);
+	if (currentRuntimeSetting.currentQueue.length > 0) {
+		loadImage_Queue(currentRuntimeSetting.currentQueue);
+	}
 
 	setTimeout(() => {
 		closeToast();
@@ -305,15 +309,18 @@ btnResetQueue_El.onclick = () => {
 
 const forceNext = () => {
 	showToast("Wallpaper changed");
+	try {
+		const identifier = addedElements.shift();
+		const queue_El = document.getElementById("img-wrapper-" + identifier);
 
-	const identifier = addedElements.shift();
-	const queue_El = document.getElementById("img-wrapper-" + identifier);
-
-	// remove from the list
-	queue_El.remove();
+		// remove from the list
+		queue_El.remove();
+	} catch (error) {}
 
 	const newToQ = ipcRenderer.sendSync("change-wallpaper"); // get newly added image to queue
-	loadImage_Queue(newToQ);
+	if (newToQ.length > 0) {
+		loadImage_Queue(newToQ);
+	}
 
 	// update selected album data
 	currentRuntimeSetting = ipcRenderer.sendSync("get-settings", "runtime");
@@ -335,8 +342,7 @@ ipcRenderer.on("timer", (event, arg) => {
 	timerQueue.innerHTML = "Next wallpaper in: " + formatTimerWithHours(arg);
 });
 
-// fillQueue(true);
-loadImage_Queue(currentRuntimeSetting.currentQueue);
+if (currentRuntimeSetting.currentQueue.length > 0) loadImage_Queue(currentRuntimeSetting.currentQueue);
 
 // ============================================================
 // from main

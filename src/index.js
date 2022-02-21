@@ -109,11 +109,20 @@ menu.append(
 		label: "Quit",
 		click: () => {
 			saveSettings("runtime", runtimeSettings, false);
-			app.exit();
+			app.exit(0);
 		},
 	})
 );
-// Menu.setApplicationMenu(menu);
+menu.append(
+	new MenuItem({
+		label: "Hide",
+		click: () => {
+			mainWindow.hide();
+		},
+	})
+);
+
+Menu.setApplicationMenu(menu);
 
 /**
  * Run when the app is unresponsive
@@ -778,9 +787,14 @@ const fillQueue = (onlyAddOne = false) => {
 			}
 		}
 	} else {
-		const addOnce = all_Wp[Math.floor(Math.random() * all_Wp.length)];
-		returnItem.push(addOnce);
-		runtimeSettings.currentQueue.push(addOnce);
+		if (all_Wp.length > 0) {
+			const addOnce = all_Wp[Math.floor(Math.random() * all_Wp.length)];
+			if (addOnce) {
+				// if item get
+				returnItem.push(addOnce);
+				runtimeSettings.currentQueue.push(addOnce);
+			}
+		}
 	}
 
 	saveSettings("runtime", runtimeSettings, false);
