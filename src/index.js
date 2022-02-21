@@ -55,6 +55,10 @@ const createWindow = () => {
 	});
 	mainWindow.on("unresponsive", onUnresponsiveWindow);
 
+	mainWindow.webContents.on("new-window", function (event, url) {
+		event.preventDefault();
+	});
+
 	loadSetting();
 
 	// check first run
@@ -68,27 +72,42 @@ const createWindow = () => {
 	}
 };
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on("ready", createWindow);
+// prevent multiple instances
+const gotTheLock = app.requestSingleInstanceLock();
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
-app.on("window-all-closed", () => {
-	if (process.platform !== "darwin") {
-		app.quit();
-	}
-});
+if (!gotTheLock) {
+	app.quit();
+} else {
+	app.on("second-instance", (event, commandLine, workingDirectory) => {
+		// Someone tried to run a second instance, we should focus our window.
+		if (myWindow) {
+			if (myWindow.isMinimized()) myWindow.restore();
+			myWindow.focus();
+		}
+	});
 
-app.on("activate", () => {
-	// On OS X it's common to re-create a window in the app when the
-	// dock icon is clicked and there are no other windows open.
-	if (BrowserWindow.getAllWindows().length === 0) {
-		createWindow();
-	}
-});
+	// This method will be called when Electron has finished
+	// initialization and is ready to create browser windows.
+	// Some APIs can only be used after this event occurs.
+	app.on("ready", createWindow);
+
+	// Quit when all windows are closed, except on macOS. There, it's common
+	// for applications and their menu bar to stay active until the user quits
+	// explicitly with Cmd + Q.
+	app.on("window-all-closed", () => {
+		if (process.platform !== "darwin") {
+			app.quit();
+		}
+	});
+
+	app.on("activate", () => {
+		// On OS X it's common to re-create a window in the app when the
+		// dock icon is clicked and there are no other windows open.
+		if (BrowserWindow.getAllWindows().length === 0) {
+			createWindow();
+		}
+	});
+}
 
 // ============================================================
 // Menubar of the app
@@ -671,6 +690,29 @@ const setNightMode = (nightMode) => {
 	saveSettings("runtime", runtimeSettings, false);
 };
 
+const setAlbumActive = (albumName) => {
+	// check already exist or not, if exist then get rid of it. if not then add to it.
+	if (runtimeSettings.currentAlbum.includes(albumName)) {
+		runtimeSettings.currentAlbum = runtimeSettings.currentAlbum.filter((el) => el !== albumName);
+	} else {
+		runtimeSettings.currentAlbum.push(albumName);
+	}
+	// save
+	saveSettings("runtime", runtimeSettings, false);
+};
+
+const setNightModeAlbum = (albumName) => {
+	// check already exist or not, if exist then get rid of it. if not then add to it.
+	if (runtimeSettings.currentNightModeAlbum.includes(albumName)) {
+		runtimeSettings.currentNightModeAlbum = runtimeSettings.currentNightModeAlbum.filter((el) => el !== albumName);
+	} else {
+		runtimeSettings.currentNightModeAlbum.push(albumName);
+	}
+
+	// save
+	saveSettings("runtime", runtimeSettings, false);
+};
+
 // --- IPC ---
 
 ipcMain.on("get-current-album", (event, args) => {
@@ -700,6 +742,14 @@ ipcMain.on("set-nightmode-start", (event, args) => {
 
 ipcMain.on("set-nightmode-end", (event, args) => {
 	setEndNightMode(args);
+});
+
+ipcMain.on("set-active-album", (event, args) => {
+	setAlbumActive(args);
+});
+
+ipcMain.on("set-nightmode-album", (event, args) => {
+	setNightModeAlbum(args);
 });
 
 // ============================================================

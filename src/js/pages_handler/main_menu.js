@@ -112,6 +112,17 @@ enableNightMode_El.onchange = () => {
 	ipcRenderer.send("set-nightmode", enableNightMode_El.checked);
 };
 
+const setAlbumActive = (e) => {
+	const albumName = e.value;
+	ipcRenderer.send("set-active-album", albumName);
+};
+
+const setNightModeAlbum = (e) => {
+	const albumName = e.value;
+	ipcRenderer.send("set-nightmode-album", albumName);
+};
+
+// timer
 const timerQueue = document.getElementById("timer-queue");
 ipcRenderer.send("start-timer", null);
 ipcRenderer.on("timer", (event, arg) => {
