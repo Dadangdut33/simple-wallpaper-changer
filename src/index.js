@@ -781,6 +781,15 @@ const fillQueue = (onlyAddOne = false) => {
 	} else {
 		runtimeSettings.currentQueue.push(all_Wp[Math.floor(Math.random() * all_Wp.length)]);
 	}
+
+	saveSettings("runtime", runtimeSettings, false);
+};
+
+const deleteImageFromQueue = (imagePath) => {
+	runtimeSettings.currentQueue = runtimeSettings.currentQueue.filter((el) => el !== imagePath);
+
+	// save
+	saveSettings("runtime", runtimeSettings, false);
 };
 
 // --- IPC ---
@@ -828,6 +837,10 @@ ipcMain.on("fill-queue", (event, args) => {
 
 ipcMain.on("fill-queue-once", (event, args) => {
 	fillQueue(true);
+});
+
+ipcMain.on("delete-image-from-queue", (event, args) => {
+	deleteImageFromQueue(args);
 });
 
 // ============================================================

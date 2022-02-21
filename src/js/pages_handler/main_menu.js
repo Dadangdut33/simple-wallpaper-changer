@@ -1,4 +1,5 @@
 const { ipcRenderer } = require("electron");
+const wallpaper = require("wallpaper");
 const imgContainer = document.getElementById("img-container");
 let currentRuntimeSetting = ipcRenderer.sendSync("get-settings", "runtime");
 let allAlbumData = ipcRenderer.sendSync("get-settings", "album");
@@ -130,19 +131,75 @@ const setNightModeAlbum = (e) => {
 };
 
 // ============================================================
-// timer
-const timerQueue = document.getElementById("timer-queue");
-ipcRenderer.send("start-queue-timer");
-ipcRenderer.on("timer", (event, arg) => {
-	timerQueue.innerHTML = "Next wallpaper in: " + formatTimerWithHours(arg);
-});
+let addedElements = [];
 
-// ============================================================
+const loadImage_Queue = (images) => {
+	images.some((image) => {
+		let identifier = getImageName(image);
+
+		// if identifier already in addedElements then add random 32 length string
+		if (addedElements.includes(identifier)) {
+			identifier = identifier + Math.random().toString(36).substring(2, 32);
+		}
+
+		addedElements.push(identifier);
+
+		const div = document.createElement("div");
+		div.className = "img-wrapper";
+		div.id = "img-wrapper-" + identifier;
+		div.onmouseenter = () => {
+			showDesc(identifier);
+		};
+		div.onmouseleave = () => {
+			hideDesc(identifier);
+		};
+
+		const img = document.createElement("img");
+		img.src = image;
+		img.id = "image";
+		img.alt = `${image}`;
+		div.appendChild(img);
+
+		const desc = document.createElement("div");
+		desc.className = "img-desc fadeIn";
+		desc.style.display = "none";
+		desc.id = `desc-${identifier}`;
+		desc.innerHTML = `
+					<p class="has-tooltip-top has-tooltip-arrow" data-tooltip="Click to copy image path to clipboard" onclick="copyToClipboard('${image.replace(/\\/g, "/")}')" style="cursor: pointer;">${image}</p>
+					`;
+		div.appendChild(desc);
+
+		const descHover = document.createElement("div");
+		const iconApply = document.createElement("span");
+		iconApply.className = "has-tooltip-bottom mx-1 has-tooltip-arrow";
+		iconApply.dataset.tooltip = "Set as current wallpaper";
+		iconApply.innerHTML = `<i class="fas fa-check-circle" onclick="setWallpaper('${image.replace(/\\/g, "/")}')"></i>`;
+		descHover.appendChild(iconApply);
+
+		const iconDelete = document.createElement("span");
+		iconDelete.className = "has-tooltip-bottom mx-1 has-tooltip-arrow";
+		iconDelete.dataset.tooltip = "Delete this wallpaper from the list";
+		iconDelete.innerHTML = `<i class="fas fa-trash-alt" onclick="deleteFromQueue('${identifier}','${image.replace(/\\/g, "/")}')"></i>`;
+		descHover.appendChild(iconDelete);
+
+		const iconOpen = document.createElement("span");
+		iconOpen.className = "has-tooltip-bottom mx-1 has-tooltip-arrow";
+		iconOpen.dataset.tooltip = "Open this wallpaper in the default viewer";
+		iconOpen.innerHTML = `<i class="fas fa-external-link-alt" onclick="openInExplorer('${image.replace(/\\/g, "/")}')"></i>`;
+		descHover.appendChild(iconOpen);
+
+		desc.appendChild(descHover);
+
+		imgContainer.appendChild(div);
+	});
+};
 // Queue
-const fillQueue = () => {
+const fillQueue = (startup = false) => {
 	// ask confirmation first
-	const res = ipcRenderer.sendSync("dialogbox", ["yesno", "Are you sure you want to reset the queue item?"]);
-	if (res == 1) return; // no
+	if (!startup) {
+		const res = ipcRenderer.sendSync("dialogbox", ["yesno", "Are you sure you want to refill the queue item?"]);
+		if (res == 1) return; // no
+	}
 
 	imgContainer.innerHTML = "";
 
@@ -151,6 +208,8 @@ const fillQueue = () => {
 	ipcRenderer.send("fill-queue");
 
 	currentRuntimeSetting = ipcRenderer.sendSync("get-settings", "runtime");
+	addedElements = [];
+	loadImage_Queue(currentRuntimeSetting.currentQueue);
 
 	setTimeout(() => {
 		closeToast();
@@ -221,70 +280,31 @@ btnResetQueue_El.onclick = () => {
 	resetQueueTimer();
 };
 
-const loadImage_Queue = (images) => {
-	images.some((image) => {
-		let identifier = getImageName(image);
+const deleteFromQueue = (identifier, path) => {
+	ipcRenderer.send("delete-img-from-queue", path);
 
-		const div = document.createElement("div");
-		div.className = "img-wrapper";
-		div.id = "img-wrapper-" + identifier;
-		div.onmouseenter = () => {
-			showDesc(identifier);
-		};
-		div.onmouseleave = () => {
-			hideDesc(identifier);
-		};
+	const queue_El = document.getElementById("img-wrapper-" + identifier);
 
-		// span
-		const span = document.createElement("span");
-		span.id = "desc-span-" + identifier;
-		if (!active) span.className = "skipped";
-		else span.className = "normal";
-		div.appendChild(span);
+	// remove from the list
+	queue_El.remove();
 
-		const img = document.createElement("img");
-		img.src = image;
-		img.id = "image";
-		img.alt = `${image}`;
-		div.appendChild(img);
+	// update selected album data
+	currentRuntimeSetting = ipcRenderer.sendSync("get-settings", "runtime");
 
-		const desc = document.createElement("div");
-		desc.className = "img-desc fadeIn";
-		desc.style.display = "none";
-		desc.id = `desc-${identifier}`;
-		desc.innerHTML = `
-					<p class="has-tooltip-top has-tooltip-arrow" data-tooltip="Click to copy image path to clipboard" onclick="copyToClipboard('${image.replace(/\\/g, "/")}')" style="cursor: pointer;">${image}</p>
-					`;
-		div.appendChild(desc);
+	showToast("Image deleted from the queue successfully");
 
-		const descHover = document.createElement("div");
-		const iconApply = document.createElement("span");
-		iconApply.className = "has-tooltip-bottom mx-1 has-tooltip-arrow";
-		iconApply.dataset.tooltip = "Set as current wallpaper";
-		iconApply.innerHTML = `<i class="fas fa-check-circle" onclick="setWallpaper('${image.replace(/\\/g, "/")}')"></i>`;
-		descHover.appendChild(iconApply);
-
-		const iconSkip = document.createElement("span");
-		iconSkip.className = "has-tooltip-bottom mx-1 has-tooltip-arrow";
-		iconSkip.dataset.tooltip = "Skip/Unskip this wallpaper from the list";
-		// prettier-ignore
-		iconSkip.innerHTML = `<i class="fas ${active ? "fa-minus-circle" : "fa-plus-circle"}" id="${active ? "active" : "inactive"}" onclick="setActiveInactive(this, '${identifier}','${image.replace(/\\/g, "/")}')"></i>`;
-		descHover.appendChild(iconSkip);
-
-		const iconDelete = document.createElement("span");
-		iconDelete.className = "has-tooltip-bottom mx-1 has-tooltip-arrow";
-		iconDelete.dataset.tooltip = "Delete this wallpaper from the list";
-		iconDelete.innerHTML = `<i class="fas fa-trash-alt" onclick="deleteFromList(this, '${identifier}','${image.replace(/\\/g, "/")}')"></i>`;
-		descHover.appendChild(iconDelete);
-
-		const iconOpen = document.createElement("span");
-		iconOpen.className = "has-tooltip-bottom mx-1 has-tooltip-arrow";
-		iconOpen.dataset.tooltip = "Open this wallpaper in the default viewer";
-		iconOpen.innerHTML = `<i class="fas fa-external-link-alt" onclick="openInExplorer('${image.replace(/\\/g, "/")}')"></i>`;
-		descHover.appendChild(iconOpen);
-
-		desc.appendChild(descHover);
-
-		imgContainer.appendChild(div);
-	});
+	setTimeout(() => {
+		closeToast();
+	}, 3000);
 };
+
+// ============================================================
+// STARTUP
+const timerQueue = document.getElementById("timer-queue");
+ipcRenderer.send("start-queue-timer");
+ipcRenderer.on("timer", (event, arg) => {
+	timerQueue.innerHTML = "Next wallpaper in: " + formatTimerWithHours(arg);
+});
+
+// fillQueue(true);
+loadImage_Queue(currentRuntimeSetting.currentQueue);

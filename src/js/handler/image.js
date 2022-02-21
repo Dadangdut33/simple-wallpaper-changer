@@ -1,14 +1,14 @@
 const shell = require("electron").shell;
-const showDesc = (id) => {
-	const desc = document.getElementById("desc-" + id);
+const showDesc = (identifier) => {
+	const desc = document.getElementById("desc-" + identifier);
 
 	if (desc.style.display === "none") {
 		desc.style.display = "flex";
 	}
 };
 
-const hideDesc = (id) => {
-	const desc = document.getElementById("desc-" + id);
+const hideDesc = (identifier) => {
+	const desc = document.getElementById("desc-" + identifier);
 	let timeOut = null;
 	if (desc.style.display === "flex") {
 		// add fadeout then display none after animation is done
@@ -48,30 +48,30 @@ const copyToClipboard = (path) => {
 	}, 1000);
 };
 
-const setActiveInactive = (el_this, id_num, path) => {
+const setActiveInactive = (el_this, identifier, path) => {
 	if (el_this.id === "active") {
 		ipcRenderer.send("set-img-inactive", [selectedAlbum_Name, path]);
 		el_this.id = "inactive";
 		el_this.className = "fas fa-plus-circle";
-		document.getElementById("desc-span-" + id_num).className = "skipped";
+		document.getElementById("desc-span-" + identifier).className = "skipped";
 	} else {
 		ipcRenderer.send("set-img-active", [selectedAlbum_Name, path]);
 		el_this.id = "active";
 		el_this.className = "fas fa-minus-circle";
-		document.getElementById("desc-span-" + id_num).className = "";
+		document.getElementById("desc-span-" + identifier).className = "";
 	}
 
 	// update selected album data
 	selectedAlbumData = ipcRenderer.sendSync("get-current-album-data", selectedAlbum_Name);
 };
 
-const deleteFromList = (el_this, id_num, path) => {
-	const activeOrNot = document.getElementById("desc-span-" + id_num).className === "skipped" ? false : true;
+const deleteFromList = (el_this, identifier, path) => {
+	const activeOrNot = document.getElementById("desc-span-" + identifier).className === "skipped" ? false : true;
 
 	ipcRenderer.send("delete-img", [selectedAlbum_Name, path, activeOrNot]);
 
 	// remove from the list
-	document.getElementById("img-wrapper-" + id_num).remove();
+	document.getElementById("img-wrapper-" + identifier).remove();
 
 	// update selected album data
 	selectedAlbumData = ipcRenderer.sendSync("get-current-album-data", selectedAlbum_Name);
