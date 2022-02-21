@@ -44,20 +44,87 @@
 				</ul>
 			</div>
 
-			<h1>Set Active Album</h1>
-			<div id="album-set"></div>
+			<div id="toast" class="toast" style="display: none">
+				<p id="toast-text"></p>
+				<span id="toast-close" class="toast-close">
+					<i class="fas fa-times"></i>
+				</span>
+			</div>
+
+			<label class="label">
+				Set Active Album
+				<span class="has-tooltip-right has-tooltip-multiline has-tooltip-arrow" data-tooltip="Album to be used for the wallpaper queue">
+					<i class="fas fa-info-circle"></i>
+				</span>
+			</label>
+			<div id="album-set">
+				<label class="checkbox mr-2">
+					<input type="checkbox" />
+					Default
+				</label>
+			</div>
+
+			<div class="field" style="margin-top: 12px">
+				<label class="label">
+					Queue Interval (In minutes)
+					<span class="has-tooltip-right has-tooltip-multiline has-tooltip-arrow" data-tooltip="Time interval between each wallpaper changes in the queue.">
+						<i class="fas fa-info-circle"></i>
+					</span>
+				</label>
+				<div class="control">
+					<input class="input" type="number" placeholder="Queue Interval in minutes" min="1" />
+				</div>
+			</div>
+
+			<div class="field">
+				<div class="control">
+					<label class="checkbox">
+						<input type="checkbox" />
+						Randomize Queue
+					</label>
+				</div>
+			</div>
 		</div>
 
-		<div id="toast" class="toast" style="display: none">
-			<p id="toast-text"></p>
-			<span id="toast-close" class="toast-close">
-				<i class="fas fa-times"></i>
-			</span>
-		</div>
+		<div class="box menu-container content is-flex" style="padding: 1rem 2rem">
+			<h5 id="timer-queue" style="margin-bottom: 0; padding-top: 0.4rem"></h5>
 
-		<div class="box menu-container content">
-			A
-			<p id="test-var"></p>
+			<div class="ml-auto">
+				<button id="btn-start-queue" class="button is-success is-small ml-2">
+					<span class="icon is-small">
+						<i class="fas fa-play"></i>
+					</span>
+					<span>Start Queue</span>
+				</button>
+
+				<button id="btn-pause-queue" class="button is-warning is-small ml-2">
+					<span class="icon is-small">
+						<i class="fas fa-pause"></i>
+					</span>
+					<span>Pause Queue</span>
+				</button>
+
+				<button id="btn-stop-queue" class="button is-danger is-small ml-2">
+					<span class="icon is-small">
+						<i class="fas fa-stop"></i>
+					</span>
+					<span>Stop Queue</span>
+				</button>
+
+				<button id="btn-reset-queue" class="button is-info is-small ml-2">
+					<span class="icon is-small">
+						<i class="fas fa-redo-alt"></i>
+					</span>
+					<span>Reset Queue Timer</span>
+				</button>
+
+				<button id="btn-refill-queue" class="button is-link is-small ml-2">
+					<span class="icon is-small">
+						<i class="fas fa-redo-alt"></i>
+					</span>
+					<span>Refill Queue</span>
+				</button>
+			</div>
 		</div>
 
 		<div class="m-3">
