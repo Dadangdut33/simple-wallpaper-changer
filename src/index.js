@@ -5,7 +5,7 @@ const wallpaper = require("wallpaper");
 const firstRun = require("electron-first-run");
 const isFirstRun = firstRun();
 // ============================================================
-const { loadConfig, saveConfig, resetDefaultApp, albumSettings_Default, runtimeSettings_Default, appSettings_Default } = require("./js/handler/files");
+const { loadConfig, saveConfig, resetDefaultApp, albumSettings_Default, runtimeSettings_Default, appSettings_Default, getFilesInFolder, filterImages } = require("./js/handler/files");
 
 let mainWindow = BrowserWindow,
 	trayApp = Tray,
@@ -416,7 +416,7 @@ const deleteAlbum = (album) => {
 	}
 };
 
-const setImageActive = (album, image) => {
+const setImageActiveInactive = (album, image) => {
 	// remove the image from inactive_wp
 	const pos_Album = albumSettings.findIndex((el) => el.name === album);
 	const pos_Image = albumSettings[pos_Album].inactive_wp.findIndex((el) => el === image);
@@ -442,7 +442,7 @@ const setImageInactive = (album, image) => {
 	saveSettings("album", albumSettings, false);
 };
 
-const deleteImage = (album, image, active) => {
+const deleteImage = (album, image, active, withPopup = true) => {
 	// remove the image from active_wp
 	const pos_Album = albumSettings.findIndex((el) => el.name === album);
 	if (active) {
@@ -456,18 +456,20 @@ const deleteImage = (album, image, active) => {
 	// save setting
 	saveSettings("album", albumSettings, false);
 
-	// dialogbox show success
-	dialog.showMessageBox(mainWindow, {
-		title: "Success",
-		type: "info",
-		buttons: ["Ok"],
-		message: "Image deleted successfully",
-	});
+	if (withPopup) {
+		// dialogbox show success
+		dialog.showMessageBox(mainWindow, {
+			title: "Success",
+			type: "info",
+			buttons: ["Ok"],
+			message: "Image deleted successfully",
+		});
+	}
 };
 
-const addImages = (album) => {
+const addImages = (album, withPopup = true) => {
 	const pos_Album = albumSettings.findIndex((el) => el.name === album);
-	const files = dialog.showOpenDialogSync(mainWindow, {
+	let files = dialog.showOpenDialogSync(mainWindow, {
 		title: "Add images",
 		properties: ["openFile", "multiSelections"],
 		filters: [
@@ -479,21 +481,65 @@ const addImages = (album) => {
 	});
 
 	if (files) {
-		files.forEach((file) => {
-			albumSettings[pos_Album].active_wp.push(file);
+		files = files.map((file) => {
+			// make sure it is not already in the active_wp or inactive_wp
+			if (albumSettings[pos_Album].active_wp.indexOf(file.replace(/\\/g, "/")) === -1 && albumSettings[pos_Album].inactive_wp.indexOf(file.replace(/\\/g, "/")) === -1) {
+				return file.replace(/\\/g, "/");
+			}
 		});
+
+		files.forEach((file) => {
+			if (file) {
+				albumSettings[pos_Album].active_wp.push(file);
+			}
+		});
+
 		saveSettings("album", albumSettings, false);
 
-		// dialogbox show success
+		if (withPopup) {
+			// dialogbox show success
+			dialog.showMessageBox(mainWindow, {
+				title: "Success",
+				type: "info",
+				buttons: ["Ok"],
+				message: "Images added successfully",
+			});
+		}
+	}
+
+	return files;
+};
+
+const syncAlbum = (album) => {
+	const pos_Album = albumSettings.findIndex((el) => el.name === album);
+
+	// scan album for images
+	if (albumSettings[pos_Album].baseFolder.length > 0) {
+		let new_active_wp = getFilesInFolder(albumSettings[pos_Album].baseFolder);
+		new_active_wp = filterImages(new_active_wp);
+
+		// add new active wp to current active wp but make sure no duplicate
+		const newArr = [...albumSettings[pos_Album].active_wp, ...new_active_wp];
+		albumSettings[pos_Album].active_wp = [...new Set(newArr)];
+
+		// remove active wp that is currently in inactive_wp
+		albumSettings[pos_Album].active_wp = albumSettings[pos_Album].active_wp.filter((active_wp) => {
+			return !albumSettings[pos_Album].inactive_wp.includes(active_wp);
+		});
+
+		// save
+		saveSettings("album", albumSettings, false);
+
+		// show success
 		dialog.showMessageBox(mainWindow, {
 			title: "Success",
 			type: "info",
 			buttons: ["Ok"],
-			message: "Images added successfully",
+			message: "Album synced successfully",
 		});
+	} else {
+		dialog.showErrorBox("Error", "Please set the base folder first");
 	}
-
-	return files;
 };
 
 // --- IPC ---
@@ -522,16 +568,20 @@ ipcMain.on("set-img-inactive", (event, args) => {
 });
 
 ipcMain.on("set-img-active", (event, args) => {
-	setImageActive(args[0], args[1]);
+	setImageActiveInactive(args[0], args[1]);
 });
 
 ipcMain.on("delete-img", (event, args) => {
-	deleteImage(args[0], args[1], args[2]);
+	deleteImage(args[0], args[1], args[2], false);
 });
 
 ipcMain.on("add-images", (event, args) => {
-	const returnVal = addImages(args);
+	const returnVal = addImages(args, false);
 	event.returnValue = returnVal;
+});
+
+ipcMain.on("sync-album", (event, args) => {
+	syncAlbum(args);
 });
 
 // ============================================================

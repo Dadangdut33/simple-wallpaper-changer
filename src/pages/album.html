@@ -54,7 +54,7 @@
 				<label class="label">
 					Album
 					<span
-						class="has-tooltip-right has-tooltip-multiline"
+						class="has-tooltip-right has-tooltip-multiline has-tooltip-arrow"
 						data-tooltip="Album for the wallpaper. You can change setting of each album by selecting them and add more album by selecting the add more"
 					>
 						<i class="fas fa-info-circle"></i>
@@ -78,7 +78,7 @@
 						<div class="field">
 							<label class="label">
 								Album Name
-								<span class="has-tooltip-right has-tooltip-multiline" data-tooltip="The Name of The Album"><i class="fas fa-info-circle"></i></span>
+								<span class="has-tooltip-right has-tooltip-multiline has-tooltip-arrow" data-tooltip="The Name of The Album"><i class="fas fa-info-circle"></i></span>
 							</label>
 							<div class="control">
 								<input class="input" type="text" name="album-name" id="album-name" placeholder="Album Name" required />
@@ -90,7 +90,9 @@
 						<div class="field">
 							<label class="label">
 								Base Folder
-								<span class="has-tooltip-right has-tooltip-multiline" data-tooltip="Base folder for wallpaper imports and album scanning"><i class="fas fa-info-circle"></i></span>
+								<span class="has-tooltip-right has-tooltip-multiline has-tooltip-arrow" data-tooltip="Base folder for wallpaper imports and album scanning"
+									><i class="fas fa-info-circle"></i
+								></span>
 							</label>
 
 							<div class="control">
@@ -135,39 +137,47 @@
 			<div class="is-flex">
 				<div class="field is-grouped mx-auto">
 					<p class="control">
-						<a class="button is-primary is-small" id="load-images">
-							<span class="icon is-small">
-								<i class="fas fa-eye" aria-hidden="true"></i>
-							</span>
-							<span>Load Album Images</span>
-						</a>
+						<span class="has-tooltip-top has-tooltip-multiline has-tooltip-arrow" data-tooltip="Load album images to view. Will take lots of memory depending on the amount of the images">
+							<a class="button is-primary is-small" id="load-images" style="display: block">
+								<span class="icon is-small">
+									<i class="fas fa-eye" aria-hidden="true"></i>
+								</span>
+								<span>Load Album Images</span>
+							</a>
+						</span>
 					</p>
 
 					<p class="control">
-						<a class="button is-link is-small" id="sync-folder">
-							<span class="icon is-primary">
-								<i class="fas fa-sync" aria-hidden="true"></i>
-							</span>
-							<span>Sync Album with Base Folder</span>
-						</a>
+						<span class="has-tooltip-top has-tooltip-multiline has-tooltip-arrow" data-tooltip="Sync images in album with the base folder set.">
+							<a class="button is-link is-small" id="sync-folder">
+								<span class="icon is-primary has-tooltip-top">
+									<i class="fas fa-sync" aria-hidden="true"></i>
+								</span>
+								<span>Sync Album with Base Folder</span>
+							</a>
+						</span>
 					</p>
 
 					<p class="control">
-						<a class="button is-info is-small" id="add-images">
-							<span class="icon is-small">
-								<i class="fas fa-plus" aria-hidden="true"></i>
-							</span>
-							<span>Add Image to Album</span>
-						</a>
+						<span class="has-tooltip-top has-tooltip-multiline has-tooltip-arrow" data-tooltip="Add image to album and load it to view. Will ignore images that is already in the album.">
+							<a class="button is-info is-small" id="add-images">
+								<span class="icon is-small">
+									<i class="fas fa-plus" aria-hidden="true"></i>
+								</span>
+								<span>Add Image to Album</span>
+							</a>
+						</span>
 					</p>
 
 					<p class="control">
-						<a class="button is-danger is-small" id="delete-all-images">
-							<span class="icon is-small">
-								<i class="fas fa-trash" aria-hidden="true"></i>
-							</span>
-							<span>Delete ALL Images from the album</span>
-						</a>
+						<span class="has-tooltip-top has-tooltip-multiline has-tooltip-arrow" data-tooltip="Will delete all images that is in the album. Regardless of wether they are active or not.">
+							<a class="button is-danger is-small" id="delete-all-images">
+								<span class="icon is-small">
+									<i class="fas fa-trash" aria-hidden="true"></i>
+								</span>
+								<span>Delete ALL Images from the album</span>
+							</a>
+						</span>
 					</p>
 				</div>
 			</div>
@@ -185,6 +195,9 @@
 
 			const { ipcRenderer } = require("electron");
 			const shell = require("electron").shell;
+			const wallpaper = require("wallpaper");
+			const { clipboard } = require("electron");
+
 			const albumSelect_El = document.getElementById("album-select");
 			const albumName_El = document.getElementById("album-name");
 			const baseFolder_El = document.getElementById("base-folder");
@@ -229,8 +242,6 @@
 				}
 			};
 
-			const wallpaper = require("wallpaper");
-			const { clipboard } = require("electron");
 			const setWallpaper = async (path) => {
 				try {
 					await wallpaper.set(path);
@@ -256,42 +267,62 @@
 				if (el_this.id === "active") {
 					ipcRenderer.send("set-img-inactive", [selectedAlbum_Name, path]);
 					el_this.id = "inactive";
+					el_this.className = "fas fa-plus-circle";
 					document.getElementById("desc-span-" + id_num).className = "skipped";
 				} else {
 					ipcRenderer.send("set-img-active", [selectedAlbum_Name, path]);
 					el_this.id = "active";
+					el_this.className = "fas fa-minus-circle";
 					document.getElementById("desc-span-" + id_num).className = "";
 				}
+
+				// update selected album data
+				selectedAlbumData = ipcRenderer.sendSync("get-current-album-data", selectedAlbum_Name);
 			};
 
 			const deleteFromList = (el_this, id_num, path) => {
-				const activeOrNot = document.getElementById("desc-span-" + id_num).className === "skipped" ? true : false;
+				const activeOrNot = document.getElementById("desc-span-" + id_num).className === "skipped" ? false : true;
 
 				ipcRenderer.send("delete-img", [selectedAlbum_Name, path, activeOrNot]);
 
 				// remove from the list
 				document.getElementById("img-wrapper-" + id_num).remove();
+
+				// update selected album data
+				selectedAlbumData = ipcRenderer.sendSync("get-current-album-data", selectedAlbum_Name);
+
+				showToast("Image deleted from the album successfully");
+
+				setTimeout(() => {
+					closeToast();
+				}, 1000);
+			};
+
+			const getImageName = (path) => {
+				return path.split("/").pop();
 			};
 
 			const loadImage = (images, active = true) => {
 				showToast("Loading images... Please wait as this might take a while depending on your computer's performance and the amount of images in the album.");
 				loadBar.style.display = "block";
-				images.some((image, i) => {
+				images.some((image) => {
+					let identifier = getImageName(image);
+
 					const div = document.createElement("div");
 					div.className = "img-wrapper";
-					div.id = "img-wrapper-" + i;
+					div.id = "img-wrapper-" + identifier;
 					div.onmouseenter = () => {
-						showDesc(i);
+						showDesc(identifier);
 					};
 					div.onmouseleave = () => {
-						hideDesc(i);
+						hideDesc(identifier);
 					};
 
 					// span
 					const span = document.createElement("span");
-					span.id = "desc-span-" + i;
+					span.id = "desc-span-" + identifier;
 					if (!active) span.className = "skipped";
-
+					else span.className = "normal";
 					div.appendChild(span);
 
 					const img = document.createElement("img");
@@ -303,33 +334,34 @@
 					const desc = document.createElement("div");
 					desc.className = "img-desc fadeIn";
 					desc.style.display = "none";
-					desc.id = `desc-${i}`;
+					desc.id = `desc-${identifier}`;
 					desc.innerHTML = `
-					<p class="has-tooltip-top" data-tooltip="Click to copy image path to clipboard" onclick="copyToClipboard('${image.replace(/\\/g, "/")}')" style="cursor: pointer;">${image}</p>
+					<p class="has-tooltip-top has-tooltip-arrow" data-tooltip="Click to copy image path to clipboard" onclick="copyToClipboard('${image.replace(/\\/g, "/")}')" style="cursor: pointer;">${image}</p>
 					`;
 					div.appendChild(desc);
 
 					const descHover = document.createElement("div");
 					const iconApply = document.createElement("span");
-					iconApply.className = "has-tooltip-bottom mx-1";
+					iconApply.className = "has-tooltip-bottom mx-1 has-tooltip-arrow";
 					iconApply.dataset.tooltip = "Set as current wallpaper";
 					iconApply.innerHTML = `<i class="fas fa-check-circle" onclick="setWallpaper('${image.replace(/\\/g, "/")}')"></i>`;
 					descHover.appendChild(iconApply);
 
 					const iconSkip = document.createElement("span");
-					iconSkip.className = "has-tooltip-bottom mx-1";
-					iconSkip.dataset.tooltip = "Skip this wallpaper from the list";
-					iconSkip.innerHTML = `<i class="fas fa-minus-circle" id="${active ? "active" : "inactive"}" onclick="setActiveInactive(this, ${i},'${image.replace(/\\/g, "/")}')"></i>`;
+					iconSkip.className = "has-tooltip-bottom mx-1 has-tooltip-arrow";
+					iconSkip.dataset.tooltip = "Skip/Unskip this wallpaper from the list";
+					// prettier-ignore
+					iconSkip.innerHTML = `<i class="fas ${active ? "fa-minus-circle" : "fa-plus-circle"}" id="${active ? "active" : "inactive"}" onclick="setActiveInactive(this, '${identifier}','${image.replace(/\\/g, "/")}')"></i>`;
 					descHover.appendChild(iconSkip);
 
 					const iconDelete = document.createElement("span");
-					iconDelete.className = "has-tooltip-bottom mx-1";
+					iconDelete.className = "has-tooltip-bottom mx-1 has-tooltip-arrow";
 					iconDelete.dataset.tooltip = "Delete this wallpaper from the list";
-					iconDelete.innerHTML = `<i class="fas fa-trash-alt" onclick="deleteFromList(this, ${i},'${image.replace(/\\/g, "/")}')"></i>`;
+					iconDelete.innerHTML = `<i class="fas fa-trash-alt" onclick="deleteFromList(this, '${identifier}','${image.replace(/\\/g, "/")}')"></i>`;
 					descHover.appendChild(iconDelete);
 
 					const iconOpen = document.createElement("span");
-					iconOpen.className = "has-tooltip-bottom mx-1";
+					iconOpen.className = "has-tooltip-bottom mx-1 has-tooltip-arrow";
 					iconOpen.dataset.tooltip = "Open this wallpaper in the default viewer";
 					iconOpen.innerHTML = `<i class="fas fa-external-link-alt" onclick="openInExplorer('${image.replace(/\\/g, "/")}')"></i>`;
 					descHover.appendChild(iconOpen);
@@ -601,18 +633,49 @@
 				btnLoadImg.style.display = "none";
 
 				loadImage(selectedAlbumData.active_wp);
-				loadImage(selectedAlbumData.inactive_wp);
+				loadImage(selectedAlbumData.inactive_wp, false);
 			};
 			btnLoadImg.addEventListener("click", () => btnLoadImgClick());
 
+			// ----------------
+			const btnSyncFolder = document.getElementById("sync-folder");
+
+			const btnSyncFolderClick = () => {
+				ipcRenderer.send("sync-album", selectedAlbum_Name);
+
+				// get new album data
+				const newlySyncedAlbumData = ipcRenderer.sendSync("get-current-album-data", selectedAlbum_Name);
+
+				// filter the only new data
+				const newData = newlySyncedAlbumData.active_wp.filter((img) => !selectedAlbumData.active_wp.includes(img));
+
+				// update current data
+				selectedAlbumData = newlySyncedAlbumData;
+
+				// load the new data
+				loadImage(newData);
+			};
+			btnSyncFolder.addEventListener("click", () => btnSyncFolderClick());
+
+			// ----------------
 			const btnAddImg = document.getElementById("add-images");
 
 			const btnAddImgClick = () => {
-				const images = ipcRenderer.sendSync("add-images", selectedAlbum_Name);
+				let images = ipcRenderer.sendSync("add-images", selectedAlbum_Name);
 
-				if (images) {
+				// remove the undefined
+				images = images.filter((img) => img !== undefined);
+
+				if (images.length > 0) {
 					loadImage(images);
 				}
+
+				showToast("Images added");
+
+				// hide toast
+				setTimeout(() => {
+					closeToast();
+				}, 1000);
 			};
 			btnAddImg.addEventListener("click", () => btnAddImgClick());
 
