@@ -939,13 +939,12 @@ ipcMain.on("stop-queue-timer", (event, args) => {
 	// stop or pause the timer
 	clearInterval(interval);
 	timerStarted = false;
+	seconds = runtimeSettings.currentShuffleInterval * 60;
 });
 
 ipcMain.on("reset-queue-timer", (event, args) => {
 	// reset the timer
-	clearInterval(interval);
-	timerStarted = false;
-	seconds = runtimeSettings.currentShuffleInterval;
+	seconds = runtimeSettings.currentShuffleInterval * 60;
 });
 
 ipcMain.on("pause-queue-timer", (event, args) => {

@@ -16,6 +16,7 @@ const btnStartQueue_El = document.getElementById("btn-start-queue");
 const btnPauseQueue_El = document.getElementById("btn-pause-queue");
 const btnStopQueue_El = document.getElementById("btn-stop-queue");
 const btnResetQueue_El = document.getElementById("btn-reset-queue");
+const btnForceNext_El = document.getElementById("btn-force-next");
 const btnRefillQueue_El = document.getElementById("btn-refill-queue");
 
 // ============================================================
@@ -133,12 +134,18 @@ const setNightModeAlbum = (e) => {
 const timerQueue = document.getElementById("timer-queue");
 ipcRenderer.send("start-queue-timer");
 ipcRenderer.on("timer", (event, arg) => {
-	timerQueue.innerHTML = formatTimerWithHours(arg);
+	timerQueue.innerHTML = "Next wallpaper in: " + formatTimerWithHours(arg);
 });
 
 // ============================================================
 // Queue
 const fillQueue = () => {
+	// ask confirmation first
+	const res = ipcRenderer.sendSync("dialogbox", ["yesno", "Are you sure you want to reset the queue item?"]);
+	if (res == 1) return; // no
+
+	imgContainer.innerHTML = "";
+
 	showToast("Refilling queue... *Queue will be empty if album is empty.");
 
 	ipcRenderer.send("fill-queue");
@@ -180,6 +187,24 @@ const startQueue = () => {
 
 btnStartQueue_El.onclick = () => {
 	startQueue();
+};
+
+const stopQueue = () => {
+	showToast("Queue stopped");
+
+	ipcRenderer.send("stop-queue-timer");
+
+	// update current runtime
+	currentRuntimeSetting = ipcRenderer.sendSync("get-settings", "runtime");
+	timerQueue.innerHTML = "Next wallpaper in: " + formatTimerWithHours(currentRuntimeSetting.currentShuffleInterval * 60);
+
+	setTimeout(() => {
+		closeToast();
+	}, 3500);
+};
+
+btnStopQueue_El.onclick = () => {
+	stopQueue();
 };
 
 const loadImage_Queue = (images) => {
