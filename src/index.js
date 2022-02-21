@@ -282,7 +282,6 @@ ipcMain.on("default-app-settings", (event, args) => {
 
 // ============================================================
 // Queue handling
-// TODO:ADD FILL QUEUE
 /**
  * Add image to queue in the runtimeSettings and save it.
  * @param {string} q_Item - The path of the image to be added to queue
@@ -360,7 +359,6 @@ const updateAlbum = (updated) => {
 	saveSettings("album", albumSettings);
 };
 
-// TODO: delete album....
 /**
  * Get the album object from the albumSettings. If album parameter is set, will return the queried album object else will return currently set album in the runtimeSettings.
  * @param {string} [album=false] - The album name to be queried.
