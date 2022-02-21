@@ -1,4 +1,6 @@
 const shell = require("electron").shell;
+const wallpaper = require("wallpaper");
+const { clipboard } = require("electron");
 const showDesc = (identifier) => {
 	const desc = document.getElementById("desc-" + identifier);
 

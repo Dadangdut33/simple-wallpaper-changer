@@ -4,8 +4,6 @@ document.getElementById("base-folder").addEventListener("keydown", function (e) 
 });
 
 const { ipcRenderer } = require("electron");
-const wallpaper = require("wallpaper");
-const { clipboard } = require("electron");
 
 const albumSelect_El = document.getElementById("album-select");
 const albumName_El = document.getElementById("album-name");

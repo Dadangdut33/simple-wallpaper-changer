@@ -873,10 +873,8 @@ const changeWallpaper = async (imagePath) => {
 // --- IPC ---
 
 ipcMain.on("change-wallpaper", async (event, args) => {
-	// get wallpaper before
-	const wpBefore = (await wallpaper.get()).split("\\").pop();
 	// get queue item
-	const q_Item = albumSettings.runtimeSettings.currentQueue.shift();
+	const q_Item = runtimeSettings.currentQueue.shift();
 
 	// change wallpaper
 	if (q_Item) {
@@ -891,44 +889,8 @@ ipcMain.on("change-wallpaper", async (event, args) => {
 		return;
 	}
 
-	let newWpToAdd = "";
-	const albumData = getAlbumData();
-
-	if (!albumData) {
-		dialog.showErrorBox("Error", "Album data not found!");
-		return;
-	}
-
-	if (albumSettings.runtimeSettings.currentRandom) {
-		if (albumData.active_wp.length > 1) {
-			// if there are more than 1 images in the album
-			// make sure it's not the same as the last one
-			// that's why we first check if the length is > 1
-			while (true) {
-				newWpToAdd = albumData.active_wp[Math.floor(Math.random() * albumData.active_wp.length)];
-				if (newWpToAdd.split("\\").pop() !== wpBefore) {
-					break;
-				}
-			}
-		} else {
-			newWpToAdd = albumData.active_wp[Math.floor(Math.random() * albumData.active_wp.length)];
-		}
-	} else {
-		// not random meaning we must get the current index of the image and then get the next one
-		// But, the wpBefore is only the image name with no full path
-		// meaning that we must check each active wp for string that equals to it and then get the next one
-		let currentIndex = 0;
-		for (let i = 0; i < albumData.active_wp.length; i++) {
-			if (albumData.active_wp[i].split("\\").pop() === wpBefore) {
-				currentIndex = i;
-				break;
-			}
-		}
-		newWpToAdd = albumData.active_wp[currentIndex + 1];
-	}
-
-	// add the new wp to the queue
-	addToQueue(newWpToAdd);
+	const res = fillQueue(true);
+	event.returnValue = res;
 });
 
 // ============================================================

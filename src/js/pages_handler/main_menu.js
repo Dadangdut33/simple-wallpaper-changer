@@ -1,5 +1,4 @@
 const { ipcRenderer } = require("electron");
-const wallpaper = require("wallpaper");
 const imgContainer = document.getElementById("img-container");
 let currentRuntimeSetting = ipcRenderer.sendSync("get-settings", "runtime");
 let allAlbumData = ipcRenderer.sendSync("get-settings", "album");
@@ -195,7 +194,7 @@ const loadImage_Queue = (images) => {
 };
 
 const deleteFromQueue = (identifier, path) => {
-	ipcRenderer.send("delete-img-from-queue", path);
+	ipcRenderer.send("delete-image-from-queue", path);
 
 	const queue_El = document.getElementById("img-wrapper-" + identifier);
 
@@ -302,6 +301,30 @@ const resetQueueTimer = () => {
 
 btnResetQueue_El.onclick = () => {
 	resetQueueTimer();
+};
+
+const forceNext = () => {
+	showToast("Wallpaper changed");
+
+	const identifier = addedElements.shift();
+	const queue_El = document.getElementById("img-wrapper-" + identifier);
+
+	// remove from the list
+	queue_El.remove();
+
+	const newToQ = ipcRenderer.sendSync("change-wallpaper"); // get newly added image to queue
+	loadImage_Queue(newToQ);
+
+	// update selected album data
+	currentRuntimeSetting = ipcRenderer.sendSync("get-settings", "runtime");
+
+	setTimeout(() => {
+		closeToast();
+	}, 3500);
+};
+
+btnForceNext_El.onclick = () => {
+	forceNext();
 };
 
 // ============================================================
