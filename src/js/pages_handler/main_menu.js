@@ -86,16 +86,31 @@ const loadData = () => {
 loadData();
 
 // ============================================================
-// Calendars
-// Initialize all input of date type.
+// EVENTS
+// prevent keyboard input to queueInterval
+queueInterval_El.onkeydown = (e) => {
+	e.preventDefault();
+};
+
+queueInterval_El.onchange = () => {
+	ipcRenderer.send("set-shuffle-interval", queueInterval_El.value);
+};
+
+randomizeQueue_El.onchange = () => {
+	ipcRenderer.send("set-random", randomizeQueue_El.checked);
+};
 
 nightStart_El.bulmaCalendar.on("select", (datepicker) => {
-	console.log(datepicker.data.value());
+	ipcRenderer.send("set-nightmode-start", datepicker.data.value());
 });
 
 nightEnd_El.bulmaCalendar.on("select", (datepicker) => {
-	console.log(datepicker.data.value());
+	ipcRenderer.send("set-nightmode-end", datepicker.data.value());
 });
+
+enableNightMode_El.onchange = () => {
+	ipcRenderer.send("set-nightmode", enableNightMode_El.checked);
+};
 
 const timerQueue = document.getElementById("timer-queue");
 ipcRenderer.send("start-timer", null);

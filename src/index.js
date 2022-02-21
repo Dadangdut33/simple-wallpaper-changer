@@ -143,40 +143,6 @@ const createTray = () => {
 
 // ========================================================================
 // ============================================================
-// Timer
-let timerStarted = false;
-let seconds = 0;
-let interval = null;
-ipcMain.on("start-timer", (event, args) => {
-	if (!timerStarted) {
-		clearInterval(interval);
-		timerStarted = true;
-		seconds = runtimeSettings.currentShuffleInterval * 60; // minutes
-
-		interval = setInterval(() => {
-			seconds--;
-			event.sender.send("timer", seconds);
-
-			// TODO: SET WALLPAPER WHEN 0 THEN RESET IT
-		}, 1000);
-		// interval every 1 seconds
-	}
-});
-
-ipcMain.on("stop-timer", (event, args) => {
-	// stop or pause the timer
-	clearInterval(interval);
-	timerStarted = false;
-});
-
-ipcMain.on("reset-timer", (event, args) => {
-	// reset the timer
-	clearInterval(interval);
-	timerStarted = false;
-	seconds = runtimeSettings.currentShuffleInterval;
-});
-
-// ============================================================
 // Settings
 /**
  * Load settings, run on startup.
@@ -662,7 +628,7 @@ const setCurrentAlbum = (album) => {
 const setRandom = (random) => {
 	runtimeSettings.currentRandom = random;
 	// update config
-	saveSettings("runtime", runtimeSettings);
+	saveSettings("runtime", runtimeSettings, false);
 };
 
 /**
@@ -672,7 +638,37 @@ const setRandom = (random) => {
 const setShuffleInterval = (shuffle) => {
 	runtimeSettings.currentShuffleInterval = shuffle;
 	// update config
-	saveSettings("runtime", runtimeSettings);
+	saveSettings("runtime", runtimeSettings, false);
+};
+
+/**
+ * Set the startNightMode time in the runtimeSettings and save it.
+ * @param {string} startNightMode - The startNightMode time to be set
+ */
+const setStartNightMode = (startTime) => {
+	runtimeSettings.currentNightModeStart = startTime;
+	// update config
+	saveSettings("runtime", runtimeSettings, false);
+};
+
+/**
+ * Set the endNightMode time in the runtimeSettings and save it.
+ * @param {string} endNightMode - The endNightMode time to be set
+ */
+const setEndNightMode = (endTime) => {
+	runtimeSettings.currentNightModeEnd = endTime;
+	// update config
+	saveSettings("runtime", runtimeSettings, false);
+};
+
+/**
+ * Set night mode on/off
+ * @param {boolean} nightMode - The night mode value to be set
+ */
+const setNightMode = (nightMode) => {
+	runtimeSettings.currentNightMode = nightMode;
+	// update config
+	saveSettings("runtime", runtimeSettings, false);
 };
 
 // --- IPC ---
@@ -686,12 +682,24 @@ ipcMain.on("get-current-album-data", (event, args) => {
 	event.returnValue = albumData;
 });
 
-ipcMain.on("random-set", (event, args) => {
+ipcMain.on("set-random", (event, args) => {
 	setRandom(args);
 });
 
-ipcMain.on("shuffle-set", (event, args) => {
+ipcMain.on("set-shuffle-interval", (event, args) => {
 	setShuffleInterval(args);
+});
+
+ipcMain.on("set-nightmode", (event, args) => {
+	setNightMode(args);
+});
+
+ipcMain.on("set-nightmode-start", (event, args) => {
+	setStartNightMode(args);
+});
+
+ipcMain.on("set-nightmode-end", (event, args) => {
+	setEndNightMode(args);
 });
 
 // ============================================================
@@ -774,6 +782,40 @@ ipcMain.on("change-wallpaper", async (event, args) => {
 
 	// add the new wp to the queue
 	addToQueue(newWpToAdd);
+});
+
+// ============================================================
+// Timer
+let timerStarted = false;
+let seconds = 0;
+let interval = null;
+ipcMain.on("start-timer", (event, args) => {
+	if (!timerStarted) {
+		clearInterval(interval);
+		timerStarted = true;
+		seconds = runtimeSettings.currentShuffleInterval * 60; // minutes
+
+		interval = setInterval(() => {
+			seconds--;
+			event.sender.send("timer", seconds);
+
+			// TODO: SET WALLPAPER WHEN 0 THEN RESET IT
+		}, 1000);
+		// interval every 1 seconds
+	}
+});
+
+ipcMain.on("stop-timer", (event, args) => {
+	// stop or pause the timer
+	clearInterval(interval);
+	timerStarted = false;
+});
+
+ipcMain.on("reset-timer", (event, args) => {
+	// reset the timer
+	clearInterval(interval);
+	timerStarted = false;
+	seconds = runtimeSettings.currentShuffleInterval;
 });
 
 // ============================================================
