@@ -7,10 +7,12 @@
 		<link rel="stylesheet" href="style/bulma-tooltip.css" />
 		<link rel="stylesheet" href="style/fa-all.min.css" />
 		<link rel="stylesheet" href="style/index.css" />
+		<link rel="stylesheet" href="../node_modules/bulma-calendar/dist/css/bulma-calendar.min.css" />
 
 		<script defer src="js/handler/toast.js"></script>
 		<script defer src="js/handler/image.js"></script>
 		<script defer src="js/pages_handler/main_menu.js"></script>
+		<script src="../node_modules/bulma-calendar/dist/js/bulma-calendar.min.js"></script>
 	</head>
 
 	<body>
@@ -107,14 +109,14 @@
 							<div class="column">
 								<div class="control">
 									<span class="has-tooltip-left has-tooltip-multiline has-tooltip-arrow" data-tooltip="Start period of night mode. Format (HH:MM)">
-										<input class="input" id="night-start" placeholder="Time start" maxlength="5" />
+										<input type="date" class="input" id="night-start" />
 									</span>
 								</div>
 							</div>
 							<div class="column">
 								<div class="control">
 									<span class="has-tooltip-left has-tooltip-multiline has-tooltip-arrow" data-tooltip="End period of night mode. Format (HH:MM)">
-										<input class="input" id="night-end" placeholder="Time End" min="1" maxlength="5" />
+										<input type="date" class="input" id="night-end" />
 									</span>
 								</div>
 							</div>

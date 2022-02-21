@@ -11,6 +11,11 @@ span[data-tooltip] {
   border-bottom: none !important;
 }
 
+/* hide the clear button in datetime */
+.datetimepicker-clear-button {
+  display: none !important;
+}
+
 /* ============== */
 /* Top Menu */
 .menu-container {

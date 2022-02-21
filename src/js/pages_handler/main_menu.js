@@ -68,14 +68,34 @@ const formatTimerWithHours = (time) => {
 const loadData = () => {
 	queueInterval_El.value = currentRuntimeSetting.currentShuffleInterval;
 	randomizeQueue_El.checked = currentRuntimeSetting.currentRandom;
-	nightStart_El.value = currentRuntimeSetting.currentNightModeStart;
-	nightEnd_El.value = currentRuntimeSetting.currentNightModeEnd;
+	bulmaCalendar.attach(nightStart_El, {
+		type: "time",
+		validateLabel: "Ok",
+		showClearButton: false,
+		startTime: currentRuntimeSetting.currentNightModeStart,
+	});
+	bulmaCalendar.attach(nightEnd_El, {
+		type: "time",
+		validateLabel: "Ok",
+		showClearButton: false,
+		startTime: currentRuntimeSetting.currentNightModeEnd,
+	});
 	enableNightMode_El.checked = currentRuntimeSetting.currentNightMode;
 };
 
 loadData();
 
 // ============================================================
+// Calendars
+// Initialize all input of date type.
+
+nightStart_El.bulmaCalendar.on("select", (datepicker) => {
+	console.log(datepicker.data.value());
+});
+
+nightEnd_El.bulmaCalendar.on("select", (datepicker) => {
+	console.log(datepicker.data.value());
+});
 
 const timerQueue = document.getElementById("timer-queue");
 ipcRenderer.send("start-timer", null);
