@@ -207,6 +207,20 @@ btnStopQueue_El.onclick = () => {
 	stopQueue();
 };
 
+const resetQueueTimer = () => {
+	showToast("Queue timer reseted");
+
+	ipcRenderer.send("reset-queue-timer");
+
+	setTimeout(() => {
+		closeToast();
+	}, 3500);
+};
+
+btnResetQueue_El.onclick = () => {
+	resetQueueTimer();
+};
+
 const loadImage_Queue = (images) => {
 	images.some((image) => {
 		let identifier = getImageName(image);
