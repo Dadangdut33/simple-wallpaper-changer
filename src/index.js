@@ -767,7 +767,7 @@ const fillQueue = (onlyAddOne = false) => {
 
 		let itemBefore = "",
 			newItem = "";
-		for (let i = 0; i < 20; i++) {
+		for (let i = 0; i < 13; i++) {
 			// make sure it's not the same as the last one but only if there is more than 1 item
 			if (all_Wp.length > 1) {
 				while (itemBefore === newItem) {
@@ -849,42 +849,15 @@ ipcMain.on("delete-image-from-queue", (event, args) => {
 
 // ============================================================
 // wallpaper
-/**
- * Change wallpaper
- * @param {string} imagePath - The path of the image to be set as wallpaper
- * @return {boolean} - Whether the change is successful or not.
- * @return {string} - The error message if the change is not successful.
- */
-const changeWallpaper = async (imagePath) => {
-	let success = false,
-		message = "";
-	try {
-		await wallpaper.set(imagePath);
-		success = true;
-	} catch (error) {
-		message = error;
-	}
-
-	return { success, message };
-};
-
 // --- IPC ---
-
 ipcMain.on("change-wallpaper", async (event, args) => {
 	// get queue item
 	const q_Item = runtimeSettings.currentQueue.shift();
 
-	// change wallpaper
-	if (q_Item) {
-		const result = await changeWallpaper(q_Item);
-		if (!result.success) {
-			dialog.showErrorBox("Error", result.message);
-
-			return;
-		}
-	} else {
+	try {
+		await wallpaper.set(q_Item);
+	} catch (error) {
 		dialog.showErrorBox("Error", "Queue is empty");
-		return;
 	}
 
 	const res = fillQueue(true);
@@ -908,7 +881,21 @@ ipcMain.on("start-queue-timer", (event, args) => {
 			seconds--;
 			event.sender.send("timer", seconds);
 
-			// TODO: SET WALLPAPER WHEN 0 THEN RESET IT
+			if (seconds === 0) {
+				seconds = runtimeSettings.currentShuffleInterval * 60;
+
+				// get queue item
+				const q_Item = runtimeSettings.currentQueue.shift();
+
+				try {
+					wallpaper.set(q_Item);
+				} catch (error) {
+					dialog.showErrorBox("Error", "Queue is empty");
+				}
+
+				const res = fillQueue(true);
+				event.sender.send("queue-shifted", res);
+			}
 		}, 1000);
 		// interval every 1 seconds
 	}

@@ -337,3 +337,32 @@ ipcRenderer.on("timer", (event, arg) => {
 
 // fillQueue(true);
 loadImage_Queue(currentRuntimeSetting.currentQueue);
+
+// ============================================================
+// from main
+ipcRenderer.on("queue-shifted", (event, arg) => {
+	// show toast
+	showToast("Wallpaper changed");
+
+	try {
+		const identifier = addedElements.shift();
+		const queue_El = document.getElementById("img-wrapper-" + identifier);
+
+		// remove from the list
+		queue_El.remove();
+	} catch (error) {
+		console.log(error);
+	}
+
+	const shiftedItem = arg;
+
+	// update current runtime
+	currentRuntimeSetting = ipcRenderer.sendSync("get-settings", "runtime");
+
+	// update queue
+	loadImage_Queue(shiftedItem);
+
+	setTimeout(() => {
+		closeToast();
+	}, 3500);
+});
