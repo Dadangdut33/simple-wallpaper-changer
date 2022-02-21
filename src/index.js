@@ -704,6 +704,87 @@ const setNightModeAlbum = (albumName) => {
 	saveSettings("runtime", runtimeSettings, false);
 };
 
+const fillQueue = (onlyAddOne = false) => {
+	// first combine all active wp in all albums
+	let all_Wp = [];
+
+	// -------------------------
+	// Getting time
+	// get current time first
+	const currentDate = new Date();
+
+	// get only the date
+	const currentDateOnly = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1 < 10 ? "0" + parseInt(currentDate.getMonth() + 1) : parseInt(currentDate.getMonth() + 1)}-${
+		currentDate.getDate() < 10 ? "0" + currentDate.getDate() : currentDate.getDate()
+	}`;
+
+	// get accurate current time because for some reason the time is off because of timezone ? maybe
+	const currentDateWithTime = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1 < 10 ? "0" + parseInt(currentDate.getMonth() + 1) : parseInt(currentDate.getMonth() + 1)}-${
+		currentDate.getDate() < 10 ? "0" + currentDate.getDate() : currentDate.getDate()
+	}T${currentDate.getHours < 10 ? "0" + currentDate.getHours() : currentDate.getHours()}:${currentDate.getMinutes() < 10 ? "0" + currentDate.getMinutes() : currentDate.getMinutes()}:${
+		currentDate.getSeconds() < 10 ? "0" + currentDate.getSeconds() : currentDate.getSeconds()
+	}.000Z`;
+
+	// parse them all to date
+	const currentDateAccurate = new Date(currentDateWithTime);
+	const startDate = new Date(`${currentDateOnly}T${runtimeSettings.currentNightModeStart}:00.000Z`);
+	const endDate = new Date(`${currentDateOnly}T${runtimeSettings.currentNightModeEnd}:00.000Z`);
+
+	// if end time is < start time, meaning next day period
+	if (startDate > endDate) {
+		// add 1 day to endDate
+		endDate.setDate(endDate.getDate() + 1);
+	}
+	// -------------------------
+
+	// check if in period
+	if (runtimeSettings.currentNightMode) {
+		// check if in night mode period
+		if (currentDateAccurate >= startDate && currentDateAccurate <= endDate) {
+			// in night mode period use nightmode album for the list
+			albumSettings.forEach((album) => {
+				if (runtimeSettings.currentNightModeAlbum.includes(album.name)) {
+					all_Wp = [...all_Wp, ...album.active_wp];
+				}
+			});
+		} else {
+			// not in night mode period use the usual album for the list
+			albumSettings.forEach((album) => {
+				if (runtimeSettings.currentAlbum.includes(album.name)) {
+					all_Wp = [...all_Wp, ...album.active_wp];
+				}
+			});
+		}
+	} else {
+		// not in night mode period use the usual album for the list
+		albumSettings.forEach((album) => {
+			if (runtimeSettings.currentAlbum.includes(album.name)) {
+				all_Wp = [...all_Wp, ...album.active_wp];
+			}
+		});
+	}
+
+	// fill queue by going randomly through the list
+	if (!onlyAddOne) {
+		runtimeSettings.currentQueue = [];
+
+		let itemBefore = "",
+			newItem = "";
+		for (let i = 0; i < 20; i++) {
+			// make sure it's not the same as the last one but only if there is more than 1 item
+			if (all_Wp.length > 1) {
+				while (itemBefore === newItem) {
+					newItem = all_Wp[Math.floor(Math.random() * all_Wp.length)];
+					runtimeSettings.currentQueue.push(newItem);
+				}
+				itemBefore = newItem;
+			}
+		}
+	} else {
+		runtimeSettings.currentQueue.push(all_Wp[Math.floor(Math.random() * all_Wp.length)]);
+	}
+};
+
 // --- IPC ---
 
 ipcMain.on("get-current-album", (event, args) => {
@@ -741,6 +822,14 @@ ipcMain.on("set-active-album", (event, args) => {
 
 ipcMain.on("set-nightmode-album", (event, args) => {
 	setNightModeAlbum(args);
+});
+
+ipcMain.on("fill-queue", (event, args) => {
+	fillQueue();
+});
+
+ipcMain.on("fill-queue-once", (event, args) => {
+	fillQueue(true);
 });
 
 // ============================================================

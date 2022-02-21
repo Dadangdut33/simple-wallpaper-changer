@@ -12,6 +12,12 @@ const nightStart_El = document.getElementById("night-start");
 const nightEnd_El = document.getElementById("night-end");
 const enableNightMode_El = document.getElementById("enable-nightmode");
 
+const btnStartQueue_El = document.getElementById("btn-start-queue");
+const btnPauseQueue_El = document.getElementById("btn-pause-queue");
+const btnStopQueue_El = document.getElementById("btn-stop-queue");
+const btnResetQueue_El = document.getElementById("btn-reset-queue");
+const btnRefillQueue_El = document.getElementById("btn-refill-queue");
+
 // ============================================================
 // Page open
 // ============================================================
@@ -122,12 +128,31 @@ const setNightModeAlbum = (e) => {
 	ipcRenderer.send("set-nightmode-album", albumName);
 };
 
+// ============================================================
 // timer
 const timerQueue = document.getElementById("timer-queue");
 ipcRenderer.send("start-timer", null);
 ipcRenderer.on("timer", (event, arg) => {
 	timerQueue.innerHTML = formatTimerWithHours(arg);
 });
+
+// ============================================================
+// Queue
+const fillQueue = () => {
+	showToast("Refilling queue... *Queue will be empty if album is empty.");
+
+	ipcRenderer.send("fill-queue");
+
+	currentRuntimeSetting = ipcRenderer.sendSync("get-settings", "runtime");
+
+	setTimeout(() => {
+		closeToast();
+	}, 3500);
+};
+
+btnRefillQueue_El.onclick = () => {
+	fillQueue();
+};
 
 const loadImage_Queue = (images) => {
 	images.some((image) => {
