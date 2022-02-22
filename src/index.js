@@ -1,8 +1,9 @@
 // modules
-const { app, BrowserWindow, ipcMain, Menu, MenuItem, globalShortcut, dialog, Tray, Notification } = require("electron");
+const { app, BrowserWindow, ipcMain, Menu, MenuItem, dialog, Tray, Notification } = require("electron");
 const path = require("path");
 const wallpaper = require("wallpaper");
 const moment = require("moment");
+const AutoLaunch = require("auto-launch");
 // ============================================================
 const { loadConfig, saveConfig, resetDefaultApp, albumSettings_Default, runtimeSettings_Default, appSettings_Default, getFilesInFolder, filterImages } = require("./js/handler/files");
 
@@ -39,7 +40,7 @@ const createWindow = () => {
 	mainWindow.loadFile(path.join(__dirname, "index.html"));
 
 	// Open the DevTools.
-	mainWindow.webContents.openDevTools();
+	// mainWindow.webContents.openDevTools();
 
 	// tray
 	createTray();
@@ -85,7 +86,21 @@ if (!gotTheLock) {
 	// This method will be called when Electron has finished
 	// initialization and is ready to create browser windows.
 	// Some APIs can only be used after this event occurs.
-	app.on("ready", createWindow);
+	app.on("ready", () => {
+		createWindow();
+		let autoLaunch = new AutoLaunch({
+			name: "Simple Wallpaper Changer",
+			path: app.getPath("exe"),
+		});
+
+		if (appSettings.start_on_startup) {
+			autoLaunch.isEnabled().then((isEnabled) => {
+				if (!isEnabled) autoLaunch.enable();
+			});
+		} else {
+			autoLaunch.disable();
+		}
+	});
 
 	// Quit when all windows are closed, except on macOS. There, it's common
 	// for applications and their menu bar to stay active until the user quits
@@ -150,13 +165,6 @@ const createTray = () => {
 	// added menu to tray
 	const contextMenu = Menu.buildFromTemplate([
 		{
-			label: "Quit",
-			click: () => {
-				saveSettings("runtime", runtimeSettings, false);
-				app.exit(0);
-			},
-		},
-		{
 			label: "Next Wallpaper",
 			click: () => {
 				// get queue item
@@ -172,6 +180,13 @@ const createTray = () => {
 						icon: iconPath,
 					}).show();
 				}
+			},
+		},
+		{
+			label: "Quit",
+			click: () => {
+				saveSettings("runtime", runtimeSettings, false);
+				app.exit(0);
 			},
 		},
 	]);
