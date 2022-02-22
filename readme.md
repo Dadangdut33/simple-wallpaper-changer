@@ -64,7 +64,7 @@ Simple Wallpaper Changer, a simple yet useful wallpaper changer. This app does w
 
 # Download
 - [Windows x64 and x32](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/latest)
-- MAC/Linux (Coming soong)
+- MAC/Linux (maybe soon)
 
 # Installation
 1. Download the latest release from [GitHub](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/latest)
