@@ -341,7 +341,7 @@ const clearQueue = () => {
 
 	showToast("Queue cleared");
 
-	ipcRenderer.send("clear-queue");
+	ipcRenderer.send("queue-clear");
 
 	// update selected album data
 	currentRuntimeSetting = ipcRenderer.sendSync("get-settings", "runtime");

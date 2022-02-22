@@ -318,7 +318,7 @@ const removeFromQueue = (q_Item) => {
 const clearQueue = () => {
 	runtimeSettings.currentQueue = [];
 	// update config
-	saveSettings("runtime", runtimeSettings);
+	saveSettings("runtime", runtimeSettings, false);
 };
 
 // --- IPC ---
@@ -771,26 +771,26 @@ const fillQueue = (onlyAddOne = false) => {
 	}
 
 	// fill queue by going randomly through the list
-	if (!onlyAddOne) {
-		runtimeSettings.currentQueue = [];
+	if (all_Wp.length > 0) {
+		if (!onlyAddOne) {
+			runtimeSettings.currentQueue = [];
 
-		let itemBefore = "",
-			newItem = "";
-		for (let i = 0; i < appSettings.maxQueueSize; i++) {
-			// make sure it's not the same as the last one but only if there is more than 1 item
-			if (all_Wp.length > 1) {
-				while (itemBefore === newItem) {
+			let itemBefore = "",
+				newItem = "";
+			for (let i = 0; i < appSettings.maxQueueSize; i++) {
+				// make sure it's not the same as the last one but only if there is more than 1 item
+				if (all_Wp.length > 1) {
+					while (itemBefore === newItem) {
+						newItem = all_Wp[Math.floor(Math.random() * all_Wp.length)];
+						runtimeSettings.currentQueue.push(newItem);
+					}
+					itemBefore = newItem;
+				} else {
 					newItem = all_Wp[Math.floor(Math.random() * all_Wp.length)];
 					runtimeSettings.currentQueue.push(newItem);
 				}
-				itemBefore = newItem;
-			} else {
-				newItem = all_Wp[Math.floor(Math.random() * all_Wp.length)];
-				runtimeSettings.currentQueue.push(newItem);
 			}
-		}
-	} else {
-		if (all_Wp.length > 0) {
+		} else {
 			const addOnce = all_Wp[Math.floor(Math.random() * all_Wp.length)];
 			if (addOnce) {
 				// if item get
@@ -799,6 +799,8 @@ const fillQueue = (onlyAddOne = false) => {
 			}
 		}
 	}
+	// remove null/undefined item from currentQueue
+	runtimeSettings.currentQueue = runtimeSettings.currentQueue.filter((el) => el);
 
 	saveSettings("runtime", runtimeSettings, false);
 
