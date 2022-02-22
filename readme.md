@@ -34,10 +34,12 @@ Simple Wallpaper Changer, a simple yet useful wallpaper changer. This app does w
 # Showcase
 <details open>
   <summary>Preview</summary>
-    <img src="https://raw.githubusercontent.com/Dadangdut33/simple-wallpaper-changer/master/preview/1.png" width="700" alt="Preview 1">
-    <img src="https://raw.githubusercontent.com/Dadangdut33/simple-wallpaper-changer/master/preview/2.png" width="700" alt="Preview 2">
-    <img src="https://raw.githubusercontent.com/Dadangdut33/simple-wallpaper-changer/master/preview/3.png" width="700" alt="Preview 3">
-    <img src="https://raw.githubusercontent.com/Dadangdut33/simple-wallpaper-changer/master/preview/4.png" width="700" alt="Preview 4">
+  <p align="center">
+      <img src="https://raw.githubusercontent.com/Dadangdut33/simple-wallpaper-changer/master/preview/1.png" width="700" alt="Preview 1">
+      <img src="https://raw.githubusercontent.com/Dadangdut33/simple-wallpaper-changer/master/preview/2.png" width="700" alt="Preview 2">
+      <img src="https://raw.githubusercontent.com/Dadangdut33/simple-wallpaper-changer/master/preview/3.png" width="700" alt="Preview 3">
+      <img src="https://raw.githubusercontent.com/Dadangdut33/simple-wallpaper-changer/master/preview/4.png" width="700" alt="Preview 4">
+  </p>
 </details>
 
 # FAQ
