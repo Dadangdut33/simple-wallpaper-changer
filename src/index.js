@@ -240,7 +240,7 @@ const loadSetting = () => {
 		if (appSettings.rescan_every_start) {
 			// rescan the album
 			albumSettings.forEach((album) => {
-				syncAlbum(album.name);
+				syncAlbum(album.name, true);
 			});
 		}
 
@@ -589,9 +589,10 @@ const addImages = (album, withPopup = true) => {
 /**
  * Sync the album settings with the base image folder that is set.
  * @param {string} album - The album name of the image
+ * @param {boolean} [subtle] - If true will not send any message box
  * @returns {boolean} - If true, sync was successful.
  */
-const syncAlbum = (album) => {
+const syncAlbum = (album, subtle = false) => {
 	const pos_Album = albumSettings.findIndex((el) => el.name === album);
 
 	// scan album for images
@@ -611,17 +612,22 @@ const syncAlbum = (album) => {
 		// save
 		saveSettings("album", albumSettings, false);
 
-		// show success
-		dialog.showMessageBox(mainWindow, {
-			title: "Success",
-			type: "info",
-			buttons: ["Ok"],
-			message: "Album synced successfully",
-		});
+		if (!subtle) {
+			// show success
+			dialog.showMessageBox(mainWindow, {
+				title: "Success",
+				type: "info",
+				buttons: ["Ok"],
+				message: "Album synced successfully",
+			});
+		}
 
 		return true;
 	} else {
-		dialog.showErrorBox("Error", "Please set the base folder first");
+		if (!subtle) {
+			dialog.showErrorBox("Error", "Please set the base folder first");
+		}
+
 		return false;
 	}
 };
@@ -1017,7 +1023,7 @@ const autoRescan = () => {
 
 	scan_interval = setInterval(() => {
 		albumSettings.forEach((album) => {
-			syncAlbum(album.name);
+			syncAlbum(album.name, true);
 		});
 	}, time_scan_interval);
 };
