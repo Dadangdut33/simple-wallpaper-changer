@@ -21,15 +21,24 @@ Simple Wallpaper Changer, a simple yet useful wallpaper changer. This app does w
 
 # Table of Contents
 - [Table of Contents](#table-of-contents)
+- [Showcase](#showcase)
 - [FAQ](#faq)
 - [Download](#download)
 - [Installation](#installation)
 - [Uninstallation](#uninstallation)
-- [Developing](#developing)
+- [Developing and Compiling](#developing-and-compiling)
 - [Usage](#usage)
 - [Reporting Bugs/Feature Request](#reporting-bugsfeature-request)
 - [Dislaimer](#dislaimer)
 
+# Showcase
+<details open>
+  <summary>Preview</summary>
+    <img src="https://raw.githubusercontent.com/Dadangdut33/simple-wallpaper-changer/master/preview/1.png" width="700" alt="Preview 1">
+    <img src="https://raw.githubusercontent.com/Dadangdut33/simple-wallpaper-changer/master/preview/2.png" width="700" alt="Preview 2">
+    <img src="https://raw.githubusercontent.com/Dadangdut33/simple-wallpaper-changer/master/preview/3.png" width="700" alt="Preview 3">
+    <img src="https://raw.githubusercontent.com/Dadangdut33/simple-wallpaper-changer/master/preview/4.png" width="700" alt="Preview 4">
+</details>
 
 # FAQ
 
@@ -55,8 +64,19 @@ Download the latest release from [GitHub](https://github.com/Dadangdut33/simple-
 # Uninstallation
 Run the uninstaller if you are using the installer version. If using the portable version, you can just delete the folder. (On windows) If you enable auto run on startup, there might be a registry left behind that you can delete if want to by going to regedit and delete the `Simple Wallpaper Changer` registry on `\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run`.
 
-# Developing
-This app is using electron forge which means for developing, what you only need to do is an `npm install` and to run it do `npm start`. To compile it you can run `npm make`. 
+# Developing and Compiling
+This app is using electron forge which means for developing, what you only need to do is an `npm install` and to run it do `npm start`. To compile it you can run `npm make`. You can also use yarn if you prefer yarn. 
+
+I am on windows and to create the ia32 and x64 what i do is 
+```bash
+# ia32
+yarn make --arch=ia32 
+
+# x64
+yarn make --arch=x64 
+```
+
+To make the installer, i use innoinstaller instead of the one packaged with electron forge.
 
 # Usage
 1. First set your album
