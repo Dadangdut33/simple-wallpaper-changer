@@ -181,6 +181,9 @@ const createTray = () => {
 						icon: iconPath,
 					}).show();
 				}
+
+				const res = fillQueue(true);
+				mainWindow.webContents.send("queue-shifted", res);
 			},
 		},
 		{
@@ -973,7 +976,7 @@ ipcMain.on("start-queue-timer", (event, args) => {
 				}
 
 				const res = fillQueue(true);
-				event.sender.send("queue-shifted", res);
+				mainWindow.webContents.send("queue-shifted", res);
 			}
 		}, 1000);
 		// interval every 1 seconds
