@@ -2,7 +2,7 @@
 <h1 align="center"> Simple Wallpaper Changer - A simple but useful wallpaper changer </h1>
 <p align="center">
     <a href="https://lgtm.com/projects/g/Dadangdut33/simple-wallpaper-changer/alerts/"><img alt="Total alerts" src="https://img.shields.io/lgtm/alerts/g/Dadangdut33/simple-wallpaper-changer.svg?logo=lgtm&logoWidth=18"/></a>
-    <a href="https://lgtm.com/projects/g/Dadangdut33/simple-wallpaper-changer/context:python"><img alt="Language grade: Python" src="https://img.shields.io/lgtm/grade/python/g/Dadangdut33/simple-wallpaper-changer.svg?logo=lgtm&logoWidth=18"/></a>
+    <a href="https://lgtm.com/projects/g/Dadangdut33/simple-wallpaper-changer/context:javascript"><img alt="Language grade: JavaScript" src="https://img.shields.io/lgtm/grade/javascript/g/Dadangdut33/simple-wallpaper-changer.svg?logo=lgtm&logoWidth=18"/></a>
     <a href="https://github.com/Dadangdut33/simple-wallpaper-changer/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/Dadangdut33/simple-wallpaper-changer"></a>
     <a href="https://github.com/Dadangdut33/simple-wallpaper-changer/pulls"><img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/Dadangdut33/simple-wallpaper-changer"></a>
     <a href="https://github.com/Dadangdut33/simple-wallpaper-changer/releases/latest"><img src="https://img.shields.io/github/downloads/Dadangdut33/simple-wallpaper-changer/total"></a> <br>
