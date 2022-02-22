@@ -65,7 +65,7 @@ This app is using electron forge which means for developing, what you only need 
 4. Start queue
 5. Enjoy the app
 
-For the auto run on startup, you need to restart the app after making changes to the setting. 
+For the auto run on startup, you need to restart the app after making changes to the setting and also if app folder is moved.
 
 # Reporting Bugs/Feature Request
 If you encounter any bugs with the program, you can report them by opening an issue on the github repository. You can also request a feature by opening an issue.
