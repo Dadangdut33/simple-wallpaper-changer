@@ -88,6 +88,7 @@ if (!gotTheLock) {
 	// Some APIs can only be used after this event occurs.
 	app.on("ready", () => {
 		createWindow();
+		ipcMain.emit("start-queue-timer");
 		let autoLaunch = new AutoLaunch({
 			name: "Simple Wallpaper Changer",
 			path: app.getPath("exe"),
@@ -180,6 +181,12 @@ const createTray = () => {
 						icon: iconPath,
 					}).show();
 				}
+			},
+		},
+		{
+			label: "Pause/Unpause Queue",
+			click: () => {
+				pauseUnpauseQueue();
 			},
 		},
 		{
@@ -905,6 +912,22 @@ ipcMain.on("delete-image-from-queue", (event, args) => {
 
 // ============================================================
 // Timer & wallpaper
+const pauseUnpauseQueue = () => {
+	if (timerStarted) {
+		ipcMain.emit("pause-queue-timer");
+		new Notification({
+			title: "Simple Wallpaper Changer",
+			body: "Queue paused",
+		}).show();
+	} else {
+		ipcMain.emit("start-queue-timer");
+		new Notification({
+			title: "Simple Wallpaper Changer",
+			body: "Queue resumed",
+		}).show();
+	}
+};
+
 // --- IPC ---
 ipcMain.on("change-wallpaper", async (event, args) => {
 	// get queue item
@@ -931,7 +954,11 @@ ipcMain.on("start-queue-timer", (event, args) => {
 
 		interval = setInterval(() => {
 			seconds--;
-			event.sender.send("timer", seconds);
+			try {
+				event.sender.send("timer", seconds);
+			} catch (error) {
+				mainWindow.webContents.send("timer", seconds);
+			}
 
 			if (seconds === 0) {
 				seconds = runtimeSettings.currentShuffleInterval * 60;
@@ -969,6 +996,10 @@ ipcMain.on("pause-queue-timer", (event, args) => {
 	// pause the timer
 	clearInterval(interval);
 	timerStarted = false;
+});
+
+ipcMain.on("get-current-timer", (event, args) => {
+	event.returnValue = seconds;
 });
 
 // ============================================================

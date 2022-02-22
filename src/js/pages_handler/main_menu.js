@@ -365,7 +365,7 @@ btnClearQueue_El.onclick = () => {
 // ============================================================
 // STARTUP
 const timerQueue = document.getElementById("timer-queue");
-ipcRenderer.send("start-queue-timer");
+timerQueue.innerHTML = "Next wallpaper in: " + formatTimerWithHours(ipcRenderer.sendSync("get-current-timer"));
 ipcRenderer.on("timer", (event, arg) => {
 	timerQueue.innerHTML = "Next wallpaper in: " + formatTimerWithHours(arg);
 });
