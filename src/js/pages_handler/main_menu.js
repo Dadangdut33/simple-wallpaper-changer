@@ -18,6 +18,7 @@ const btnStopQueue_El = document.getElementById("btn-stop-queue");
 const btnResetQueue_El = document.getElementById("btn-reset-queue");
 const btnForceNext_El = document.getElementById("btn-force-next");
 const btnRefillQueue_El = document.getElementById("btn-refill-queue");
+const btnClearQueue_El = document.getElementById("btn-clear-queue");
 
 // ============================================================
 // Page open
@@ -332,6 +333,30 @@ const forceNext = () => {
 
 btnForceNext_El.onclick = () => {
 	forceNext();
+};
+
+const clearQueue = () => {
+	const res = ipcRenderer.sendSync("dialogbox", ["yesno", "Are you sure you want to clear the queue?"]);
+	if (res == 1) return; // no
+
+	showToast("Queue cleared");
+
+	ipcRenderer.send("clear-queue");
+
+	// update selected album data
+	currentRuntimeSetting = ipcRenderer.sendSync("get-settings", "runtime");
+
+	// remove all image elements
+	imgContainer.innerHTML = "";
+	addedElements = [];
+
+	setTimeout(() => {
+		closeToast();
+	}, 3500);
+};
+
+btnClearQueue_El.onclick = () => {
+	clearQueue();
 };
 
 // ============================================================

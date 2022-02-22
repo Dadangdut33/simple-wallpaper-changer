@@ -57,8 +57,8 @@ const createPathIfNotExist = (path) => {
 
 const getFilesInFolder = (folder) => {
 	let files = [],
-		success = false;
-	errMsg = "";
+		success = false,
+		errMsg = "";
 	try {
 		// readdir and add the basefolder
 		files = fs.readdirSync(folder).map((file) => {

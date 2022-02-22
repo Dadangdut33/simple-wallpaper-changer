@@ -22,8 +22,8 @@ if (require("electron-squirrel-startup")) {
 const createWindow = () => {
 	// Create the browser window.
 	mainWindow = new BrowserWindow({
-		width: 1200,
-		height: 800,
+		width: 1600,
+		height: 900,
 		webPreferences: {
 			nodeIntegration: true,
 			contextIsolation: false,
@@ -784,6 +784,9 @@ const fillQueue = (onlyAddOne = false) => {
 					runtimeSettings.currentQueue.push(newItem);
 				}
 				itemBefore = newItem;
+			} else {
+				newItem = all_Wp[Math.floor(Math.random() * all_Wp.length)];
+				runtimeSettings.currentQueue.push(newItem);
 			}
 		}
 	} else {
