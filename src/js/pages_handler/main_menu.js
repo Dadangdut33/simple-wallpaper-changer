@@ -398,3 +398,23 @@ ipcRenderer.on("queue-shifted", (event, arg) => {
 		closeToast();
 	}, 3500);
 });
+
+ipcRenderer.on("queue-refilled-from-main", (event, arg) => {
+	console.log("refilled from main");
+	// show toast
+	showToast("Queue refilled");
+
+	// update current runtime
+	currentRuntimeSetting = ipcRenderer.sendSync("get-settings", "runtime");
+
+	// empty current imagees
+	imgContainer.innerHTML = "";
+
+	// update queue
+	addedElements = [];
+	loadImage_Queue(currentRuntimeSetting.currentQueue);
+
+	setTimeout(() => {
+		closeToast();
+	}, 3500);
+});

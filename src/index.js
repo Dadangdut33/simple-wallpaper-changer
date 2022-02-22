@@ -193,6 +193,12 @@ const createTray = () => {
 			},
 		},
 		{
+			label: "Refill Queue",
+			click: () => {
+				refillQueueFromMain();
+			},
+		},
+		{
 			label: "Quit",
 			click: () => {
 				saveSettings("runtime", runtimeSettings, false);
@@ -927,14 +933,28 @@ const pauseUnpauseQueue = () => {
 		new Notification({
 			title: "Simple Wallpaper Changer",
 			body: "Queue paused",
+			icon: iconPath,
 		}).show();
 	} else {
 		ipcMain.emit("start-queue-timer");
 		new Notification({
 			title: "Simple Wallpaper Changer",
 			body: "Queue resumed",
+			icon: iconPath,
 		}).show();
 	}
+};
+
+const refillQueueFromMain = () => {
+	fillQueue();
+
+	new Notification({
+		title: "Simple Wallpaper Changer",
+		body: "Queue refilled",
+		icon: iconPath,
+	}).show();
+
+	mainWindow.webContents.send("queue-refilled-from-main");
 };
 
 // --- IPC ---
