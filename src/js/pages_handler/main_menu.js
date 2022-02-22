@@ -299,6 +299,9 @@ const resetQueueTimer = () => {
 
 	ipcRenderer.send("reset-queue-timer");
 
+	currentRuntimeSetting = ipcRenderer.sendSync("get-settings", "runtime");
+	timerQueue.innerHTML = "Next wallpaper in: " + formatTimerWithHours(currentRuntimeSetting.currentShuffleInterval * 60);
+
 	setTimeout(() => {
 		closeToast();
 	}, 3500);

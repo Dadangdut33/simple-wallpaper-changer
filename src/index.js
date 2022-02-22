@@ -12,6 +12,10 @@ let mainWindow = null,
 	albumSettings = albumSettings_Default,
 	runtimeSettings = runtimeSettings_Default,
 	appSettings = appSettings_Default;
+
+let timerStarted = false,
+	seconds = 0,
+	interval = null;
 // ============================================================
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -150,6 +154,24 @@ const createTray = () => {
 			click: () => {
 				saveSettings("runtime", runtimeSettings, false);
 				app.exit(0);
+			},
+		},
+		{
+			label: "Next Wallpaper",
+			click: () => {
+				// get queue item
+				const q_Item = runtimeSettings.currentQueue.shift();
+
+				if (q_Item) {
+					wallpaper.set(q_Item);
+					seconds = runtimeSettings.currentShuffleInterval * 60;
+				} else {
+					new Notification({
+						title: "Simple Wallpaper Changer",
+						body: "Error! Queue is Empty!",
+						icon: iconPath,
+					}).show();
+				}
 			},
 		},
 	]);
@@ -867,7 +889,7 @@ ipcMain.on("delete-image-from-queue", (event, args) => {
 });
 
 // ============================================================
-// wallpaper
+// Timer & wallpaper
 // --- IPC ---
 ipcMain.on("change-wallpaper", async (event, args) => {
 	// get queue item
@@ -875,6 +897,7 @@ ipcMain.on("change-wallpaper", async (event, args) => {
 
 	try {
 		await wallpaper.set(q_Item);
+		seconds = runtimeSettings.currentShuffleInterval * 60;
 	} catch (error) {
 		dialog.showErrorBox("Error", "Queue is empty");
 	}
@@ -883,11 +906,6 @@ ipcMain.on("change-wallpaper", async (event, args) => {
 	event.returnValue = res;
 });
 
-// ============================================================
-// Timer
-let timerStarted = false;
-let seconds = 0;
-let interval = null;
 ipcMain.on("start-queue-timer", (event, args) => {
 	if (!timerStarted) {
 		clearInterval(interval);
