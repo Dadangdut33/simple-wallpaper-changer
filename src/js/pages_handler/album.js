@@ -41,7 +41,13 @@ const listUpdate = (albumList, getRuntime = true) => {
 		selectedAlbumData = ipcRenderer.sendSync("get-current-album-data", selectedAlbum_Name);
 
 		// set selected album as the current album and fill the data
-		albumSelect_El.value = selectedAlbum_Name;
+		albumSelect_El.value = selectedAlbum_Name ? selectedAlbum_Name : "Add more";
+		if (!selectedAlbumData) {
+			selectedAlbumData = {
+				name: "",
+				baseFolder: "",
+			};
+		}
 		fillData(selectedAlbumData);
 	}
 };
@@ -331,15 +337,28 @@ document.getElementById("cancel").addEventListener("click", () => {
 });
 
 // delete
-document.getElementById("delete").addEventListener("click", () => {
-	const confirmation = ipcRenderer.sendSync("dialogbox", ["warning", "You will lose all data of this album, continue?"]);
-	if (confirmation === 1) return;
+document.getElementById("clear-base-folder").addEventListener("click", () => {
+	const confirm = ipcRenderer.sendSync("dialogbox", ["warning", "Are you sure you want to clear the base folder?"]);
+	if (confirm == 1) return;
 
+	baseFolder_El.value = "";
+});
+
+document.getElementById("delete").addEventListener("click", () => {
 	// check if album is selected
 	if (selectedAlbum_Name === "Add more") {
 		ipcRenderer.send("dialogbox", ["error", "Please select an album to delete"]);
 		return;
 	}
+
+	// check if there is only 1 album
+	if (allAlbum.length === 1) {
+		ipcRenderer.send("dialogbox", ["error", "You must have atleast 1 album"]);
+		return;
+	}
+
+	const confirmation = ipcRenderer.sendSync("dialogbox", ["warning", "You will lose all data of this album, continue?"]);
+	if (confirmation === 1) return;
 
 	// check selected album is in the runtime
 	const runTimeAlbum = ipcRenderer.sendSync("get-current-album");
