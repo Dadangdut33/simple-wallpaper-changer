@@ -15,7 +15,7 @@
     <a href="https://github.com/Dadangdut33/simple-wallpaper-changer/network/members"><img alt="GitHub forks" src="https://img.shields.io/github/forks/Dadangdut33/simple-wallpaper-changer?style=social"></a>
 </p>
 
-Simple Wallpaper Changer, a simple yet useful wallpaper changer. This app does what it says on the title, it changes your wallpaper based on album set by You as the User. It has nightmode and random wallpaper feature. It is made in electron using vanilla js and electron forge.
+Simple Wallpaper Changer, a simple yet useful wallpaper changer. This app does what it says on the title, it changes your wallpaper based on album set by You as the User. It has nightmode and random wallpaper feature. It is made in electron using vanilla js, bulma css, and electron forge.
 
 ---
 
@@ -54,7 +54,8 @@ Simple Wallpaper Changer, a simple yet useful wallpaper changer. This app does w
    **A:** I would say [wallpaper engine](https://store.steampowered.com/app/431960/Wallpaper_Engine/), it's also a great app but not free.
 
 # Download
-Download the latest release from [GitHub](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/latest)
+- [Windows x64 and x32](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/latest)
+- MAC/Linux (Coming soong)
 
 # Installation
 1. Download the latest release from [GitHub](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/latest)
