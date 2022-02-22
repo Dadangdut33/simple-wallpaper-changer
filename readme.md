@@ -22,6 +22,7 @@ Simple Wallpaper Changer, a simple yet useful wallpaper changer. This app does w
 # Table of Contents
 - [Table of Contents](#table-of-contents)
 - [Showcase](#showcase)
+- [Feature](#feature)
 - [FAQ](#faq)
 - [Download](#download)
 - [Installation](#installation)
@@ -41,6 +42,12 @@ Simple Wallpaper Changer, a simple yet useful wallpaper changer. This app does w
       <img src="https://raw.githubusercontent.com/Dadangdut33/simple-wallpaper-changer/master/preview/4.png" width="700" alt="Preview 4">
   </p>
 </details>
+
+# Feature
+- Nightmode
+- Wallpaper queue with randomness and customizable interval
+- Multiple Wallpaper album
+- Folder/album syncing
 
 # FAQ
 
