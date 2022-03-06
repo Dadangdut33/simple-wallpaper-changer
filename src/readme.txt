@@ -16,5 +16,3 @@ there might be a registry left behind that you can delete if want to by going to
 3. Refill queue
 4. Start queue
 5. Enjoy the app
-
-For the auto run on startup, you need to restart the app after making changes to the setting. 
