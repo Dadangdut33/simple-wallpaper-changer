@@ -646,12 +646,12 @@ ipcMain.on("album-set", (event, args) => {
 
 ipcMain.on("add-album", (event, args) => {
 	// add album to config
-	res = addAlbum(args);
+	addAlbum(args);
 });
 
 ipcMain.on("update-album", (event, args) => {
 	// update album in config
-	res = updateAlbum(args); // args = [albumName, updatedData]
+	updateAlbum(args); // args = [albumName, updatedData]
 });
 
 ipcMain.on("delete-album", (event, args) => {

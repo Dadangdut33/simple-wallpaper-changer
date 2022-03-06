@@ -11,6 +11,12 @@ const baseFolder_El = document.getElementById("base-folder");
 const imgContainer = document.getElementById("img-container");
 const loadBar = document.getElementById("loadbar");
 
+// btn bottom
+const btnLoadImg = document.getElementById("load-images");
+const btnSyncFolder = document.getElementById("sync-folder");
+const btnAddImg = document.getElementById("add-images");
+const btnDeleteAllImages = document.getElementById("delete-all-images");
+
 let selectedAlbum_Name = "",
 	selectedAlbumData = {},
 	allAlbum = [];
@@ -20,7 +26,7 @@ const fillData = (data) => {
 	baseFolder_El.value = data.baseFolder;
 };
 
-const listUpdate = (albumList, getRuntime = true) => {
+const listUpdate = (albumList, getRuntime = true, selected = "") => {
 	albumSelect_El.innerHTML = "";
 
 	albumList.forEach((album) => {
@@ -49,6 +55,8 @@ const listUpdate = (albumList, getRuntime = true) => {
 			};
 		}
 		fillData(selectedAlbumData);
+	} else {
+		albumSelect_El.value = selected;
 	}
 };
 
@@ -139,6 +147,20 @@ listUpdate(allAlbum);
 // ================================================================
 // handler
 // ================================================================
+const hideBtnBtm = () => {
+	btnLoadImg.style.display = "none";
+	btnSyncFolder.style.display = "none";
+	btnAddImg.style.display = "none";
+	btnDeleteAllImages.style.display = "none";
+};
+
+const showBtnBtm = () => {
+	btnLoadImg.style.display = "block";
+	btnSyncFolder.style.display = "block";
+	btnAddImg.style.display = "block";
+	btnDeleteAllImages.style.display = "block";
+};
+
 const saveChanges = () => {
 	// show loadbar
 	showToast("Saving changes...");
@@ -212,6 +234,8 @@ const saveChanges = () => {
 
 		selectedAlbum_Name = albumName;
 		selectedAlbumData = albumData;
+
+		showBtnBtm();
 	} else {
 		// get current album data first
 		let currentAlbumData = ipcRenderer.sendSync("get-current-album-data", selectedAlbumData.name);
@@ -258,12 +282,9 @@ const saveChanges = () => {
 		selectedAlbumData = currentAlbumData;
 	}
 
-	// update allAlbum
-	allAlbum = ipcRenderer.sendSync("get-settings", "album");
-
 	// update select
 	allAlbum = ipcRenderer.sendSync("get-settings", "album");
-	listUpdate(allAlbum, false);
+	listUpdate(allAlbum, false, selectedAlbum_Name);
 
 	// close loadbar
 	setTimeout(() => {
@@ -301,11 +322,13 @@ const selectAlbumHandler = () => {
 		albumName_El.value = "";
 		baseFolder_El.value = "";
 
+		hideBtnBtm();
 		document.getElementById("img-container").innerHTML = "";
 	} else {
 		selectedAlbumData = ipcRenderer.sendSync("get-current-album-data", selectedAlbum_Name);
 		fillData(selectedAlbumData);
 
+		showBtnBtm();
 		document.getElementById("img-container").innerHTML = "";
 	}
 };
@@ -375,9 +398,11 @@ document.getElementById("delete").addEventListener("click", () => {
 // ================================================================
 // btn bottom
 // ================================================================
-const btnLoadImg = document.getElementById("load-images");
-
 const btnLoadImgClick = () => {
+	if (selectedAlbum_Name === "Add more") {
+		return;
+	}
+
 	btnLoadImg.style.display = "none";
 
 	loadImage(selectedAlbumData.active_wp);
@@ -386,9 +411,11 @@ const btnLoadImgClick = () => {
 btnLoadImg.addEventListener("click", () => btnLoadImgClick());
 
 // ----------------
-const btnSyncFolder = document.getElementById("sync-folder");
-
 const btnSyncFolderClick = () => {
+	if (selectedAlbum_Name === "Add more") {
+		return;
+	}
+
 	const res = ipcRenderer.sendSync("sync-album", selectedAlbum_Name);
 
 	if (res) {
@@ -408,9 +435,11 @@ const btnSyncFolderClick = () => {
 btnSyncFolder.addEventListener("click", () => btnSyncFolderClick());
 
 // ----------------
-const btnAddImg = document.getElementById("add-images");
-
 const btnAddImgClick = () => {
+	if (selectedAlbum_Name === "Add more") {
+		return;
+	}
+
 	let images = ipcRenderer.sendSync("add-images", selectedAlbum_Name);
 
 	// remove the undefined
@@ -432,9 +461,11 @@ const btnAddImgClick = () => {
 btnAddImg.addEventListener("click", () => btnAddImgClick());
 
 // ----------------
-const btnDeleteAllImages = document.getElementById("delete-all-images");
-
 const btnDeleteAllImagesClick = () => {
+	if (selectedAlbum_Name === "Add more") {
+		return;
+	}
+
 	const confirmation = ipcRenderer.sendSync("dialogbox", ["warning", "You will lose all images of this album, continue?"]);
 	if (confirmation === 1) return;
 
