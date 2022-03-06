@@ -75,9 +75,9 @@ Simple Wallpaper Changer, a simple yet useful wallpaper changer. This app does w
 Run the uninstaller if you are using the installer version. If using the portable version, you can just delete the folder. (On windows) If you enable auto run on startup, there might be a registry left behind that you can delete if want to by going to regedit and delete the `Simple Wallpaper Changer` registry on `\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run`.
 
 # Developing and Compiling
-This app is using electron forge which means for developing, what you only need to do is an `npm install` and to run it do `npm run start`. To compile it you can run `npm run make`. You can also use yarn if you prefer yarn. 
+This app is using electron forge which means for developing, what you only need to do is an `npm install` and to run it do `npm run start` . To compile it you can run `npm run make`. You can also use yarn if you prefer yarn. 
 
-I use wsl to compile it on linux, the command is the same as the windows just do `npm run make`, but you might need to install `fakeroot`, `dpg`, and `rpm` if you haven't.
+I use wsl to compile it on linux, the command is the same as the windows just do `npm run make` or `yarn make`, but you might need to install `fakeroot`, `dpg`, and `rpm` if you haven't.
 For specific architecture you can add `--arch=x64` or `--arch=ia32` to the command.
 ```bash
 # ia32
@@ -99,8 +99,6 @@ To make the installer (windows), i use innoinstaller instead of the one packaged
 3. Refill queue
 4. Start queue
 5. Enjoy the app
-
-For the auto run on startup, you need to restart the app after making changes to the setting and also if app folder is moved.
 
 # Reporting Bugs/Feature Request
 If you encounter any bugs with the program, you can report them by opening an issue on the github repository. You can also request a feature by opening an issue.

@@ -12,7 +12,8 @@ let mainWindow = null,
 	iconPath = path.join(__dirname, "assets/logo.png"),
 	albumSettings = albumSettings_Default,
 	runtimeSettings = runtimeSettings_Default,
-	appSettings = appSettings_Default;
+	appSettings = appSettings_Default,
+	autoLaunch = null;
 
 let timerStarted = false,
 	seconds = 0,
@@ -89,18 +90,10 @@ if (!gotTheLock) {
 	app.on("ready", () => {
 		createWindow();
 		ipcMain.emit("start-queue-timer");
-		let autoLaunch = new AutoLaunch({
+		autoLaunch = new AutoLaunch({
 			name: "Simple Wallpaper Changer",
 			path: app.getPath("exe"),
 		});
-
-		if (appSettings.start_on_startup) {
-			autoLaunch.isEnabled().then((isEnabled) => {
-				if (!isEnabled) autoLaunch.enable();
-			});
-		} else {
-			autoLaunch.disable();
-		}
 	});
 
 	// Quit when all windows are closed, except on macOS. There, it's common
@@ -278,6 +271,14 @@ const saveSettings = (type, setting, popup = true) => {
 			case "app":
 				appSettings = setting;
 				checkStopAutoRescan();
+				if (appSettings.start_on_startup) {
+					autoLaunch.isEnabled().then((isEnabled) => {
+						if (!isEnabled) autoLaunch.enable();
+					});
+				} else {
+					autoLaunch.disable();
+				}
+
 				break;
 			default:
 				break;
