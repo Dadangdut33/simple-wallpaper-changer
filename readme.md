@@ -63,8 +63,9 @@ Simple Wallpaper Changer, a simple yet useful wallpaper changer. This app does w
    **A:** I would say [wallpaper engine](https://store.steampowered.com/app/431960/Wallpaper_Engine/), it's also a great app but not free.
 
 # Download
-- [Windows x64 and x32](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/latest)
-- MAC/Linux (maybe soon)
+- [Latest Release](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/latest)
+- Windows (1.0.2) : [[x64]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.0.2/installer_windowsx64-simple-wallpaper-changer-win32-x64.exe) - [[portable]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.0.2/portable_windowsx64-simple-wallpaper-changer-win32-x64.zip) | [[x32]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.0.2/installer_windowsx32-simple-wallpaper-changer-win32-ia32.exe) - [[portable]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.0.2/portable_windowsx32-simple-wallpaper-changer-win32-ia32.zip)
+- Linux (1.0.2) : [[deb]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.0.2/linux_deb-simple-wallpaper-changer_1.0.2_amd64.deb) | [[rpm]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.0.2/linux_rpm-simple-wallpaper-changer-1.0.2-1.x86_64.rpm) | [[zip]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.0.2/linux_zip-simple-wallpaper-changer-linux-x64.zip)
 
 # Installation
 1. Download the latest release from [GitHub](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/latest)
