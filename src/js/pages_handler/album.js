@@ -391,6 +391,7 @@ document.getElementById("delete").addEventListener("click", () => {
 	}
 
 	ipcRenderer.send("delete-album", selectedAlbum_Name);
+	baseFolder_El.value = "";
 	allAlbum = ipcRenderer.sendSync("get-settings", "album");
 	listUpdate(allAlbum);
 });
