@@ -77,16 +77,21 @@ Run the uninstaller if you are using the installer version. If using the portabl
 # Developing and Compiling
 This app is using electron forge which means for developing, what you only need to do is an `npm install` and to run it do `npm start`. To compile it you can run `npm make`. You can also use yarn if you prefer yarn. 
 
-I am on windows and to create the ia32 and x64 what i do is 
+I use wsl to compile it on linux, the command is the same as the windows just do `npm make`, but you might need to install `fakeroot`, `dpg`, and `rpm` if you haven't.
+For specific architecture you can add `--arch=x64` or `--arch=ia32` to the command.
 ```bash
 # ia32
 yarn make --arch=ia32 
+# or
+npm make --arch=ia32
 
 # x64
 yarn make --arch=x64 
+# or
+npm make --arch=x64
 ```
 
-To make the installer, i use innoinstaller instead of the one packaged with electron forge.
+To make the installer (windows), i use innoinstaller instead of the one packaged with electron forge.
 
 # Usage
 1. First set your album
