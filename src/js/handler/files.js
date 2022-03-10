@@ -192,4 +192,5 @@ module.exports = {
 	albumSettings_Default,
 	runtimeSettings_Default,
 	appSettings_Default,
+	createPathIfNotExist,
 };

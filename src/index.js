@@ -4,8 +4,21 @@ const path = require("path");
 const wallpaper = require("wallpaper");
 const moment = require("moment");
 const AutoLaunch = require("auto-launch");
+const joinImages = require("join-images");
+const fs = require("fs");
+const jimp = require("jimp");
 // ============================================================
-const { loadConfig, saveConfig, resetDefaultApp, albumSettings_Default, runtimeSettings_Default, appSettings_Default, getFilesInFolder, filterImages } = require("./js/handler/files");
+const {
+	loadConfig,
+	saveConfig,
+	resetDefaultApp,
+	albumSettings_Default,
+	runtimeSettings_Default,
+	appSettings_Default,
+	getFilesInFolder,
+	filterImages,
+	createPathIfNotExist,
+} = require("./js/handler/files");
 
 let mainWindow = null,
 	trayApp = null,
@@ -18,6 +31,9 @@ let mainWindow = null,
 let timerStarted = false,
 	seconds = 0,
 	interval = null;
+
+const cacheImgDir = path.join(__dirname, "\\img_cache");
+const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 // ============================================================
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -41,7 +57,7 @@ const createWindow = () => {
 	mainWindow.loadFile(path.join(__dirname, "index.html"));
 
 	// Open the DevTools.
-	mainWindow.webContents.openDevTools();
+	// mainWindow.webContents.openDevTools();
 
 	// tray
 	createTray();
@@ -161,19 +177,7 @@ const createTray = () => {
 		{
 			label: "Next Wallpaper",
 			click: () => {
-				// get queue item
-				const q_Item = runtimeSettings.currentQueue.shift();
-
-				if (q_Item) {
-					wallpaper.set(q_Item);
-					seconds = runtimeSettings.currentShuffleInterval * 60;
-				} else {
-					new Notification({
-						title: "Simple Wallpaper Changer",
-						body: "Error! Queue is Empty!",
-						icon: iconPath,
-					}).show();
-				}
+				changeWallpaper(true);
 
 				const res = fillQueue(true);
 				mainWindow.webContents.send("queue-shifted", res);
@@ -1008,17 +1012,119 @@ const refillQueueFromMain = () => {
 	mainWindow.webContents.send("queue-refilled-from-main");
 };
 
+const changeWallpaper = async (native = false) => {
+	try {
+		seconds = runtimeSettings.currentShuffleInterval * 60;
+
+		// check if multi monitor is disabled
+		if (!runtimeSettings.currentMultipleMonitorSettings.enabled) {
+			// get queue item
+			const q_Item = runtimeSettings.currentQueue.shift();
+			await wallpaper.set(q_Item);
+		} else {
+			// get ammount of display set
+			const setAmount = runtimeSettings.currentMultipleMonitorSettings.resolutions.length;
+			const curIndex = runtimeSettings.currentMultipleMonitorSettings.cur_index;
+			const imgArray = [];
+			createPathIfNotExist(cacheImgDir);
+			// loop through all resolutions
+			for (let i = 0; i < setAmount; i++) {
+				// replace current index with new
+				if (i === curIndex) {
+					const q_Item = runtimeSettings.currentQueue.shift();
+					// get the extension of the image from the path
+					const ext = q_Item.split(".").pop();
+					const type = ext === "jpg" ? "image/jpeg" : "image/" + ext;
+					const buffer = fs.readFileSync(q_Item);
+					const imageData = jimp.decoders[type](buffer);
+					const baseImage = new jimp(imageData);
+
+					baseImage
+						.cover(
+							parseInt(runtimeSettings.currentMultipleMonitorSettings.resolutions[i][0]),
+							parseInt(runtimeSettings.currentMultipleMonitorSettings.resolutions[i][1]),
+							jimp.HORIZONTAL_ALIGN_CENTER | jimp.VERTICAL_ALIGN_TOP
+						)
+						.quality(100);
+
+					// write
+					fs.writeFileSync(cacheImgDir + "/" + i + ".png", jimp.encoders[type](baseImage));
+				} else {
+					// check if image exists
+					// if not exist
+					if (!fs.existsSync(cacheImgDir + "/" + i + ".png")) {
+						const q_Item = runtimeSettings.currentQueue.shift();
+						const ext = q_Item.split(".").pop();
+						const type = ext === "jpg" ? "image/jpeg" : "image/" + ext;
+						const buffer = fs.readFileSync(q_Item);
+						const imageData = jimp.decoders[type](buffer);
+						const baseImage = new jimp(imageData);
+
+						baseImage
+							.cover(
+								parseInt(runtimeSettings.currentMultipleMonitorSettings.resolutions[i][0]),
+								parseInt(runtimeSettings.currentMultipleMonitorSettings.resolutions[i][1]),
+								jimp.HORIZONTAL_ALIGN_CENTER | jimp.VERTICAL_ALIGN_TOP
+							)
+							.quality(100);
+
+						// write
+						fs.writeFileSync(cacheImgDir + "/" + i + ".png", jimp.encoders[type](baseImage));
+					}
+				}
+
+				imgArray.push(cacheImgDir + "\\" + `${i}.png`);
+			}
+
+			// check if curIndex already at the end of the array
+			if (curIndex === setAmount - 1) {
+				// reset curIndex
+				runtimeSettings.currentMultipleMonitorSettings.cur_index = 0;
+			} else {
+				// increase curIndex
+				runtimeSettings.currentMultipleMonitorSettings.cur_index++;
+			}
+			// save settings
+			saveSettings("runtime", runtimeSettings, false);
+
+			// combine images
+			// row => vertical (Y)
+			// col => horizontal (X)
+			const alignment = runtimeSettings.currentMultipleMonitorSettings.align === "vertical" ? "vertical" : "horizontal";
+
+			joinImages
+				.joinImages(imgArray, { direction: alignment })
+				.then((img) => {
+					// Save image as file
+					img.toFile(cacheImgDir + "\\" + "combined.png", async (err, info) => {
+						if (err) {
+							console.log(err);
+							dialog.showErrorBox("Error", `${err}`);
+						} else {
+							console.log("SETTT");
+							await wallpaper.set(cacheImgDir + "\\" + "combined.png");
+						}
+					});
+				})
+				.catch((err) => {
+					console.log("error", err);
+					dialog.showErrorBox("Error", `${err}`);
+				});
+		}
+	} catch (error) {
+		if (!native) dialog.showErrorBox("Error", `${error}`);
+		else
+			new Notification({
+				title: "Simple Wallpaper Changer",
+				body: `Error! ${error}!`,
+				icon: iconPath,
+			}).show();
+	}
+};
+
 // --- IPC ---
 ipcMain.on("change-wallpaper", async (event, args) => {
-	// get queue item
-	const q_Item = runtimeSettings.currentQueue.shift();
-
-	try {
-		await wallpaper.set(q_Item);
-		seconds = runtimeSettings.currentShuffleInterval * 60;
-	} catch (error) {
-		dialog.showErrorBox("Error", "Queue is empty");
-	}
+	changeWallpaper();
 
 	const res = fillQueue(true);
 	event.returnValue = res;
@@ -1041,17 +1147,7 @@ ipcMain.on("start-queue-timer", (event, args) => {
 			}
 
 			if (seconds === 0) {
-				seconds = runtimeSettings.currentShuffleInterval * 60;
-
-				// get queue item
-				const q_Item = runtimeSettings.currentQueue.shift();
-
-				try {
-					wallpaper.set(q_Item);
-				} catch (error) {
-					dialog.showErrorBox("Error", "Queue is empty");
-				}
-
+				changeWallpaper();
 				const res = fillQueue(true);
 				mainWindow.webContents.send("queue-shifted", res);
 			}
