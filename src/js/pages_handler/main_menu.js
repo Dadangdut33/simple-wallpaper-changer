@@ -20,6 +20,13 @@ const btnForceNext_El = document.getElementById("btn-force-next");
 const btnRefillQueue_El = document.getElementById("btn-refill-queue");
 const btnClearQueue_El = document.getElementById("btn-clear-queue");
 
+// monitor
+const autoDetectMonitor_El = document.getElementById("auto-detect-monitor");
+const enableMultiMonitor_El = document.getElementById("enable-multi-monitor");
+const monitorAlignVertical_El = document.getElementById("monitor-align-vertical");
+const monitorAlignHorizontal_El = document.getElementById("monitor-align-horizontal");
+const monitorResolutions_El = document.getElementById("monitor-resolutions");
+
 // ============================================================
 // Page open
 // ============================================================
@@ -73,7 +80,7 @@ const formatTimerWithHours = (time) => {
 	return `${hours}:${minutes}:${seconds}`;
 };
 
-const loadData = () => {
+const loadDataOnOpen = () => {
 	queueInterval_El.value = currentRuntimeSetting.currentShuffleInterval;
 	randomizeQueue_El.checked = currentRuntimeSetting.currentRandom;
 	bulmaCalendar.attach(nightStart_El, {
@@ -89,9 +96,16 @@ const loadData = () => {
 		startTime: currentRuntimeSetting.currentNightModeEnd,
 	});
 	enableNightMode_El.checked = currentRuntimeSetting.currentNightMode;
+	enableMultiMonitor_El.checked = currentRuntimeSetting.currentMultipleMonitorSettings.enabled;
+	if (currentRuntimeSetting.currentMultipleMonitorSettings.align === "vertical") {
+		monitorAlignVertical_El.checked = true;
+	} else {
+		monitorAlignHorizontal_El.checked = true;
+	}
+	monitorResolutions_El.value = currentRuntimeSetting.currentMultipleMonitorSettings.resolutions.map((res) => res.join("x")).join(";");
 };
 
-loadData();
+loadDataOnOpen();
 
 // ============================================================
 // EVENTS
@@ -360,6 +374,144 @@ const clearQueue = () => {
 
 btnClearQueue_El.onclick = () => {
 	clearQueue();
+};
+
+// ============================================================
+// monitor
+const enableDisableMultiMonitor = () => {
+	const val = enableMultiMonitor_El.checked;
+
+	ipcRenderer.send("set-multi-monitor", val);
+};
+
+const setMonitorAlignment = (alignment) => {
+	ipcRenderer.send("set-monitor-alignment", alignment);
+};
+
+const setMonitorResolution = (resolution) => {
+	ipcRenderer.send("set-monitor-resolution", resolution);
+};
+
+const autoDetectMonitor = () => {
+	const monitor = ipcRenderer.sendSync("get-monitor");
+	if (monitor.length > 0) {
+		// check vertical / horizontal by the bounds, if found x with minus value, then it's horizontal, else vertical
+		let horizontal = false;
+		for (let i = 0; i < monitor.length; i++) {
+			if (monitor[i].bounds.x < 0) {
+				horizontal = true;
+				break;
+			}
+		}
+
+		if (horizontal) {
+			setMonitorAlignment("horizontal");
+			monitorAlignHorizontal_El.checked = true;
+			monitorAlignVertical_El.checked = false;
+		} else {
+			setMonitorAlignment("vertical");
+			monitorAlignHorizontal_El.checked = false;
+			monitorAlignVertical_El.checked = true;
+		}
+
+		// set resolution
+		const resArr = [];
+		for (let i = 0; i < monitor.length; i++) {
+			resArr.push(monitor[i].size.width + "x" + monitor[i].size.height);
+		}
+
+		setMonitorResolution(resArr);
+		const resStr = resArr.join(";");
+		monitorResolutions_El.value = resStr;
+
+		showToast("Successfully set auto detected monitor settings");
+		// hide toast after 1.5 sec
+		setTimeout(() => {
+			closeToast();
+		}, 1500);
+	}
+};
+
+//user is "finished typing," do something
+const doneTyping = () => {
+	// verify input
+	if (monitorResolutions_El.value) {
+		// if input is there
+		// separate all the monitor first by splitting ;
+		const res = monitorResolutions_El.value.split(";");
+		// then separate each monitor by splitting x
+		const res_arr = res.map((el) => el.split("x"));
+
+		// check if the input is valid
+		if (res_arr.length > 0) {
+			// if there is at least one monitor
+			// check if the input is valid
+			if (res_arr.every((el) => el.length == 2)) {
+				// check if input is a valid number
+				if (res_arr.every((el) => !isNaN(el[0]) && !isNaN(el[1]))) {
+					// if all is valid
+					// set the monitor resolution
+					setMonitorResolution(res_arr);
+
+					showToast("Saved successfully");
+					// hide toast after 1.5 sec
+					setTimeout(() => {
+						closeToast();
+					}, 1500);
+				} else {
+					showToast("Invalid monitor resolution (Not a correct number value)");
+					// hide toast after 1.5 sec
+					setTimeout(() => {
+						closeToast();
+					}, 1500);
+				}
+			} else {
+				// if there is at least one invalid monitor
+				showToast("There is at least one invalid monitor resolution (missing a width/height)");
+
+				// hide toast after 1.5 sec
+				setTimeout(() => {
+					closeToast();
+				}, 1500);
+			}
+		} else {
+			setMonitorResolution(res_arr);
+
+			showToast("Cleared successfully");
+
+			// hide toast after 1.5 sec
+			setTimeout(() => {
+				closeToast();
+			}, 1500);
+		}
+	}
+};
+
+let typingTimer = null; //timer identifier
+let doneTypingInterval = 1000; //time in ms (2.5 seconds)
+
+//on keyup, start the countdown
+monitorResolutions_El.addEventListener("keyup", () => {
+	clearTimeout(typingTimer);
+	if (monitorResolutions_El.value) {
+		typingTimer = setTimeout(doneTyping, doneTypingInterval);
+	}
+});
+
+enableMultiMonitor_El.onchange = () => {
+	enableDisableMultiMonitor();
+};
+
+monitorAlignHorizontal_El.onchange = () => {
+	setMonitorAlignment("horizontal");
+};
+
+monitorAlignVertical_El.onchange = () => {
+	setMonitorAlignment("vertical");
+};
+
+autoDetectMonitor_El.onclick = () => {
+	autoDetectMonitor();
 };
 
 // ============================================================

@@ -41,7 +41,7 @@ const createWindow = () => {
 	mainWindow.loadFile(path.join(__dirname, "index.html"));
 
 	// Open the DevTools.
-	// mainWindow.webContents.openDevTools();
+	mainWindow.webContents.openDevTools();
 
 	// tray
 	createTray();
@@ -866,14 +866,46 @@ const fillQueue = (onlyAddOne = false) => {
 
 	return returnItem;
 };
-
+/**
+ * Delete image from the queue
+ * @param {string} imagePath - The image path to be deleted
+ */
 const deleteImageFromQueue = (imagePath) => {
 	runtimeSettings.currentQueue = runtimeSettings.currentQueue.filter((el) => el !== imagePath);
 
 	// save
 	saveSettings("runtime", runtimeSettings, false);
 };
+/**
+ * Enable/disable multiple monitor mode
+ * @param {boolean} value - The multiple monitor mode to be set
+ */
+const enableDisableMultiMonitor = (value) => {
+	runtimeSettings.currentMultipleMonitorSettings.enabled = value;
 
+	// save
+	saveSettings("runtime", runtimeSettings, false);
+};
+/**
+ * Set the alignment of the monitor
+ * @param {boolean} value - The alignment value (horizontal or vertical)
+ */
+const setMonitorAlignment = (value) => {
+	runtimeSettings.currentMultipleMonitorSettings.align = value;
+
+	// save
+	saveSettings("runtime", runtimeSettings, false);
+};
+/**
+ * Set the monitor resolutions
+ * @param {string} value - The monitor resolutions to be set
+ */
+const setMonitorResolutions = (value) => {
+	runtimeSettings.currentMultipleMonitorSettings.resolutions = value;
+
+	// save
+	saveSettings("runtime", runtimeSettings, false);
+};
 // --- IPC ---
 
 ipcMain.on("get-current-album", (event, args) => {
@@ -924,6 +956,24 @@ ipcMain.on("fill-queue-once", (event, args) => {
 
 ipcMain.on("delete-image-from-queue", (event, args) => {
 	deleteImageFromQueue(args);
+});
+
+ipcMain.on("set-multi-monitor", (event, args) => {
+	enableDisableMultiMonitor(args);
+});
+
+ipcMain.on("set-monitor-alignment", (event, args) => {
+	setMonitorAlignment(args);
+});
+
+ipcMain.on("set-monitor-resolution", (event, args) => {
+	setMonitorResolutions(args);
+});
+
+ipcMain.on("get-monitor", (event, args) => {
+	const screens = screen.getAllDisplays();
+
+	event.returnValue = screens;
 });
 
 // ============================================================

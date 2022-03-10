@@ -23,6 +23,11 @@ const runtimeSettings_Default = {
 	currentNightModeAlbum: [],
 	currentNightModeStart: "18:00",
 	currentNightModeEnd: "06:00",
+	currentMultipleMonitorSettings: {
+		enabled: false,
+		align: "horizontal",
+		resolutions: [],
+	},
 };
 
 const appSettings_Default = {
