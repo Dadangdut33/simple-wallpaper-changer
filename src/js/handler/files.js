@@ -27,6 +27,7 @@ const runtimeSettings_Default = {
 		enabled: false,
 		align: "horizontal",
 		resolutions: [],
+		cur_index: 0,
 	},
 };
 

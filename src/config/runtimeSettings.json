@@ -8,5 +8,11 @@
   "currentNightMode": false,
   "currentNightModeAlbum": [],
   "currentNightModeStart": "18:00",
-  "currentNightModeEnd": "06:00"
+  "currentNightModeEnd": "06:00",
+  "currentMultipleMonitorSettings": {
+    "enabled": false,
+    "align": "horizontal",
+    "resolutions": [],
+    "cur_index": 0
+  }
 }
