@@ -135,6 +135,41 @@
 					</div>
 				</div>
 			</div>
+
+			<div class="columns">
+				<div class="column">
+					<label class="label">
+						Multiple Monitor Support
+						<span class="has-tooltip-right has-tooltip-multiline has-tooltip-arrow" data-tooltip="Will try to combine images based on the monitor resolutions inputted">
+							<i class="fas fa-info-circle"></i>
+						</span>
+						<span class="has-tooltip-right has-tooltip-multiline has-tooltip-arrow" data-tooltip="Click here to Auto detect (Might not be perfect)">
+							<i class="fas fa-magic" id="auto-detect-monitor"></i>
+						</span>
+					</label>
+					<div class="control">
+						<label class="checkbox">
+							<input type="checkbox" id="multiple-monitor-checkbox" />
+							Enable Multiple Monitor Support
+						</label>
+
+						<label class="radio" style="margin-left: 1rem">
+							<input type="radio" name="answer" id="monitor-align-vertical" />
+							Vertical alignment
+						</label>
+						<label class="radio">
+							<input type="radio" name="answer" id="monitor-align-horizontal" />
+							Horizontal alignment
+						</label>
+					</div>
+					<span
+						class="has-tooltip-top has-tooltip-multiline has-tooltip-arrow"
+						data-tooltip="Your monitors resolutions. Input should be separated by 'x' for the width and height and ';' for each monitors like this: 1920x1080;1920x1080"
+					>
+						<input class="input" type="text" id="monitor-resolutions" placeholder="1920x1080;1920x1080" />
+					</span>
+				</div>
+			</div>
 		</div>
 
 		<div class="box menu-container content is-flex" style="padding: 1rem 2rem">

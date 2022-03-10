@@ -1,5 +1,5 @@
 // modules
-const { app, BrowserWindow, ipcMain, Menu, MenuItem, dialog, Tray, Notification } = require("electron");
+const { app, BrowserWindow, ipcMain, Menu, MenuItem, dialog, Tray, Notification, screen } = require("electron");
 const path = require("path");
 const wallpaper = require("wallpaper");
 const moment = require("moment");
