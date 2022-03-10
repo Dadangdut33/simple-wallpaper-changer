@@ -1054,6 +1054,11 @@ const changeWallpaper = async (native = false) => {
 					// if not exist
 					if (!fs.existsSync(cacheImgDir + "/" + i + ".png")) {
 						const q_Item = runtimeSettings.currentQueue.shift();
+						// update the window. Send the queue item to the main window
+						// if not exist yet, will probably take more than 1 image from the queue
+						const res = fillQueue(true);
+						mainWindow.webContents.send("queue-shifted", res);
+						// get the extension of the image from the path
 						const ext = q_Item.split(".").pop();
 						const type = ext === "jpg" ? "image/jpeg" : "image/" + ext;
 						const buffer = fs.readFileSync(q_Item);
@@ -1098,16 +1103,13 @@ const changeWallpaper = async (native = false) => {
 					// Save image as file
 					img.toFile(cacheImgDir + "\\" + "combined.png", async (err, info) => {
 						if (err) {
-							console.log(err);
 							dialog.showErrorBox("Error", `${err}`);
 						} else {
-							console.log("SETTT");
 							await wallpaper.set(cacheImgDir + "\\" + "combined.png");
 						}
 					});
 				})
 				.catch((err) => {
-					console.log("error", err);
 					dialog.showErrorBox("Error", `${err}`);
 				});
 		}

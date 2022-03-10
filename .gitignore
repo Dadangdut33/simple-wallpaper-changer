@@ -3,6 +3,7 @@ test/
 
 # App Config
 src/config/
+src/img_cache/
 
 # Logs
 logs
