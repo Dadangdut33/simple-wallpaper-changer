@@ -48,6 +48,7 @@ Simple Wallpaper Changer, a simple yet useful wallpaper changer. This app does w
 - Wallpaper queue with randomness and customizable interval
 - Multiple Wallpaper album
 - Folder/album syncing
+- Multi-monitor support
 
 # FAQ
 
@@ -64,8 +65,8 @@ Simple Wallpaper Changer, a simple yet useful wallpaper changer. This app does w
 
 # Download
 - [Latest Release](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/latest)
-- Windows (1.0.2) : [[x64]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.0.2/installer_windowsx64-simple-wallpaper-changer-win32-x64.exe) - [[portable]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.0.2/portable_windowsx64-simple-wallpaper-changer-win32-x64.zip) | [[x32]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.0.2/installer_windowsx32-simple-wallpaper-changer-win32-ia32.exe) - [[portable]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.0.2/portable_windowsx32-simple-wallpaper-changer-win32-ia32.zip)
-- Linux (1.0.2) : [[deb]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.0.2/linux_deb-simple-wallpaper-changer_1.0.2_amd64.deb) | [[rpm]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.0.2/linux_rpm-simple-wallpaper-changer-1.0.2-1.x86_64.rpm) | [[zip]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.0.2/linux_zip-simple-wallpaper-changer-linux-x64.zip)
+- Windows (1.1.0) : [[x64]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.0/installer_windowsx64-simple-wallpaper-changer-win32-x64.exe) - [[portable]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.0/portable_windowsx64-simple-wallpaper-changer-win32-x64.zip) | [[x32]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.0/installer_windowsx32-simple-wallpaper-changer-win32-ia32.exe) - [[portable]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.0/portable_windowsx32-simple-wallpaper-changer-win32-ia32.zip)
+- Linux (1.1.0) : [[deb]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.0/linux_deb-simple-wallpaper-changer_1.1.0_amd64.deb) | [[rpm]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.0/linux_rpm-simple-wallpaper-changer-1.1.0-1.x86_64.rpm) | [[zip]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.0/linux_zip-simple-wallpaper-changer-linux-x64.zip)
 
 # Installation
 1. Download the latest release from [GitHub](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/latest)
@@ -76,7 +77,7 @@ Simple Wallpaper Changer, a simple yet useful wallpaper changer. This app does w
 Run the uninstaller if you are using the installer version. If using the portable version, you can just delete the folder. (On windows) If you enable auto run on startup, there might be a registry left behind that you can delete if want to by going to regedit and delete the `Simple Wallpaper Changer` registry on `\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run`.
 
 # Developing and Compiling
-This app is using electron forge which means for developing, what you only need to do is an `npm install` and to run it do `npm run start`. To compile it you can run `npm run make`. You can also use yarn if you prefer yarn. If you don't have electron-forge installed you can install it by running `npm install -g electron-forge`.
+This app is using electron forge which means for developing, what you only need to do is an `npm install` and to run it do `npm start`. To compile it you can run `npm run make`. You can also use yarn if you prefer yarn. If you don't have electron-forge installed you can install it by running `npm install -g electron-forge`.
 
 I use wsl to compile it on linux, the command is the same as the windows just do `npm run make` or `yarn make`, but you might need to install `fakeroot`, `dpg`, and `rpm` if you haven't.
 For specific architecture you can add `--arch=x64` or `--arch=ia32` to the command.
