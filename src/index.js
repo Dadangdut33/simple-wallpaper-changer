@@ -1027,40 +1027,16 @@ const changeWallpaper = async (native = false) => {
 		} else {
 			// get ammount of display set
 			const setAmount = runtimeSettings.currentMultipleMonitorSettings.resolutions.length;
-			const curIndex = runtimeSettings.currentMultipleMonitorSettings.cur_index;
-			const imgArray = [];
-			createPathIfNotExist(cacheImgDir);
-			// loop through all resolutions
-			for (let i = 0; i < setAmount; i++) {
-				// replace current index with new
-				if (i === curIndex) {
-					const q_Item = runtimeSettings.currentQueue.shift();
-					// get the extension of the image from the path
-					const ext = q_Item.split(".").pop();
-					const type = ext === "jpg" ? "image/jpeg" : "image/" + ext;
-					const buffer = fs.readFileSync(q_Item);
-					const imageData = jimp.decoders[type](buffer);
-					const baseImage = new jimp(imageData);
-
-					baseImage
-						.cover(
-							parseInt(runtimeSettings.currentMultipleMonitorSettings.resolutions[i][0]),
-							parseInt(runtimeSettings.currentMultipleMonitorSettings.resolutions[i][1]),
-							jimp.HORIZONTAL_ALIGN_CENTER | jimp.VERTICAL_ALIGN_TOP
-						)
-						.quality(100);
-
-					// write
-					fs.writeFileSync(cacheImgDir + "/" + i + ".png", jimp.encoders[type](baseImage));
-				} else {
-					// check if image exists
-					// if not exist
-					if (!fs.existsSync(cacheImgDir + "/" + i + ".png")) {
+			// only if setAmount > 1
+			if (setAmount > 1) {
+				const curIndex = runtimeSettings.currentMultipleMonitorSettings.cur_index;
+				const imgArray = [];
+				createPathIfNotExist(cacheImgDir);
+				// loop through all resolutions
+				for (let i = 0; i < setAmount; i++) {
+					// replace current index with new
+					if (i === curIndex) {
 						const q_Item = runtimeSettings.currentQueue.shift();
-						// update the window. Send the queue item to the main window
-						// if not exist yet, will probably take more than 1 image from the queue
-						const res = fillQueue(true);
-						mainWindow.webContents.send("queue-shifted", res);
 						// get the extension of the image from the path
 						const ext = q_Item.split(".").pop();
 						const type = ext === "jpg" ? "image/jpeg" : "image/" + ext;
@@ -1078,43 +1054,74 @@ const changeWallpaper = async (native = false) => {
 
 						// write
 						fs.writeFileSync(cacheImgDir + "/" + i + ".png", jimp.encoders[type](baseImage));
+					} else {
+						// check if image exists
+						// if not exist
+						if (!fs.existsSync(cacheImgDir + "/" + i + ".png")) {
+							const q_Item = runtimeSettings.currentQueue.shift();
+							// update the window. Send the queue item to the main window
+							// if not exist yet, will probably take more than 1 image from the queue
+							const res = fillQueue(true);
+							mainWindow.webContents.send("queue-shifted", res);
+							// get the extension of the image from the path
+							const ext = q_Item.split(".").pop();
+							const type = ext === "jpg" ? "image/jpeg" : "image/" + ext;
+							const buffer = fs.readFileSync(q_Item);
+							const imageData = jimp.decoders[type](buffer);
+							const baseImage = new jimp(imageData);
+
+							baseImage
+								.cover(
+									parseInt(runtimeSettings.currentMultipleMonitorSettings.resolutions[i][0]),
+									parseInt(runtimeSettings.currentMultipleMonitorSettings.resolutions[i][1]),
+									jimp.HORIZONTAL_ALIGN_CENTER | jimp.VERTICAL_ALIGN_TOP
+								)
+								.quality(100);
+
+							// write
+							fs.writeFileSync(cacheImgDir + "/" + i + ".png", jimp.encoders[type](baseImage));
+						}
 					}
+
+					imgArray.push(cacheImgDir + "\\" + `${i}.png`);
 				}
 
-				imgArray.push(cacheImgDir + "\\" + `${i}.png`);
-			}
+				// check if curIndex already at the end of the array
+				if (curIndex === setAmount - 1) {
+					// reset curIndex
+					runtimeSettings.currentMultipleMonitorSettings.cur_index = 0;
+				} else {
+					// increase curIndex
+					runtimeSettings.currentMultipleMonitorSettings.cur_index++;
+				}
+				// save settings
+				saveSettings("runtime", runtimeSettings, false);
 
-			// check if curIndex already at the end of the array
-			if (curIndex === setAmount - 1) {
-				// reset curIndex
-				runtimeSettings.currentMultipleMonitorSettings.cur_index = 0;
-			} else {
-				// increase curIndex
-				runtimeSettings.currentMultipleMonitorSettings.cur_index++;
-			}
-			// save settings
-			saveSettings("runtime", runtimeSettings, false);
+				// combine images
+				// row => vertical (Y)
+				// col => horizontal (X)
+				const alignment = runtimeSettings.currentMultipleMonitorSettings.align === "vertical" ? "vertical" : "horizontal";
 
-			// combine images
-			// row => vertical (Y)
-			// col => horizontal (X)
-			const alignment = runtimeSettings.currentMultipleMonitorSettings.align === "vertical" ? "vertical" : "horizontal";
-
-			joinImages
-				.joinImages(imgArray, { direction: alignment })
-				.then((img) => {
-					// Save image as file
-					img.toFile(cacheImgDir + "\\" + "combined.png", async (err, info) => {
-						if (err) {
-							dialog.showErrorBox("Error", `${err}`);
-						} else {
-							await wallpaper.set(cacheImgDir + "\\" + "combined.png");
-						}
+				joinImages
+					.joinImages(imgArray, { direction: alignment })
+					.then((img) => {
+						// Save image as file
+						img.toFile(cacheImgDir + "\\" + "combined.png", async (err, info) => {
+							if (err) {
+								dialog.showErrorBox("Error", `${err}`);
+							} else {
+								await wallpaper.set(cacheImgDir + "\\" + "combined.png");
+							}
+						});
+					})
+					.catch((err) => {
+						dialog.showErrorBox("Error", `${err}`);
 					});
-				})
-				.catch((err) => {
-					dialog.showErrorBox("Error", `${err}`);
-				});
+			} else {
+				// get queue item
+				const q_Item = runtimeSettings.currentQueue.shift();
+				await wallpaper.set(q_Item);
+			}
 		}
 	} catch (error) {
 		if (!native) dialog.showErrorBox("Error", `${error}`);
