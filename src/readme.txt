@@ -1,5 +1,5 @@
 Simple Wallpaper Changer, a simple yet useful wallpaper changer. This app does what it says on the title, it changes your wallpaper based on album set by You as the User. 
-It has nightmode and random wallpaper feature. It is made in electron using vanilla js and electron forge.
+It has nightmode, random wallpaper feature, and multi-monitor support. It is made in electron using vanilla js and electron forge.
 
 # Installation
 1. Download the latest release from [GitHub](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/latest)
