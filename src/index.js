@@ -1031,6 +1031,7 @@ const changeWallpaper = async (native = false) => {
 			if (setAmount > 1) {
 				const curIndex = runtimeSettings.currentMultipleMonitorSettings.cur_index;
 				const imgArray = [];
+				const decoderOpt = { maxMemoryUsageInMB: 4096, maxResolutionInMP: 600 };
 				createPathIfNotExist(cacheImgDir);
 				// loop through all resolutions
 				for (let i = 0; i < setAmount; i++) {
@@ -1041,7 +1042,7 @@ const changeWallpaper = async (native = false) => {
 						const ext = q_Item.split(".").pop();
 						const type = ext === "jpg" ? "image/jpeg" : "image/" + ext;
 						const buffer = fs.readFileSync(q_Item);
-						const imageData = jimp.decoders[type](buffer);
+						const imageData = jimp.decoders[type](buffer, decoderOpt);
 						const baseImage = new jimp(imageData);
 
 						baseImage
@@ -1067,7 +1068,7 @@ const changeWallpaper = async (native = false) => {
 							const ext = q_Item.split(".").pop();
 							const type = ext === "jpg" ? "image/jpeg" : "image/" + ext;
 							const buffer = fs.readFileSync(q_Item);
-							const imageData = jimp.decoders[type](buffer);
+							const imageData = jimp.decoders[type](buffer, decoderOpt);
 							const baseImage = new jimp(imageData);
 
 							baseImage
