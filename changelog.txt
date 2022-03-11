@@ -1,0 +1,20 @@
+1.1.2 - Bug fix
+- Fix memory limit bug (for sure now. I hope)
+
+1.1.1 - Bug fix
+- Fix memory limit bug
+
+1.1.0 - Multi-monitor support
+- Added multi-monitor support
+
+1.0.2 - Linux build and bug fix
+- Linux build/release
+- Fix application crashed when no album is selected and the album button is clicked. Album buttons are now hidden when not selecting an album.
+- Fix album selection bug after adding new album.
+
+1.0.1 - Bug fix and new stuff (WIndows x64 x32)
+- Fix periodical album syncing showing messagebox
+- Added refillqueue to app tray
+
+1.0.0 - Windows x64 and x32
+- First release
