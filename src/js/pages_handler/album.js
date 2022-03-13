@@ -11,7 +11,15 @@ const baseFolder_El = document.getElementById("base-folder");
 const imgContainer = document.getElementById("img-container");
 const loadBar = document.getElementById("loadbar");
 
-// btn bottom
+// top
+const albumSave_El = document.getElementById("save");
+const albumCancel_El = document.getElementById("cancel");
+const clearBaseFolder_El = document.getElementById("clear-base-folder");
+const albumDelete_El = document.getElementById("delete");
+
+// bottom
+const albumImgTotal_El = document.getElementById("album-images-total");
+const albumTotal_El = document.getElementById("album-total");
 const btnLoadImg = document.getElementById("load-images");
 const btnSyncFolder = document.getElementById("sync-folder");
 const btnAddImg = document.getElementById("add-images");
@@ -21,9 +29,13 @@ let selectedAlbum_Name = "",
 	selectedAlbumData = {},
 	allAlbum = [];
 
-const fillData = (data) => {
-	albumName_El.value = data.name;
-	baseFolder_El.value = data.baseFolder;
+const fillData = (selectedAlbumData) => {
+	albumName_El.value = selectedAlbumData.name;
+	baseFolder_El.value = selectedAlbumData.baseFolder;
+};
+
+const updateAlbumLength = () => {
+	albumTotal_El.innerHTML = selectedAlbumData.active_wp.length + selectedAlbumData.inactive_wp.length;
 };
 
 const listUpdate = (albumList, getRuntime = true, selected = "") => {
@@ -54,9 +66,10 @@ const listUpdate = (albumList, getRuntime = true, selected = "") => {
 				baseFolder: "",
 			};
 		}
+		updateAlbumLength();
 		fillData(selectedAlbumData);
 	} else {
-		albumSelect_El.value = selected;
+		if (selected !== "") albumSelect_El.value = selected;
 	}
 };
 
@@ -148,6 +161,7 @@ listUpdate(allAlbum);
 // handler
 // ================================================================
 const hideBtnBtm = () => {
+	albumImgTotal_El.style.display = "none";
 	btnLoadImg.style.display = "none";
 	btnSyncFolder.style.display = "none";
 	btnAddImg.style.display = "none";
@@ -155,6 +169,8 @@ const hideBtnBtm = () => {
 };
 
 const showBtnBtm = () => {
+	albumImgTotal_El.style.display = "block";
+	updateAlbumLength();
 	btnLoadImg.style.display = "block";
 	btnSyncFolder.style.display = "block";
 	btnAddImg.style.display = "block";
@@ -281,6 +297,7 @@ const saveChanges = () => {
 		selectedAlbum_Name = albumName;
 		selectedAlbumData = currentAlbumData;
 	}
+	updateAlbumLength();
 
 	// update select
 	allAlbum = ipcRenderer.sendSync("get-settings", "album");
@@ -342,12 +359,12 @@ const pathDialog = () => {
 };
 
 // save
-document.getElementById("save").addEventListener("click", () => {
+albumSave_El.addEventListener("click", () => {
 	saveChanges();
 });
 
 // cancel
-document.getElementById("cancel").addEventListener("click", () => {
+const cancelAlbum = () => {
 	const confirmation = ipcRenderer.sendSync("dialogbox", ["warning", "You will lose all changes made, continue?"]);
 	if (confirmation === 1) return;
 
@@ -357,17 +374,18 @@ document.getElementById("cancel").addEventListener("click", () => {
 		albumName_El.value = "";
 		baseFolder_El.value = "";
 	}
-});
+};
+
+albumCancel_El.addEventListener("click", () => cancelAlbum());
 
 // delete
-document.getElementById("clear-base-folder").addEventListener("click", () => {
-	const confirm = ipcRenderer.sendSync("dialogbox", ["warning", "Are you sure you want to clear the base folder?"]);
-	if (confirm == 1) return;
-
+const clearBaseFolder = () => {
 	baseFolder_El.value = "";
-});
+};
 
-document.getElementById("delete").addEventListener("click", () => {
+clearBaseFolder_El.addEventListener("click", () => clearBaseFolder());
+
+const deleteAlbum = () => {
 	// check if album is selected
 	if (selectedAlbum_Name === "Add more") {
 		ipcRenderer.send("dialogbox", ["error", "Please select an album to delete"]);
@@ -392,9 +410,12 @@ document.getElementById("delete").addEventListener("click", () => {
 
 	ipcRenderer.send("delete-album", selectedAlbum_Name);
 	baseFolder_El.value = "";
+	imgContainer.innerHTML = "";
 	allAlbum = ipcRenderer.sendSync("get-settings", "album");
 	listUpdate(allAlbum);
-});
+};
+
+albumDelete_El.addEventListener("click", () => deleteAlbum());
 
 // ================================================================
 // btn bottom
@@ -429,6 +450,8 @@ const btnSyncFolderClick = () => {
 		// update current data
 		selectedAlbumData = newlySyncedAlbumData;
 
+		updateAlbumLength();
+
 		// load the new data
 		loadImage(newData);
 	}
@@ -448,6 +471,8 @@ const btnAddImgClick = () => {
 		images = images.filter((img) => img !== undefined);
 
 		if (images.length > 0) {
+			selectedAlbumData = ipcRenderer.sendSync("get-current-album-data", selectedAlbum_Name);
+			updateAlbumLength();
 			loadImage(images);
 		}
 
@@ -472,6 +497,8 @@ const btnDeleteAllImagesClick = () => {
 
 	const res = ipcRenderer.sendSync("delete-all-images", selectedAlbum_Name);
 	if (res) {
+		selectedAlbumData = ipcRenderer.sendSync("get-current-album-data", selectedAlbum_Name);
+		updateAlbumLength();
 		document.getElementById("img-container").innerHTML = "";
 		showToast("All images deleted successfully");
 
