@@ -15,7 +15,7 @@ const albumSettings_Default = [
 ];
 
 const runtimeSettings_Default = {
-	currentQueue: [], // max 20 shown
+	currentQueue: [],
 	currentAlbum: ["Default"],
 	currentRandom: true,
 	currentShuffleInterval: 30, // minutes
@@ -35,6 +35,7 @@ const appSettings_Default = {
 	start_on_startup: false,
 	rescan_every_start: false,
 	auto_rescan: false,
+	check_update_on_start: true,
 	rescan_interval: 12,
 	maxQueueSize: 13,
 };
@@ -140,48 +141,6 @@ const resetDefaultApp = () => {
 };
 
 // ============================================================
-// Test
-var fnName = function () {
-	// console.log("🚀 ~ file: files.js ~ line 4 ~ fnName ~ configDir", configDir);
-	// console.log("🚀 ~ file: files.js ~ line 4 ~ fnName ~ configPath", albumSettingsPath);
-
-	// const wp = getFilesInFolder("C:\\\\Users\\ffant\\Pictures\\Wallpaper\\test\\");
-	// console.log("🚀 ~ file: files.js ~ fnName ~ wp", wp);
-	// const imgOnly = filterImages(wp.files);
-	// console.log("🚀 ~ file: files.js ~ fnName ~ imgOnly", imgOnly);
-
-	// create empty config
-	// let x = saveConfig(defaultConfig);
-	// console.log("🚀 ~ file: files.js ~ fnName ~ x ", x )
-
-	// load config
-	// let y = loadConfig();
-	// console.log("🚀 ~ file: files.js ~ fnName ~ y ", y);
-
-	// reset config
-	// let z = resetDefault();
-
-	// load config test
-	let dataAlbum = loadConfig("album");
-	console.log("🚀 ~ file: files.js ~ fnName ~ data ", dataAlbum.data);
-	console.log("🚀 ~ file: files.js ~ fnName ~ success ", dataAlbum.success);
-	console.log("🚀 ~ file: files.js ~ fnName ~ errMsg ", dataAlbum.errMsg);
-
-	let dataRuntime = loadConfig("runtime");
-	console.log("🚀 ~ file: files.js ~ fnName ~ data ", dataRuntime.data);
-	console.log("🚀 ~ file: files.js ~ fnName ~ success ", dataRuntime.success);
-	console.log("🚀 ~ file: files.js ~ fnName ~ errMsg ", dataRuntime.errMsg);
-
-	let dataApp = loadConfig("app");
-	console.log("🚀 ~ file: files.js ~ fnName ~ data ", dataApp.data);
-	console.log("🚀 ~ file: files.js ~ fnName ~ success ", dataApp.success);
-	console.log("🚀 ~ file: files.js ~ fnName ~ errMsg ", dataApp.errMsg);
-};
-
-if (typeof require !== "undefined" && require.main === module) {
-	fnName();
-}
-
 module.exports = {
 	createPathIfNotExist,
 	getFilesInFolder,

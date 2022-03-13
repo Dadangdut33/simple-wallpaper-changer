@@ -15,6 +15,7 @@ const updateFields = (currentSetting) => {
 	document.getElementById("autoRescan").checked = currentSetting.auto_rescan;
 	document.getElementById("autoRescanInterval").value = currentSetting.rescan_interval;
 	document.getElementById("maxQueueSize").value = currentSetting.maxQueueSize;
+	document.getElementById("checkForUpdate").checked = currentSetting.check_update_on_start;
 };
 
 updateFields(loadedSetting);
@@ -24,8 +25,9 @@ const saveUpdate = () => {
 		start_on_startup: document.getElementById("startupVal").checked,
 		rescan_every_start: document.getElementById("rescanEveryStart").checked,
 		auto_rescan: document.getElementById("autoRescan").checked,
-		rescan_interval: document.getElementById("autoRescanInterval").value,
-		maxQueueSize: document.getElementById("maxQueueSize").value,
+		check_update_on_start: document.getElementById("checkForUpdate").checked,
+		rescan_interval: parseInt(document.getElementById("autoRescanInterval").value),
+		maxQueueSize: parseInt(document.getElementById("maxQueueSize").value),
 	};
 
 	// update setting
@@ -42,7 +44,8 @@ const checkChanges = () => {
 		document.getElementById("rescanEveryStart").checked != loadedSetting.rescan_every_start ||
 		document.getElementById("autoRescan").checked != loadedSetting.auto_rescan ||
 		document.getElementById("autoRescanInterval").value != loadedSetting.rescan_interval ||
-		document.getElementById("maxQueueSize").value != loadedSetting.maxQueueSize
+		document.getElementById("maxQueueSize").value != loadedSetting.maxQueueSize ||
+		document.getElementById("checkForUpdate").checked != loadedSetting.check_update_on_start
 	) {
 		// send message box to ask user if they want to save changes
 		const yesNo = ipcRenderer.sendSync("dialogbox", ["yesno", "You have unsaved changes. Do you want to save them?"]);
