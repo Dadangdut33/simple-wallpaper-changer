@@ -515,7 +515,13 @@ btnDeleteAllImages.addEventListener("click", () => btnDeleteAllImagesClick());
 // ================================================================
 ipcRenderer.on("update-album-data", (event, arg) => {
 	allAlbum = ipcRenderer.sendSync("get-settings", "album");
-	listUpdate(allAlbum, false);
+	// check selected album name
+	if (selectedAlbum_Name === "Add more") {
+		// if add more, don't update the selected data in the page
+		listUpdate(allAlbum, false, selectedAlbum_Name);
+	} else {
+		listUpdate(allAlbum);
+	}
 
 	showToast("Album has been updated by the app. Reload album image if needed.");
 });

@@ -224,6 +224,21 @@ const createTray = () => {
 			},
 		},
 		{
+			label: "Sync Albums",
+			click: () => {
+				albumSettings.forEach((album) => {
+					syncAlbum(album.name, true);
+				});
+				mainWindow.webContents.send("update-album-data");
+				// notify
+				new Notification({
+					title: "Simple Wallpaper Changer",
+					body: "Albums synced successfully",
+					icon: iconPath,
+				}).show();
+			},
+		},
+		{
 			label: "Quit",
 			click: () => {
 				saveSettings("runtime", runtimeSettings, false);
@@ -653,18 +668,21 @@ const syncAlbum = (album, subtle = false) => {
 
 		if (!subtle) {
 			// show success
-			dialog.showMessageBox(mainWindow, {
-				title: "Success",
-				type: "info",
-				buttons: ["Ok"],
-				message: "Album synced successfully",
-			});
+			new Notification({
+				title: "Simple Wallpaper Changer",
+				body: "Album synced successfully",
+				icon: iconPath,
+			}).show();
 		}
 
 		return true;
 	} else {
 		if (!subtle) {
-			dialog.showErrorBox("Error", "Please set the base folder first");
+			new Notification({
+				title: "Simple Wallpaper Changer",
+				body: "Error! Please set the base folder first",
+				icon: iconPath,
+			}).show();
 		}
 
 		return false;
@@ -1230,6 +1248,8 @@ const autoRescan = () => {
 		albumSettings.forEach((album) => {
 			syncAlbum(album.name, true);
 		});
+
+		mainWindow.webContents.send("update-album-data");
 	}, time_scan_interval);
 };
 
