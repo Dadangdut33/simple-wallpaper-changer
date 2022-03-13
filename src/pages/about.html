@@ -84,7 +84,7 @@
 						Current Version: <span id="curVer"></span> | Latest version: <span id="checkVer" style="text-decoration: underline; cursor: pointer; color: blueviolet">Click to check</span>
 						<br />
 						<a id="ext" href="https://github.com/Dadangdut33/simple-wallpaper-changer/commits/master">
-							<img id="ext" alt="GitHub commits since latest release (by date)" src="https://img.shields.io/github/commits-since/Dadangdut33/simple-wallpaper-changer/latest" />
+							<img id="ext" alt="GitHub commits since" src="https://img.shields.io/github/commits-since/Dadangdut33/simple-wallpaper-changer/latest" class="commit-since" />
 						</a>
 					</p>
 				</div>
@@ -95,6 +95,9 @@
 			const { ipcRenderer } = require("electron");
 			let curVerEl = document.getElementById("curVer");
 			let curVerVar = ipcRenderer.sendSync("get-version");
+			const commitSince_El = document.getElementsByClassName("commit-since")[0];
+			commitSince_El.alt = `GitHub commits since ${curVerVar}`;
+			commitSince_El.src = `https://img.shields.io/github/commits-since/Dadangdut33/simple-wallpaper-changer/${curVerVar}`;
 			curVerEl.innerText = curVerVar;
 
 			let checkVer = document.getElementById("checkVer");
