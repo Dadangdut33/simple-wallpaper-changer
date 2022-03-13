@@ -1,3 +1,9 @@
+1.1.3 - Update and some bug fixes
+- Added image count in the album page
+- Added setting to check for update on app start
+- Fix image still shown after album deletion bug
+- Fix album sync notifier when on album page.
+
 1.1.2 - Bug fix
 - Fix memory limit bug (for sure now. I hope)
 
