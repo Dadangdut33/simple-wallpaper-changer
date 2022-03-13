@@ -1,5 +1,5 @@
 // modules
-const { app, BrowserWindow, ipcMain, Menu, MenuItem, dialog, Tray, Notification, screen } = require("electron");
+const { app, BrowserWindow, ipcMain, Menu, MenuItem, dialog, Tray, Notification, screen, shell } = require("electron");
 const path = require("path");
 const wallpaper = require("wallpaper");
 const moment = require("moment");
@@ -7,6 +7,7 @@ const AutoLaunch = require("auto-launch");
 const joinImages = require("join-images");
 const fs = require("fs");
 const jimp = require("jimp");
+const fetch = require("node-fetch");
 // ============================================================
 const {
 	loadConfig,
@@ -113,6 +114,30 @@ if (!gotTheLock) {
 			name: "Simple Wallpaper Changer",
 			path: app.getPath("exe"),
 		});
+
+		// check update
+		if (appSettings.check_update_on_start) {
+			fetch("https://api.github.com/repos/Dadangdut33/simple-wallpaper-changer/releases/latest")
+				.then((response) => response.json())
+				.then((data) => {
+					let latestVer = data.tag_name;
+					if (latestVer > app.getVersion()) {
+						const msg = "New version available! Click to download";
+						// notify with native notification
+						const notify = new Notification({
+							title: "Simple Wallpaper Changer",
+							body: msg,
+							icon: iconPath,
+						});
+
+						notify.show();
+
+						notify.on("click", () => {
+							shell.openExternal(data.html_url);
+						});
+					}
+				});
+		}
 	});
 
 	// Quit when all windows are closed, except on macOS. There, it's common
