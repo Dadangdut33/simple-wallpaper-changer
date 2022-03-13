@@ -1168,6 +1168,11 @@ const changeWallpaper = async (native = false) => {
 			}
 		}
 	} catch (error) {
+		const errStr = `${error}`;
+		if (errStr.toLowerCase().includes("expected a string") || errStr.toLowerCase().includes("split")) {
+			error = "Queue is empty";
+		}
+
 		if (!native) dialog.showErrorBox("Error", `${error}`);
 		else
 			new Notification({
