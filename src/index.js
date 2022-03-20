@@ -663,6 +663,14 @@ const syncAlbum = (album, subtle = false) => {
 			return !albumSettings[pos_Album].inactive_wp.includes(active_wp);
 		});
 
+		// remove images that does not exist
+		albumSettings[pos_Album].active_wp = albumSettings[pos_Album].active_wp.filter((active_wp) => {
+			return fs.existsSync(active_wp);
+		});
+		albumSettings[pos_Album].inactive_wp = albumSettings[pos_Album].inactive_wp.filter((inactive_wp) => {
+			return fs.existsSync(inactive_wp);
+		});
+
 		// save
 		saveSettings("album", albumSettings, false);
 
@@ -1059,6 +1067,7 @@ const refillQueueFromMain = () => {
 };
 
 const changeWallpaper = async (native = false) => {
+	let imgString = ""; // for debug purposes
 	try {
 		seconds = runtimeSettings.currentShuffleInterval * 60;
 
@@ -1081,6 +1090,7 @@ const changeWallpaper = async (native = false) => {
 					// replace current index with new
 					if (i === curIndex) {
 						const q_Item = runtimeSettings.currentQueue.shift();
+						imgString = q_Item;
 						// get the extension of the image from the path
 						const ext = q_Item.split(".").pop();
 						const type = ext === "jpg" ? "image/jpeg" : "image/" + ext;
@@ -1103,10 +1113,13 @@ const changeWallpaper = async (native = false) => {
 						// if not exist
 						if (!fs.existsSync(cacheImgDir + "/" + i + ".png")) {
 							const q_Item = runtimeSettings.currentQueue.shift();
+							imgString = q_Item;
+
 							// update the window. Send the queue item to the main window
 							// if not exist yet, will probably take more than 1 image from the queue
 							const res = fillQueue(true);
 							mainWindow.webContents.send("queue-shifted", res);
+
 							// get the extension of the image from the path
 							const ext = q_Item.split(".").pop();
 							const type = ext === "jpg" ? "image/jpeg" : "image/" + ext;
@@ -1142,8 +1155,7 @@ const changeWallpaper = async (native = false) => {
 				saveSettings("runtime", runtimeSettings, false);
 
 				// combine images
-				// row => vertical (Y)
-				// col => horizontal (X)
+				// enforce vertical or horizontal check
 				const alignment = runtimeSettings.currentMultipleMonitorSettings.align === "vertical" ? "vertical" : "horizontal";
 
 				joinImages
@@ -1152,14 +1164,14 @@ const changeWallpaper = async (native = false) => {
 						// Save image as file
 						img.toFile(cacheImgDir + "\\" + "combined.png", async (err, info) => {
 							if (err) {
-								dialog.showErrorBox("Error", `${err}`);
+								dialog.showErrorBox("Error", `${err}\n\nImage: ${imgString}`);
 							} else {
 								await wallpaper.set(cacheImgDir + "\\" + "combined.png");
 							}
 						});
 					})
 					.catch((err) => {
-						dialog.showErrorBox("Error", `${err}`);
+						dialog.showErrorBox("Error", `${err}\n\nImage: ${imgString}`);
 					});
 			} else {
 				// get queue item
@@ -1173,11 +1185,11 @@ const changeWallpaper = async (native = false) => {
 			error = "Queue is empty";
 		}
 
-		if (!native) dialog.showErrorBox("Error", `${error}`);
+		if (!native) dialog.showErrorBox("Error", `${error}\n\nImage: ${imgString}`);
 		else
 			new Notification({
 				title: "Simple Wallpaper Changer",
-				body: `Error! ${error}!`,
+				body: `Error! ${error}\n\nImage: ${imgString}!`,
 				icon: iconPath,
 			}).show();
 	}
