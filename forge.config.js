@@ -17,7 +17,7 @@ module.exports = {
 			platforms: ["darwin"],
 		},
 		{
-			name: "@electron-forge/maker-deb", // haven't tested yet cause i'm on windows
+			name: "@electron-forge/maker-deb",
 			config: {
 				options: {
 					bin: "simple-wallpaper-changer",
