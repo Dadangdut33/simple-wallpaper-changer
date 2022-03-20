@@ -1,3 +1,9 @@
+1.1.4 - Performance and other improvement
+- Will now remove images that does not exist when syncing folder
+- Improve performance by downscaling images preview
+- Set individual img as wallpaper will now continue the multi monitor queue if enabled.
+- Individually add image to queue from album menu
+
 1.1.3 - Update and some bug fixes
 - Added image count in the album page
 - Added setting to check for update on app start
