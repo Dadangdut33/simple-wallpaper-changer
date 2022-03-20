@@ -64,6 +64,16 @@ const setActiveInactive = (el_this, identifier, path) => {
 	selectedAlbumData = ipcRenderer.sendSync("get-current-album-data", selectedAlbum_Name);
 };
 
+const addToQueue = (path) => {
+	ipcRenderer.send("queue-add", path);
+
+	showToast("Image added to the queue successfully");
+
+	setTimeout(() => {
+		closeToast();
+	}, 1000);
+};
+
 const deleteFromList = (el_this, identifier, path) => {
 	const activeOrNot = document.getElementById("desc-span-" + identifier).className === "skipped" ? false : true;
 

@@ -372,7 +372,7 @@ const resetDefaultAppConfig = () => {
 // --- IPC ---
 
 ipcMain.on("save-settings", (event, args) => {
-	saveSettings(args[0], args[1]);
+	saveSettings(args[0], args[1], args[2] === "nopopup" ? false : true);
 });
 
 // send sync
@@ -400,17 +400,7 @@ ipcMain.on("default-app-settings", (event, args) => {
 const addToQueue = (q_Item) => {
 	runtimeSettings.currentQueue.push(q_Item);
 	// update config
-	saveSettings("runtime", runtimeSettings);
-};
-
-/**
- * Remove image from queue in the runtimeSettings and save it.
- * @param {string} q_Item - The path of the image to be removed from queue
- */
-const removeFromQueue = (q_Item) => {
-	runtimeSettings.currentQueue.splice(aruntimeSettings.currentQueue.indexOf(q_Item), 1);
-	// update config
-	saveSettings("runtime", runtimeSettings);
+	saveSettings("runtime", runtimeSettings, false);
 };
 
 /**
@@ -426,10 +416,6 @@ const clearQueue = () => {
 
 ipcMain.on("queue-add", (event, args) => {
 	addToQueue(args);
-});
-
-ipcMain.on("queue-remove", (event, args) => {
-	removeFromQueue(args);
 });
 
 ipcMain.on("queue-clear", (event, args) => {
@@ -929,7 +915,13 @@ const fillQueue = (onlyAddOne = false) => {
  * @param {string} imagePath - The image path to be deleted
  */
 const deleteImageFromQueue = (imagePath) => {
-	runtimeSettings.currentQueue = runtimeSettings.currentQueue.filter((el) => el !== imagePath);
+	// get the index of the image first
+	const index = runtimeSettings.currentQueue.indexOf(imagePath);
+
+	// if found then remove it
+	if (index > -1) {
+		runtimeSettings.currentQueue.splice(index, 1);
+	}
 
 	// save
 	saveSettings("runtime", runtimeSettings, false);

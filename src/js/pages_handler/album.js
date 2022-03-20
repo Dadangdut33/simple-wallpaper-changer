@@ -137,6 +137,13 @@ const loadImage = (images, active = true) => {
 		iconSkip.innerHTML = `<i class="fas ${active ? "fa-minus-circle" : "fa-plus-circle"}" id="${active ? "active" : "inactive"}" onclick="setActiveInactive(this, '${identifier}','${image.replace(/\\/g, "/")}')"></i>`;
 		descHover.appendChild(iconSkip);
 
+		// add to queue
+		const iconAddToQueue = document.createElement("span");
+		iconAddToQueue.className = "has-tooltip-bottom mx-1 has-tooltip-arrow";
+		iconAddToQueue.dataset.tooltip = "Add image to current queue";
+		iconAddToQueue.innerHTML = `<i class="fas fa-folder-plus" onclick="addToQueue('${image.replace(/\\/g, "/")}')"></i>`;
+		descHover.appendChild(iconAddToQueue);
+
 		const iconDelete = document.createElement("span");
 		iconDelete.className = "has-tooltip-bottom mx-1 has-tooltip-arrow";
 		iconDelete.dataset.tooltip = "Delete this wallpaper from the list";

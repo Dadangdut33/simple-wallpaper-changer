@@ -3,6 +3,7 @@ const intrinsicScale = require("intrinsic-scale");
 
 let currentRuntimeSetting = ipcRenderer.sendSync("get-settings", "runtime");
 let allAlbumData = ipcRenderer.sendSync("get-settings", "album");
+const appSetting = ipcRenderer.sendSync("get-settings", "app");
 
 const imgContainer = document.getElementById("img-container");
 const divAlbumSetActive = document.getElementById("album-set-active");
@@ -230,14 +231,23 @@ const deleteFromQueue = (identifier, path) => {
 	queue_El.remove();
 	addedElements = addedElements.filter((el) => el !== identifier);
 
-	// add 1 queue
-	const newToQ = ipcRenderer.sendSync("fill-queue-once", path);
-	if (newToQ.length > 0) {
-		loadImage_Queue(newToQ);
-	}
+	// check amount of image in queue
+	console.log(currentRuntimeSetting.currentQueue.length, appSetting.maxQueueSize);
+	if (currentRuntimeSetting.currentQueue.length <= appSetting.maxQueueSize) {
+		// add 1 queue
+		const newToQ = ipcRenderer.sendSync("fill-queue-once", path);
+		if (newToQ.length > 0) {
+			loadImage_Queue(newToQ);
+		}
+		// update selected album data
+		currentRuntimeSetting = ipcRenderer.sendSync("get-settings", "runtime");
+	} else {
+		// update selected album data
+		currentRuntimeSetting = ipcRenderer.sendSync("get-settings", "runtime");
 
-	// update selected album data
-	currentRuntimeSetting = ipcRenderer.sendSync("get-settings", "runtime");
+		// save
+		ipcRenderer.send("save-settings", ["runtime", currentRuntimeSetting, "nopopup"]);
+	}
 
 	showToast("Image deleted from the queue successfully");
 
