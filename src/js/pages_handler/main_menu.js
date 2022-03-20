@@ -183,7 +183,7 @@ const loadImage_Queue = (images) => {
 			const { x, y, width, height } = intrinsicScale.cover(canvas.width, canvas.height, img.width, img.height);
 
 			// y = 0 -> to match image when being merged
-			ctx.drawImage(img, x, y, width, height);
+			ctx.drawImage(img, x, 0, width, height);
 		};
 		div.appendChild(canvas);
 
