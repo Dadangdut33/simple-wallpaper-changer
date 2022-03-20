@@ -1228,7 +1228,7 @@ ipcMain.on("start-queue-timer", (event, args) => {
 			}
 
 			if (seconds === 0) {
-				changeWallpaper();
+				changeWallpaper(true);
 				const res = fillQueue(true);
 				mainWindow.webContents.send("queue-shifted", res);
 			}
