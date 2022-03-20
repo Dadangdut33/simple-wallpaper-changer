@@ -1,8 +1,10 @@
 const { ipcRenderer } = require("electron");
-const imgContainer = document.getElementById("img-container");
+const intrinsicScale = require("intrinsic-scale");
+
 let currentRuntimeSetting = ipcRenderer.sendSync("get-settings", "runtime");
 let allAlbumData = ipcRenderer.sendSync("get-settings", "album");
 
+const imgContainer = document.getElementById("img-container");
 const divAlbumSetActive = document.getElementById("album-set-active");
 const divAlbumSetNightmode = document.getElementById("album-set-nightmode");
 
@@ -168,11 +170,22 @@ const loadImage_Queue = (images) => {
 			hideDesc(identifier);
 		};
 
-		const img = document.createElement("img");
+		const canvas = document.createElement("canvas");
+		canvas.id = "image";
+		canvas.alt = `${image}`;
+		canvas.style.width = "100%";
+		canvas.style.height = "170px";
+		const ctx = canvas.getContext("2d");
+		const img = new Image();
 		img.src = image;
-		img.id = "image";
-		img.alt = `${image}`;
-		div.appendChild(img);
+
+		img.onload = () => {
+			const { x, y, width, height } = intrinsicScale.cover(canvas.width, canvas.height, img.width, img.height);
+
+			// y = 0 -> to match image when being merged
+			ctx.drawImage(img, x, y, width, height);
+		};
+		div.appendChild(canvas);
 
 		const desc = document.createElement("div");
 		desc.className = "img-desc fadeIn";

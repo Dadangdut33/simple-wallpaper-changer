@@ -4,6 +4,7 @@ document.getElementById("base-folder").addEventListener("keydown", function (e) 
 });
 
 const { ipcRenderer } = require("electron");
+const intrinsicScale = require("intrinsic-scale");
 
 const albumSelect_El = document.getElementById("album-select");
 const albumName_El = document.getElementById("album-name");
@@ -96,11 +97,22 @@ const loadImage = (images, active = true) => {
 		else span.className = "normal";
 		div.appendChild(span);
 
-		const img = document.createElement("img");
+		const canvas = document.createElement("canvas");
+		canvas.id = "image";
+		canvas.alt = `${image}`;
+		canvas.style.width = "100%";
+		canvas.style.height = "170px";
+		const ctx = canvas.getContext("2d");
+		const img = new Image();
 		img.src = image;
-		img.id = "image";
-		img.alt = `${image}`;
-		div.appendChild(img);
+
+		img.onload = () => {
+			const { x, y, width, height } = intrinsicScale.cover(canvas.width, canvas.height, img.width, img.height);
+
+			// y = 0 -> to match image when being merged
+			ctx.drawImage(img, x, 0, width, height);
+		};
+		div.appendChild(canvas);
 
 		const desc = document.createElement("div");
 		desc.className = "img-desc fadeIn";
