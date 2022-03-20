@@ -3,6 +3,7 @@
 - Improve performance by downscaling images preview
 - Set individual img as wallpaper will now continue the multi monitor queue if enabled.
 - Individually add image to queue from album menu
+- Fix queue remove bug
 
 1.1.3 - Update and some bug fixes
 - Added image count in the album page
