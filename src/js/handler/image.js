@@ -1,6 +1,6 @@
 const shell = require("electron").shell;
-const wallpaper = require("wallpaper");
 const { clipboard } = require("electron");
+const { ipcRenderer: ipcRendererImage } = require("electron/renderer");
 const showDesc = (identifier) => {
 	const desc = document.getElementById("desc-" + identifier);
 
@@ -24,17 +24,13 @@ const hideDesc = (identifier) => {
 };
 
 const setWallpaper = async (path) => {
-	try {
-		await wallpaper.set(path);
+	ipcRendererImage.send("change-wallpaper-withargs", path);
 
-		showToast("Wallpaper set successfully");
+	showToast("Wallpaper set successfully");
 
-		setTimeout(() => {
-			closeToast();
-		}, 1500);
-	} catch (error) {
-		ipcRenderer.send("dialogbox", ["error", error.message]);
-	}
+	setTimeout(() => {
+		closeToast();
+	}, 1500);
 };
 
 const openInExplorer = (path) => {
