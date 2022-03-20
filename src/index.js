@@ -58,7 +58,7 @@ const createWindow = () => {
 	mainWindow.loadFile(path.join(__dirname, "index.html"));
 
 	// Open the DevTools.
-	// mainWindow.webContents.openDevTools();
+	mainWindow.webContents.openDevTools();
 
 	// tray
 	createTray();
@@ -1066,15 +1066,14 @@ const refillQueueFromMain = () => {
 	mainWindow.webContents.send("queue-refilled-from-main");
 };
 
-const changeWallpaper = async (native = false) => {
-	let imgString = ""; // for debug purposes
+const changeWallpaper = async (native = false, wp_to_merge = null) => {
+	let imgString = null; // for debug purposes
 	try {
 		seconds = runtimeSettings.currentShuffleInterval * 60;
 
 		// check if multi monitor is disabled
 		if (!runtimeSettings.currentMultipleMonitorSettings.enabled) {
-			// get queue item
-			const q_Item = runtimeSettings.currentQueue.shift();
+			const q_Item = wp_to_merge ? wp_to_merge : runtimeSettings.currentQueue.shift();
 			await wallpaper.set(q_Item);
 		} else {
 			// get ammount of display set
@@ -1089,7 +1088,7 @@ const changeWallpaper = async (native = false) => {
 				for (let i = 0; i < setAmount; i++) {
 					// replace current index with new
 					if (i === curIndex) {
-						const q_Item = runtimeSettings.currentQueue.shift();
+						const q_Item = wp_to_merge ? wp_to_merge : runtimeSettings.currentQueue.shift();
 						imgString = q_Item;
 						// get the extension of the image from the path
 						const ext = q_Item.split(".").pop();
@@ -1112,13 +1111,17 @@ const changeWallpaper = async (native = false) => {
 						// check if image exists
 						// if not exist
 						if (!fs.existsSync(cacheImgDir + "/" + i + ".png")) {
-							const q_Item = runtimeSettings.currentQueue.shift();
+							const q_Item = wp_to_merge ? wp_to_merge : runtimeSettings.currentQueue.shift();
 							imgString = q_Item;
 
 							// update the window. Send the queue item to the main window
 							// if not exist yet, will probably take more than 1 image from the queue
-							const res = fillQueue(true);
-							mainWindow.webContents.send("queue-shifted", res);
+							// unless it's set individually
+							if (!wp_to_merge) {
+								const res = fillQueue(true);
+
+								mainWindow.webContents.send("queue-shifted", res);
+							}
 
 							// get the extension of the image from the path
 							const ext = q_Item.split(".").pop();
@@ -1151,8 +1154,6 @@ const changeWallpaper = async (native = false) => {
 					// increase curIndex
 					runtimeSettings.currentMultipleMonitorSettings.cur_index++;
 				}
-				// save settings
-				saveSettings("runtime", runtimeSettings, false);
 
 				// combine images
 				// enforce vertical or horizontal check
@@ -1175,7 +1176,7 @@ const changeWallpaper = async (native = false) => {
 					});
 			} else {
 				// get queue item
-				const q_Item = runtimeSettings.currentQueue.shift();
+				const q_Item = wp_to_merge ? wp_to_merge : runtimeSettings.currentQueue.shift();
 				await wallpaper.set(q_Item);
 			}
 		}
@@ -1192,6 +1193,9 @@ const changeWallpaper = async (native = false) => {
 				body: `Error! ${error}\n\nImage: ${imgString}!`,
 				icon: iconPath,
 			}).show();
+	} finally {
+		// save settings
+		saveSettings("runtime", runtimeSettings, false);
 	}
 };
 
@@ -1201,6 +1205,10 @@ ipcMain.on("change-wallpaper", async (event, args) => {
 
 	const res = fillQueue(true);
 	event.returnValue = res;
+});
+
+ipcMain.on("change-wallpaper-withargs", async (event, args) => {
+	changeWallpaper(false, args);
 });
 
 ipcMain.on("start-queue-timer", (event, args) => {
