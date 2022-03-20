@@ -58,7 +58,7 @@ const createWindow = () => {
 	mainWindow.loadFile(path.join(__dirname, "index.html"));
 
 	// Open the DevTools.
-	mainWindow.webContents.openDevTools();
+	// mainWindow.webContents.openDevTools();
 
 	// tray
 	createTray();
@@ -398,7 +398,7 @@ ipcMain.on("default-app-settings", (event, args) => {
  * @param {string} q_Item - The path of the image to be added to queue
  */
 const addToQueue = (q_Item) => {
-	runtimeSettings.currentQueue.puhs(q_Item);
+	runtimeSettings.currentQueue.push(q_Item);
 	// update config
 	saveSettings("runtime", runtimeSettings);
 };
