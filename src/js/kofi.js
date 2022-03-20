@@ -18,15 +18,14 @@ var kofiwidget2 =
 					"@keyframes kofi-wiggle{0%{transform:rotate(0) scale(1)}60%{transform:rotate(0) scale(1)}75%{transform:rotate(0) scale(1.12)}80%{transform:rotate(0) scale(1.1)}84%{transform:rotate(-10deg) scale(1.1)}88%{transform:rotate(10deg) scale(1.1)}92%{transform:rotate(-10deg) scale(1.1)}96%{transform:rotate(10deg) scale(1.1)}100%{transform:rotate(0) scale(1)}}";
 				style = "<style>" + style + "</style>";
 				html = "<link href='https://fonts.googleapis.com/css?family=Quicksand:400,700' rel='stylesheet' type='text/css'>";
-				html +=
-					'<div class=btn-container><a title="Support me on ko-fi.com" class="kofi-button" style="background-color:[color];" id="ext" href="https://ko-fi.com/[id]" target="_blank"> <span class="kofitext" id="ext"><img src="https://storage.ko-fi.com/cdn/cup-border.png" alt="Ko-fi donations" class="kofiimg"/>[text]</span></a></div>';
+				html += `<div class=btn-container><a title="Support me on ko-fi.com" class="kofi-button" style="background-color:${color};" id="ext" href="https://ko-fi.com/${id}" target="_blank"> <span class="kofitext" id="ext"><img src="https://storage.ko-fi.com/cdn/cup-border.png" alt="Ko-fi donations" class="kofiimg"/>${text}</span></a></div>`;
 			},
 			getHTML: function () {
-				var rtn = style + html.replace("[color]", color).replace("[text]", text).replace("[id]", id);
+				var rtn = style + html;
 				return rtn;
 			},
 			draw: function () {
-				document.writeln(style + html.replace("[color]", color).replace("[text]", text).replace("[id]", id));
+				document.writeln(style + html);
 			},
 		};
 	})();

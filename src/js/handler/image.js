@@ -16,7 +16,8 @@ const hideDesc = (identifier) => {
 		// add fadeout then display none after animation is done
 		clearTimeout(timeOut);
 		desc.classList.add("fadeOut");
-		timeOut = setTimeout(() => {
+		// prettier-ignore
+		timeOut = setTimeout(() => { // lgtm [js/useless-assignment-to-local]
 			desc.style.display = "none";
 			desc.classList.remove("fadeOut");
 		}, 180);
