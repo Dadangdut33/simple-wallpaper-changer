@@ -32,12 +32,13 @@ const runtimeSettings_Default = {
 };
 
 const appSettings_Default = {
-	start_on_startup: false,
+	start_on_startup: true,
 	rescan_every_start: false,
 	auto_rescan: false,
 	check_update_on_start: true,
 	rescan_interval: 12,
 	maxQueueSize: 13,
+	app_theme: "light",
 };
 
 const dataPath_Dict = {
@@ -114,7 +115,8 @@ const saveConfig = (type, config) => {
 const loadConfig = (type) => {
 	let data = {},
 		success = false,
-		errMsg = "";
+		errMsg = "",
+		firstTime = false;
 
 	try {
 		data = JSON.parse(fs.readFileSync(dataPath_Dict[type], "utf8"));
@@ -126,12 +128,13 @@ const loadConfig = (type) => {
 			saveConfig(type, dataDefault_Dict[type]);
 			data = dataDefault_Dict[type];
 			success = true;
+			firstTime = true;
 		} else {
 			success = false;
 			errMsg = error;
 		}
 	}
-	return { data, success, errMsg };
+	return { data, success, errMsg, firstTime };
 };
 
 const resetDefaultApp = () => {

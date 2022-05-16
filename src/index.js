@@ -1,5 +1,5 @@
 // modules
-const { app, BrowserWindow, ipcMain, Menu, MenuItem, dialog, Tray, Notification, screen, shell } = require("electron");
+const { app, BrowserWindow, ipcMain, Menu, MenuItem, dialog, Tray, Notification, screen, shell, nativeTheme } = require("electron");
 const path = require("path");
 const wallpaper = require("wallpaper");
 const moment = require("moment");
@@ -323,6 +323,13 @@ const loadSetting = () => {
 			// auto rescan the album
 			autoRescan();
 		}
+
+		if (configApp.firstTime) {
+			appSettings.app_theme = nativeTheme.shouldUseDarkColors ? "dark" : "light";
+
+			// save
+			saveSettings("app", appSettings, false);
+		}
 	}
 };
 /**
@@ -347,6 +354,16 @@ const saveSettings = (type, setting, popup = true) => {
 			case "app":
 				appSettings = setting;
 				checkStopAutoRescan();
+
+				// Autolaunch check
+				if (!autoLaunch) {
+					autoLaunch = new AutoLaunch({
+						name: "Simple Wallpaper Changer",
+						path: app.getPath("exe"),
+						isHidden: true,
+					});
+				}
+
 				if (appSettings.start_on_startup) {
 					autoLaunch.isEnabled().then((isEnabled) => {
 						if (!isEnabled) autoLaunch.enable();

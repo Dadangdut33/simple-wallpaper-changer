@@ -81,7 +81,8 @@
 				<div class="column">
 					<h3><i class="fas fa-code-branch"></i>&nbsp; Version</h3>
 					<p>
-						Current Version: <span id="curVer"></span> | Latest version: <span id="checkVer" style="text-decoration: underline; cursor: pointer; color: blueviolet">Click to check</span>
+						Current Version: <span id="curVer"></span> | Latest version:
+						<span id="checkVer" style="text-decoration: underline; cursor: pointer; color: blueviolet">Click to check</span>
 						<br />
 						<a id="ext" href="https://github.com/Dadangdut33/simple-wallpaper-changer/commits/master">
 							<img id="ext" alt="GitHub commits since" src="https://img.shields.io/github/commits-since/Dadangdut33/simple-wallpaper-changer/latest" class="commit-since" />
@@ -93,6 +94,21 @@
 
 		<script type="text/javascript">
 			const { ipcRenderer } = require("electron");
+			// ============================================================
+			// theme
+			const appSetting = ipcRenderer.sendSync("get-settings", "app");
+			if (appSetting.app_theme === "dark") {
+				let head = document.head;
+				let link = document.createElement("link");
+
+				link.type = "text/css";
+				link.rel = "stylesheet";
+				link.href = "../style/bulma-dark.css";
+
+				head.appendChild(link);
+			}
+
+			// ============================================================
 			let curVerEl = document.getElementById("curVer");
 			let curVerVar = ipcRenderer.sendSync("get-version");
 			const commitSince_El = document.getElementsByClassName("commit-since")[0];

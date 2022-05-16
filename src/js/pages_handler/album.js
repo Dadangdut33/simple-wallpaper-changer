@@ -5,6 +5,7 @@ document.getElementById("base-folder").addEventListener("keydown", function (e) 
 
 const { ipcRenderer } = require("electron");
 const intrinsicScale = require("intrinsic-scale");
+const appSetting = ipcRenderer.sendSync("get-settings", "app");
 
 const albumSelect_El = document.getElementById("album-select");
 const albumName_El = document.getElementById("album-name");
@@ -119,7 +120,8 @@ const loadImage = (images, active = true) => {
 		desc.style.display = "none";
 		desc.id = `desc-${identifier}`;
 		desc.innerHTML = `
-					<p class="has-tooltip-top has-tooltip-arrow" data-tooltip="Click to copy image path to clipboard" onclick="copyToClipboard('${image.replace(/\\/g, "/")}')" style="cursor: pointer;">${image}</p>
+					<p class="has-tooltip-top has-tooltip-arrow" data-tooltip="Click to copy image path to clipboard" 
+					onclick="copyToClipboard('${image.replace(/\\/g, "/")}')" style="cursor: pointer;">${image}</p>
 					`;
 		div.appendChild(desc);
 
@@ -544,3 +546,16 @@ ipcRenderer.on("update-album-data", (event, arg) => {
 
 	showToast("Album has been updated by the app. Reload album image if needed.");
 });
+
+// ============================================================
+// theme
+if (appSetting.app_theme === "dark") {
+	let head = document.head;
+	let link = document.createElement("link");
+
+	link.type = "text/css";
+	link.rel = "stylesheet";
+	link.href = "../style/bulma-dark.css";
+
+	head.appendChild(link);
+}

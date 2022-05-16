@@ -9,6 +9,24 @@ document.getElementById("autoRescanInterval").addEventListener("change", functio
 const { ipcRenderer } = require("electron");
 let loadedSetting = ipcRenderer.sendSync("get-settings", "app");
 
+const addDark = () => {
+	let head = document.head;
+	let link = document.createElement("link");
+
+	link.type = "text/css";
+	link.rel = "stylesheet";
+	link.href = "../style/bulma-dark.css";
+
+	head.appendChild(link);
+};
+
+const removeDark = () => {
+	let head = document.head;
+	let link = document.querySelector("link[href='../style/bulma-dark.css']");
+
+	head.removeChild(link);
+};
+
 const updateFields = (currentSetting) => {
 	document.getElementById("startupVal").checked = currentSetting.start_on_startup;
 	document.getElementById("rescanEveryStart").checked = currentSetting.rescan_every_start;
@@ -16,6 +34,7 @@ const updateFields = (currentSetting) => {
 	document.getElementById("autoRescanInterval").value = currentSetting.rescan_interval;
 	document.getElementById("maxQueueSize").value = currentSetting.maxQueueSize;
 	document.getElementById("checkForUpdate").checked = currentSetting.check_update_on_start;
+	document.getElementById("appTheme").checked = currentSetting.app_theme === "dark" ? true : false;
 };
 
 updateFields(loadedSetting);
@@ -28,7 +47,18 @@ const saveUpdate = () => {
 		check_update_on_start: document.getElementById("checkForUpdate").checked,
 		rescan_interval: parseInt(document.getElementById("autoRescanInterval").value),
 		maxQueueSize: parseInt(document.getElementById("maxQueueSize").value),
+		app_theme: document.getElementById("appTheme").checked ? "dark" : "light",
 	};
+
+	if (appSettings.app_theme !== loadedSetting.app_theme) {
+		if (appSettings.app_theme === "light") {
+			console.log("removing dark");
+			removeDark();
+		} else {
+			console.log("adding dark");
+			addDark();
+		}
+	}
 
 	// update setting
 	ipcRenderer.send("save-settings", ["app", appSettings]);
@@ -85,3 +115,9 @@ document.getElementById("default").addEventListener("click", () => {
 
 	updateFields(res.appSettings_Default);
 });
+
+// ============================================================
+// theme
+if (loadedSetting.app_theme === "dark") {
+	addDark();
+}

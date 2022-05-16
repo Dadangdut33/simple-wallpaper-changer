@@ -596,3 +596,16 @@ ipcRenderer.on("queue-refilled-from-main", (event, arg) => {
 		closeToast();
 	}, 3500);
 });
+
+// ============================================================
+// theme
+if (appSetting.app_theme === "dark") {
+	let head = document.head;
+	let link = document.createElement("link");
+
+	link.type = "text/css";
+	link.rel = "stylesheet";
+	link.href = "style/bulma-dark.css";
+
+	head.appendChild(link);
+}
