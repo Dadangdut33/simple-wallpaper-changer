@@ -1,3 +1,8 @@
+1.1.5 - A little improvement and fix
+- Will now hide app if run on start automatically
+- Fix detect monitor resolution automatically
+- Now only show app hidden to tray once
+
 1.1.4 - Performance and other improvement
 - Will now remove images that does not exist when syncing folder
 - Improve performance by downscaling images preview
