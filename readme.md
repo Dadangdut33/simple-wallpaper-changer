@@ -20,6 +20,7 @@ Simple Wallpaper Changer, a simple yet useful wallpaper changer. This app does w
 ---
 
 # Table of Contents
+
 - [Table of Contents](#table-of-contents)
 - [Showcase](#showcase)
 - [Feature](#feature)
@@ -33,6 +34,7 @@ Simple Wallpaper Changer, a simple yet useful wallpaper changer. This app does w
 - [Dislaimer](#dislaimer)
 
 # Showcase
+
 <details open>
   <summary>Preview</summary>
   <p align="center">
@@ -44,11 +46,12 @@ Simple Wallpaper Changer, a simple yet useful wallpaper changer. This app does w
 </details>
 
 # Feature
-- Nightmode
-- Wallpaper queue with randomness and customizable interval
-- Multiple Wallpaper album
-- Folder/album syncing
-- Multi-monitor support
+
+-   Nightmode
+-   Wallpaper queue with randomness and customizable interval
+-   Multiple Wallpaper album
+-   Folder/album syncing
+-   Multi-monitor support
 
 # FAQ
 
@@ -64,37 +67,44 @@ Simple Wallpaper Changer, a simple yet useful wallpaper changer. This app does w
    **A:** I would say [wallpaper engine](https://store.steampowered.com/app/431960/Wallpaper_Engine/), it's also a great app but not free.
 
 # Download
-- [Latest Release](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/latest)
-- Windows (1.1.5) : [[x64]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.5/installer_windowsx64-simple-wallpaper-changer-win32-x64.exe) - [[portable]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.5/portable_windowsx64-simple-wallpaper-changer-win32-x64.zip) | [[x32]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.5/installer_windowsx32-simple-wallpaper-changer-win32-ia32.exe) - [[portable]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.5/portable_windowsx32-simple-wallpaper-changer-win32-ia32.zip)
-- Linux (1.1.5) : [[deb]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.5/linux_deb-simple-wallpaper-changer_1.1.5_amd64.deb) | [[rpm]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.5/linux_rpm-simple-wallpaper-changer-1.1.5-1.x86_64.rpm) | [[zip]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.5/linux_zip-simple-wallpaper-changer-linux-x64.zip)
+
+-   [Latest Release](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/latest)
+-   Windows (1.1.5) : [[x64]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.5/installer_windowsx64-simple-wallpaper-changer-win32-x64.exe) - [[portable]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.5/portable_windowsx64-simple-wallpaper-changer-win32-x64.zip) | [[x32]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.5/installer_windowsx32-simple-wallpaper-changer-win32-ia32.exe) - [[portable]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.5/portable_windowsx32-simple-wallpaper-changer-win32-ia32.zip)
+-   Linux (1.1.5) : [[deb]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.5/linux_deb-simple-wallpaper-changer_1.1.5_amd64.deb) | [[rpm]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.5/linux_rpm-simple-wallpaper-changer-1.1.5-1.x86_64.rpm) | [[zip]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.5/linux_zip-simple-wallpaper-changer-linux-x64.zip)
 
 # Installation
+
 1. Download the latest release from [GitHub](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/latest)
 2. Extract/Install
 3. Run the program
 
 # Uninstallation
+
 Run the uninstaller if you are using the installer version. If using the portable version, you can just delete the folder. (On windows) If you enable auto run on startup, there might be a registry left behind that you can delete if want to by going to regedit and delete the `Simple Wallpaper Changer` registry on `\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run`.
 
 # Developing and Compiling
+
 This app is using electron forge which means for developing, what you only need to do is an `npm install` and to run it do `npm start`. To compile it you can run `npm run make`. You can also use yarn if you prefer yarn. If you don't have electron-forge installed you can install it by running `npm install -g electron-forge`.
 
 I use wsl to compile it on linux, the command is the same as the windows just do `npm run make` or `yarn make`, but you might need to install `fakeroot`, `dpg`, and `rpm` if you haven't.
 For specific architecture you can add `--arch=x64` or `--arch=ia32` to the command.
+
 ```bash
 # ia32
-yarn make --arch=ia32 
+yarn make --arch=ia32
 # or
 npm run make --arch=ia32
 
 # x64
-yarn make --arch=x64 
+yarn make --arch=x64
 # or
 npm run make --arch=x64
 ```
+
 To make the installer (windows), i use innoinstaller instead of the one packaged with electron forge.
 
 # Usage
+
 1. First set your album
 2. Set setting to your desired
 3. Refill queue
@@ -102,7 +112,9 @@ To make the installer (windows), i use innoinstaller instead of the one packaged
 5. Enjoy the app
 
 # Reporting Bugs/Feature Request
+
 If you encounter any bugs with the program, you can report them by opening an issue on the github repository. You can also request a feature by opening an issue.
 
 # Dislaimer
+
 This app is open source and licensed under the MIT license. Feel free to use it or modify it and contribute if you wish to.
