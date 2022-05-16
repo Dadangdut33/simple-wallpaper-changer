@@ -8,6 +8,7 @@ const joinImages = require("join-images");
 const fs = require("fs");
 const jimp = require("jimp");
 const fetch = require("node-fetch");
+const os = require("os");
 // ============================================================
 const {
 	loadConfig,
@@ -128,6 +129,15 @@ if (!gotTheLock) {
 	app.on("ready", () => {
 		createWindow();
 		ipcMain.emit("start-queue-timer");
+		// auto launch check
+		const checkLoginOpen = wasOpenedAtLogin();
+
+		if (checkLoginOpen) {
+			mainWindow.hide();
+		} else {
+			mainWindow.show();
+		}
+
 		autoLaunch = new AutoLaunch({
 			name: "Simple Wallpaper Changer",
 			path: app.getPath("exe"),
@@ -156,15 +166,6 @@ if (!gotTheLock) {
 						});
 					}
 				});
-		}
-
-		// auto launch check
-		const checkLoginOpen = wasOpenedAtLogin();
-
-		if (checkLoginOpen) {
-			mainWindow.hide();
-		} else {
-			mainWindow.show();
 		}
 	});
 
