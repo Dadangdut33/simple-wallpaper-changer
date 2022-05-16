@@ -193,7 +193,8 @@ const loadImage_Queue = (images) => {
 		desc.style.display = "none";
 		desc.id = `desc-${identifier}`;
 		desc.innerHTML = `
-					<p class="has-tooltip-top has-tooltip-arrow" data-tooltip="Click to copy image path to clipboard" onclick="copyToClipboard('${image.replace(/\\/g, "/")}')" style="cursor: pointer;">${image}</p>
+					<p class="has-tooltip-top has-tooltip-arrow" data-tooltip="Click to copy image path to clipboard" 
+					onclick="copyToClipboard('${image.replace(/\\/g, "/")}')" style="cursor: pointer;">${image}</p>
 					`;
 		div.appendChild(desc);
 
@@ -443,7 +444,9 @@ const autoDetectMonitor = () => {
 			resArr.push(monitor[i].size.width + "x" + monitor[i].size.height);
 		}
 
-		setMonitorResolution(resArr);
+		const res_arr_save = resArr.map((el) => el.split("x"));
+		setMonitorResolution(res_arr_save);
+
 		const resStr = resArr.join(";");
 		monitorResolutions_El.value = resStr;
 
