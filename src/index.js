@@ -27,14 +27,26 @@ let mainWindow = null,
 	albumSettings = albumSettings_Default,
 	runtimeSettings = runtimeSettings_Default,
 	appSettings = appSettings_Default,
-	autoLaunch = null;
+	autoLaunch = null,
+	alreadyShownHidTray = false;
 
 let timerStarted = false,
 	seconds = 0,
 	interval = null;
 
 const cacheImgDir = path.join(__dirname, "\\img_cache");
-const delay = (ms) => new Promise((res) => setTimeout(res, ms));
+const wasOpenedAtLogin = () => {
+	try {
+		// mac
+		if (os.platform() === "darwin") {
+			let loginSettings = app.getLoginItemSettings();
+			return loginSettings.wasOpenedAtLogin;
+		} // else
+		return app.commandLine.hasSwitch("hidden");
+	} catch {
+		return false;
+	}
+};
 // ============================================================
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -47,6 +59,8 @@ const createWindow = () => {
 	mainWindow = new BrowserWindow({
 		width: 1600,
 		height: 900,
+		minWidth: 1050,
+		minHeight: 600,
 		webPreferences: {
 			nodeIntegration: true,
 			contextIsolation: false,
@@ -66,12 +80,16 @@ const createWindow = () => {
 	// events
 	mainWindow.on("close", (event) => {
 		event.preventDefault();
-		// notify
-		new Notification({
-			title: "Simple Wallpaper Changer",
-			body: "Application is hidden to tray",
-			icon: iconPath,
-		}).show();
+		if (!alreadyShownHidTray) {
+			// notify
+			new Notification({
+				title: "Simple Wallpaper Changer",
+				body: "Application is hidden to tray",
+				icon: iconPath,
+			}).show();
+
+			alreadyShownHidTray = true;
+		}
 
 		mainWindow.hide();
 	});
@@ -113,6 +131,7 @@ if (!gotTheLock) {
 		autoLaunch = new AutoLaunch({
 			name: "Simple Wallpaper Changer",
 			path: app.getPath("exe"),
+			isHidden: true,
 		});
 
 		// check update
@@ -137,6 +156,15 @@ if (!gotTheLock) {
 						});
 					}
 				});
+		}
+
+		// auto launch check
+		const checkLoginOpen = wasOpenedAtLogin();
+
+		if (checkLoginOpen) {
+			mainWindow.hide();
+		} else {
+			mainWindow.show();
 		}
 	});
 
