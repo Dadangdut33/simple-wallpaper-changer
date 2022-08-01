@@ -8,7 +8,9 @@
     <a href="https://lgtm.com/projects/g/Dadangdut33/simple-wallpaper-changer/context:javascript"><img alt="Language grade: JavaScript" src="https://img.shields.io/lgtm/grade/javascript/g/Dadangdut33/simple-wallpaper-changer.svg?logo=lgtm&logoWidth=18"/></a>
     <a href="https://github.com/Dadangdut33/simple-wallpaper-changer/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/Dadangdut33/simple-wallpaper-changer"></a>
     <a href="https://github.com/Dadangdut33/simple-wallpaper-changer/pulls"><img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/Dadangdut33/simple-wallpaper-changer"></a>
-    <a href="https://github.com/Dadangdut33/simple-wallpaper-changer/releases/latest"><img src="https://img.shields.io/github/downloads/Dadangdut33/simple-wallpaper-changer/total"></a> <br>
+    <a href="https://github.com/Dadangdut33/simple-wallpaper-changer/releases/latest"><img alt="github downloads"  src="https://img.shields.io/github/downloads/Dadangdut33/simple-wallpaper-changer/total?label=downloads (github)"></a>
+    <a href="https://sourceforge.net/projects/simple-wallpaper-changer/files/latest/download"><img alt="sourceforge downloads" src="https://img.shields.io/sourceforge/dt/simple-wallpaper-changer.svg?label=downloads (sourceforge)"></a>
+   <br>
     <a href="https://github.com/Dadangdut33/simple-wallpaper-changer/releases/latest"><img alt="GitHub release (latest SemVer)" src="https://img.shields.io/github/v/release/Dadangdut33/simple-wallpaper-changer"></a>
     <a href="https://github.com/Dadangdut33/simple-wallpaper-changer/commits/main"><img alt="GitHub commits since latest release (by date)" src="https://img.shields.io/github/commits-since/Dadangdut33/simple-wallpaper-changer/latest"></a><Br>
     <a href="https://github.com/Dadangdut33/simple-wallpaper-changer/stargazers"><img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/Dadangdut33/simple-wallpaper-changer?style=social"></a>
@@ -47,11 +49,11 @@ Simple Wallpaper Changer, a simple yet useful wallpaper changer. This app does w
 
 # Feature
 
--   Nightmode
--   Wallpaper queue with randomness and customizable interval
--   Multiple Wallpaper album
--   Folder/album syncing
--   Multi-monitor support
+- Nightmode
+- Wallpaper queue with randomness and customizable interval
+- Multiple Wallpaper album
+- Folder/album syncing
+- Multi-monitor support
 
 # FAQ
 
@@ -68,9 +70,9 @@ Simple Wallpaper Changer, a simple yet useful wallpaper changer. This app does w
 
 # Download
 
--   [Latest Release](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/latest)
--   Windows (1.1.5) : [[x64]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.5/installer_windowsx64-simple-wallpaper-changer-win32-x64.exe) - [[portable]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.5/portable_windowsx64-simple-wallpaper-changer-win32-x64.zip) | [[x32]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.5/installer_windowsx32-simple-wallpaper-changer-win32-ia32.exe) - [[portable]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.5/portable_windowsx32-simple-wallpaper-changer-win32-ia32.zip)
--   Linux (1.1.5) : [[deb]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.5/linux_deb-simple-wallpaper-changer_1.1.5_amd64.deb) | [[rpm]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.5/linux_rpm-simple-wallpaper-changer-1.1.5-1.x86_64.rpm) | [[zip]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.5/linux_zip-simple-wallpaper-changer-linux-x64.zip)
+- [Latest Release](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/latest)
+- Windows (1.1.5) : [[x64]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.5/installer_windowsx64-simple-wallpaper-changer-win32-x64.exe) - [[portable]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.5/portable_windowsx64-simple-wallpaper-changer-win32-x64.zip) | [[x32]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.5/installer_windowsx32-simple-wallpaper-changer-win32-ia32.exe) - [[portable]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.5/portable_windowsx32-simple-wallpaper-changer-win32-ia32.zip)
+- Linux (1.1.5) : [[deb]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.5/linux_deb-simple-wallpaper-changer_1.1.5_amd64.deb) | [[rpm]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.5/linux_rpm-simple-wallpaper-changer-1.1.5-1.x86_64.rpm) | [[zip]](https://github.com/Dadangdut33/simple-wallpaper-changer/releases/download/1.1.5/linux_zip-simple-wallpaper-changer-linux-x64.zip)
 
 # Installation
 
